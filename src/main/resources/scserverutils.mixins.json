@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "scserverutils.refmap.json",
   "mixins": [
+    "AttributeMapMixin",
     "LanguageMixin"
   ],
   "injectors": {
