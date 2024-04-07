@@ -14,6 +14,7 @@ import net.minecraft.commands.arguments.GameProfileArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.PlayerEnderChestContainer;
@@ -55,8 +56,14 @@ public class EnderchestCommand {
 								if (target != null) {
 									PlayerEnderChestContainer enderChestInv = target.getEnderChestInventory();
 
-									if (enderChestInv != null)
-										source.openMenu(new SimpleMenuProvider((id, ownInv, player) -> new ChestMenu(MenuType.GENERIC_9x3, id, ownInv, enderChestInv, 3), Component.literal(targetName + " ").append(ENDER_CHEST_CONTAINER_NAME)));
+									if (enderChestInv != null) {
+										source.openMenu(new SimpleMenuProvider((id, ownInv, player) -> new ChestMenu(MenuType.GENERIC_9x3, id, ownInv, enderChestInv, 3) {
+											@Override
+											public boolean stillValid(Player player) {
+												return true;
+											}
+										}, Component.literal(targetName + " ").append(ENDER_CHEST_CONTAINER_NAME)));
+									}
 								}
 								else
 									cmdSource.sendSuccess(() -> Component.literal("Player is not online."), true);

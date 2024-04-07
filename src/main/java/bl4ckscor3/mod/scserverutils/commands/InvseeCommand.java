@@ -14,6 +14,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.inventory.MenuType;
 
@@ -49,8 +50,14 @@ public class InvseeCommand {
 								if (target != null) {
 									Inventory playerInv = target.getInventory();
 
-									if (playerInv != null)
-										source.openMenu(new SimpleMenuProvider((id, ownInv, player) -> new ChestMenu(MenuType.GENERIC_9x4, id, ownInv, playerInv, 4), Component.literal(targetName + " ").append(INVENTORY_CONTAINER_NAME)));
+									if (playerInv != null) {
+										source.openMenu(new SimpleMenuProvider((id, ownInv, player) -> new ChestMenu(MenuType.GENERIC_9x4, id, ownInv, playerInv, 4) {
+											@Override
+											public boolean stillValid(Player player) {
+												return true;
+											}
+										}, Component.literal(targetName + " ").append(INVENTORY_CONTAINER_NAME)));
+									}
 								}
 								else
 									cmdSource.sendSuccess(() -> Component.literal("Player is not online."), true);
