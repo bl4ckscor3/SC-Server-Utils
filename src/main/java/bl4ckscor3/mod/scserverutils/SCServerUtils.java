@@ -9,6 +9,9 @@ import com.mojang.logging.LogUtils;
 import bl4ckscor3.mod.scserverutils.commands.EnderchestCommand;
 import bl4ckscor3.mod.scserverutils.commands.InvseeCommand;
 import bl4ckscor3.mod.scserverutils.commands.RulesCommand;
+import bl4ckscor3.mod.scserverutils.configuration.AutosaveInterval;
+import bl4ckscor3.mod.scserverutils.configuration.Commands;
+import bl4ckscor3.mod.scserverutils.configuration.Configuration;
 import bl4ckscor3.mod.scserverutils.mixin.MinecraftServerAccessor;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
@@ -25,7 +28,6 @@ import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 public class SCServerUtils {
 	public static final Logger LOGGER = LogUtils.getLogger();
 	public static final SimpleCommandExceptionType NOT_PLAYER_EXCEPTION = new SimpleCommandExceptionType(Component.literal("This command is only accessible for players."));
-	public static final int AUTOSAVE_INTERVAL = 60;
 
 	public SCServerUtils() {
 		//clients don't need the mod installed
@@ -34,16 +36,28 @@ public class SCServerUtils {
 
 	@SubscribeEvent
 	public static void onServerAboutToStart(ServerAboutToStartEvent event) {
-		((MinecraftServerAccessor) event.getServer()).setTicksUntilAutosave(20 * AUTOSAVE_INTERVAL);
-		LOGGER.info("Autosave interval set to {} seconds", AUTOSAVE_INTERVAL);
+		AutosaveInterval autosaveInterval = Configuration.instance.autosaveInterval;
+
+		if (autosaveInterval.enabled().get()) {
+			int interval = autosaveInterval.interval().get();
+
+			((MinecraftServerAccessor) event.getServer()).setTicksUntilAutosave(20 * interval);
+			LOGGER.info("Autosave interval set to {} seconds", interval);
+		}
 	}
 
 	@SubscribeEvent
 	public static void onRegisterCommands(RegisterCommandsEvent event) {
+		Commands commandsConfig = Configuration.instance.commands;
 		CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
 
-		EnderchestCommand.register(dispatcher);
-		InvseeCommand.register(dispatcher);
-		RulesCommand.register(dispatcher);
+		if (commandsConfig.enderchestEnabled().get())
+			EnderchestCommand.register(dispatcher);
+
+		if (commandsConfig.invseeEnabled().get())
+			InvseeCommand.register(dispatcher);
+
+		if (commandsConfig.rulesEnabled().get())
+			RulesCommand.register(dispatcher);
 	}
 }

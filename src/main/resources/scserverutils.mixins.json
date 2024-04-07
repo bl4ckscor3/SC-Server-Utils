@@ -1,6 +1,7 @@
 {
   "required": true,
   "package": "bl4ckscor3.mod.scserverutils.mixin",
+  "plugin": "bl4ckscor3.mod.scserverutils.SCServerUtilsMixinPlugin",
   "compatibilityLevel": "JAVA_17",
   "refmap": "scserverutils.refmap.json",
   "mixins": [

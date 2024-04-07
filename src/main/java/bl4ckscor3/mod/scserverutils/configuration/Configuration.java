@@ -1,0 +1,76 @@
+package bl4ckscor3.mod.scserverutils.configuration;
+
+import com.electronwill.nightconfig.core.file.CommentedFileConfig;
+import com.electronwill.nightconfig.core.io.WritingMode;
+
+import bl4ckscor3.mod.scserverutils.SCServerUtilsMixinPlugin;
+import net.neoforged.fml.loading.FMLPaths;
+import net.neoforged.neoforge.common.ModConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec.BooleanValue;
+
+public class Configuration {
+	public static Configuration instance;
+	private static boolean initialized = false;
+	public AttributeLogFix attributeLogFix;
+	public AutosaveInterval autosaveInterval;
+	public Commands commands;
+	public DamageSourceLanguageFallback damageSourceLanguageFallback;
+
+	public static void init() {
+		if (!initialized) {
+			ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
+			String fileName = "scserverutils-common.toml";
+			CommentedFileConfig fileConfig;
+			ModConfigSpec configSpec;
+
+			instance = new Configuration(builder);
+			configSpec = builder.build();
+			//@formatter:off
+			fileConfig = CommentedFileConfig
+					.builder(FMLPaths.CONFIGDIR.get().resolve(fileName))
+					.preserveInsertionOrder()
+					.writingMode(WritingMode.REPLACE)
+					.build();
+			//@formatter:on
+			fileConfig.load();
+			fileConfig.save();
+			configSpec.setConfig(fileConfig);
+			initialized = true;
+		}
+	}
+
+	Configuration(ModConfigSpec.Builder builder) {
+		pushPop(builder, "Attribute log removal", "Removes the \"Unknown Attribute\" log message to reduce console spam", () -> {
+			attributeLogFix = new AttributeLogFix(enabled(builder));
+			SCServerUtilsMixinPlugin.addMixinModifier(attributeLogFix);
+		});
+		pushPop(builder, "Autosave interval", "Changes the interval at which the game automatically saves everything", () -> {
+			autosaveInterval = new AutosaveInterval( //@formatter:off
+					enabled(builder),
+					builder.comment("The interval in seconds").defineInRange("interval", 60, 5, Integer.MAX_VALUE),
+					builder.comment("Removes the \"Gathered mod list to write to world save world\" log message").define("remove_neoforge_log_message", true));
+					//@formatter:on
+			SCServerUtilsMixinPlugin.addMixinModifier(autosaveInterval);
+		});
+		pushPop(builder, "Commands", "Enable or disable commands of the mod", () -> {
+			commands = new Commands(Commands.createConfig(builder, "enderchest"), Commands.createConfig(builder, "invsee"), Commands.createConfig(builder, "rules"));
+		});
+		pushPop(builder, "Damage source language fallback", "Adds a fallback to the \"/trigger kill_self\" death message so people without the resource pack see the correct message", () -> {
+			damageSourceLanguageFallback = new DamageSourceLanguageFallback(enabled(builder));
+			SCServerUtilsMixinPlugin.addMixinModifier(damageSourceLanguageFallback);
+		});
+	}
+
+	private void pushPop(ModConfigSpec.Builder builder, String categoryName, String categoryComment, Runnable categorySetup) {
+		if (categoryComment != null)
+			builder.comment(categoryComment);
+
+		builder.push(categoryName);
+		categorySetup.run();
+		builder.pop();
+	}
+
+	private BooleanValue enabled(ModConfigSpec.Builder builder) {
+		return builder.comment("Whether this feature is enabled").define("enabled", true);
+	}
+}
