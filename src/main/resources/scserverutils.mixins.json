@@ -6,7 +6,6 @@
   "mixins": [
     "AttributeMapMixin",
     "CommonHooksMixin",
-    "LanguageMixin"
 	"MinecraftServerAccessor",
     "MinecraftServerMixin"
   ],
