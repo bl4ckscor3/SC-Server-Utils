@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import bl4ckscor3.mod.scserverutils.SCServerUtils;
@@ -21,8 +22,13 @@ public class EnderchestCommand {
 	private static final Component ENDER_CHEST_CONTAINER_NAME = Component.translatable("container.enderchest");
 
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+		dispatcher.register(alias("enderchest"));
+		dispatcher.register(alias("echest"));
+	}
+
+	private static LiteralArgumentBuilder<CommandSourceStack> alias(String name) {
 		//@formatter:off
-		dispatcher.register(Commands.literal("enderchest")
+		return Commands.literal(name)
 				.requires(commandSource -> commandSource.hasPermission(2))
 				.then(Commands.argument("player", GameProfileArgument.gameProfile())
 						.executes(ctx -> {
@@ -59,6 +65,6 @@ public class EnderchestCommand {
 								cmdSource.sendSuccess(() -> Component.literal("Couldn't find the given player."), true);
 
 							return 1;
-						})));
+						}));
 	}
 }
