@@ -1,16 +1,9 @@
 package bl4ckscor3.mod.scserverutils.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 
-import net.minecraft.Util;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
 
 /**
@@ -19,21 +12,8 @@ import net.minecraft.world.entity.ai.attributes.AttributeMap;
  */
 @Mixin(AttributeMap.class)
 public abstract class AttributeMapMixin {
-	@Shadow
-	public abstract AttributeInstance getInstance(Attribute attribute);
-
-	@Overwrite
-	public void load(ListTag nbt) {
-		for (int i = 0; i < nbt.size(); ++i) {
-			CompoundTag tag = nbt.getCompound(i);
-			String attributeName = tag.getString("Name");
-
-			Util.ifElse(BuiltInRegistries.ATTRIBUTE.getOptional(ResourceLocation.tryParse(attributeName)), attribute -> {
-				AttributeInstance instance = getInstance(attribute);
-
-				if (instance != null)
-					instance.load(tag);
-			}, () -> {});
-		}
+	@ModifyArg(method = "load", at = @At(value = "INVOKE", target = "Lnet/minecraft/Util;ifElse(Ljava/util/Optional;Ljava/util/function/Consumer;Ljava/lang/Runnable;)Ljava/util/Optional;"), index = 2)
+	public Runnable silenceUnknownAttributeLine(Runnable oldOrElse) {
+		return () -> {};
 	}
 }
