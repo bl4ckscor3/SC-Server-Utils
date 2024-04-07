@@ -5,7 +5,10 @@
   "refmap": "scserverutils.refmap.json",
   "mixins": [
     "AttributeMapMixin",
+    "CommonHooksMixin",
     "LanguageMixin"
+	"MinecraftServerAccessor",
+    "MinecraftServerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
