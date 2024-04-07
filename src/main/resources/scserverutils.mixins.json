@@ -6,6 +6,7 @@
   "mixins": [
     "AttributeMapMixin",
     "CommonHooksMixin",
+    "DamageSourceMixin",
 	"MinecraftServerAccessor",
     "MinecraftServerMixin"
   ],
