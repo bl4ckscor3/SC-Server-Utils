@@ -1,0 +1,29 @@
+modLoader="javafml"
+loaderVersion="[1,)"
+license="ARR"
+issueTrackerURL="https://discord.gg/U8DvBAW"
+displayURL="https://discord.gg/U8DvBAW"
+authors="bl4ckscor3"
+
+[[mods]]
+	modId="scserverutils"
+	version="${file.jarVersion}"
+	displayName="SC Server Utils"
+	description='''Adds player and moderator utilities for the official SecurityCraft server.'''
+
+[[mixins]]
+    config="scserverutils.mixins.json"
+
+[[dependencies.scrules]]
+    modId="neoforge"
+    type="required"
+    versionRange="[20.2,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.scrules]]
+    modId="minecraft"
+    type="required"
+    versionRange="[1.20.2,)"
+    ordering="NONE"
+    side="BOTH"

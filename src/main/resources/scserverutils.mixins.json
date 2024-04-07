@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "package": "bl4ckscor3.mod.scserverutils.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "scserverutils.refmap.json",
+  "mixins": [
+    "LanguageMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "minVersion": "0.8"
+}

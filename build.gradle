@@ -1,0 +1,51 @@
+plugins {
+    id 'java-library'
+    id 'eclipse'
+    id 'idea'
+    id 'net.neoforged.gradle.userdev' version '7.0.+'
+}
+
+version = '1.0'
+group = 'bl4ckscor3.mod.scserverutils'
+
+base {
+	archivesName = 'scserverutils-1.20.4'
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
+
+runs {
+    configureEach {
+        systemProperty 'forge.logging.console.level', 'debug'
+        modSource project.sourceSets.main
+    }
+
+    client {
+        workingDirectory project.file('run/client')
+    }
+
+    server {
+        workingDirectory project.file('run/server')
+        programArgument '-nogui'
+    }
+}
+
+dependencies {
+    implementation 'net.neoforged:neoforge:20.4.210'
+}
+
+tasks.named('jar', Jar).configure {
+    manifest {
+        attributes(["Specification-Title": "SC Server Utils",
+                    "Specification-Vendor": "bl4ckscor3",
+                    "Specification-Version": "${version}",
+                    "Implementation-Title": "SC Server Utils",
+                    "Implementation-Version": "${version}",
+                    "Implementation-Vendor": "bl4ckscor3"])
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
