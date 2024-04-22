@@ -26,7 +26,7 @@ public class SCServerUtilsMixinPlugin implements IMixinConfigPlugin {
 
 	@Override
 	public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-		String strippedMixinClassName = mixinClassName.substring(mixinClassName.lastIndexOf('.') + 1);
+		String strippedMixinClassName = mixinClassName.replace("bl4ckscor3.mod.scserverutils.mixin.", "");
 
 		for (MixinModifier mixinModifier : mixinModifiers) {
 			if (mixinModifier.hasMixinClass(strippedMixinClassName) && !mixinModifier.enabled().get())

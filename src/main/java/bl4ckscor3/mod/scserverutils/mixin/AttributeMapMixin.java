@@ -8,10 +8,10 @@ import net.minecraft.world.entity.ai.attributes.AttributeMap;
 
 /**
  * Gets rid of "Unknown attribute" spam, because there is a lot of that when loading chunks in NeoForge that have last been
- * saved with Forge.
+ * saved with Forge. It also prepares for the removal of certain attributes that are in vanilla since 1.20.5
  */
 @Mixin(AttributeMap.class)
-public abstract class AttributeMapMixin {
+public class AttributeMapMixin {
 	@ModifyArg(method = "load", at = @At(value = "INVOKE", target = "Lnet/minecraft/Util;ifElse(Ljava/util/Optional;Ljava/util/function/Consumer;Ljava/lang/Runnable;)Ljava/util/Optional;"), index = 2)
 	public Runnable silenceUnknownAttributeLine(Runnable oldOrElse) {
 		return () -> {};
