@@ -13,7 +13,7 @@ import net.minecraft.server.MinecraftServer;
 @Mixin(MinecraftServer.class)
 public class MinecraftServerMixin {
 	@ModifyConstant(method = "computeNextAutosaveInterval", constant = @Constant(floatValue = 300.0F))
-	private float reduceAutosaveInterval(float originalInterval) {
+	private float scserverutils$reduceAutosaveInterval(float originalInterval) {
 		return Configuration.instance.autosaveInterval.interval().get();
 	}
 }

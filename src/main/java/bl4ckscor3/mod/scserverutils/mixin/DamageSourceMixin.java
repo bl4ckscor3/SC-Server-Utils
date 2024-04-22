@@ -17,7 +17,7 @@ import net.minecraft.world.damagesource.DamageSource;
 @Mixin(DamageSource.class)
 public abstract class DamageSourceMixin {
 	@WrapOperation(method = "getLocalizedDeathMessage", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/chat/Component;translatable(Ljava/lang/String;[Ljava/lang/Object;)Lnet/minecraft/network/chat/MutableComponent;"))
-	private MutableComponent addFallbackToTriggerKillMessage(String fullMsgId, Object[] args, Operation<MutableComponent> original) {
+	private MutableComponent scserverutils$addFallbackToTriggerKillMessage(String fullMsgId, Object[] args, Operation<MutableComponent> original) {
 		MutableComponent originalReturnValue = original.call(fullMsgId, args);
 
 		if (fullMsgId.equals("death.attack.trigger_kill"))

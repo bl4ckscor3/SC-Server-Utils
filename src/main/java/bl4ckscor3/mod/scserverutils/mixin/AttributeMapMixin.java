@@ -13,7 +13,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeMap;
 @Mixin(AttributeMap.class)
 public class AttributeMapMixin {
 	@ModifyArg(method = "load", at = @At(value = "INVOKE", target = "Lnet/minecraft/Util;ifElse(Ljava/util/Optional;Ljava/util/function/Consumer;Ljava/lang/Runnable;)Ljava/util/Optional;"), index = 2)
-	public Runnable silenceUnknownAttributeLine(Runnable oldOrElse) {
+	public Runnable scserverutils$silenceUnknownAttributeLine(Runnable oldOrElse) {
 		return () -> {};
 	}
 }
