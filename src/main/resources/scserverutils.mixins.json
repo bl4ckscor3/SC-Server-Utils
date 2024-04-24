@@ -9,7 +9,8 @@
     "CommonHooksMixin",
     "DamageSourceMixin",
 	"MinecraftServerAccessor",
-    "MinecraftServerMixin"
+    "MinecraftServerMixin",
+    "TeamCommandMixin"
   ],
   "injectors": {
     "defaultRequire": 1

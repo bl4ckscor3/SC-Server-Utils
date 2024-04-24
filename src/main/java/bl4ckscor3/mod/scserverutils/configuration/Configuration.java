@@ -15,6 +15,7 @@ public class Configuration {
 	public AutosaveInterval autosaveInterval;
 	public Commands commands;
 	public DamageSourceLanguageFallback damageSourceLanguageFallback;
+	public TeamPermissionLevel teamPermissionLevel;
 
 	public static void init() {
 		if (!initialized) {
@@ -58,6 +59,13 @@ public class Configuration {
 		pushPop(builder, "Damage source language fallback", "Adds a fallback to the \"/trigger kill_self\" death message so people without the resource pack see the correct message", () -> {
 			damageSourceLanguageFallback = new DamageSourceLanguageFallback(enabled(builder));
 			SCServerUtilsMixinPlugin.addMixinModifier(damageSourceLanguageFallback);
+		});
+		pushPop(builder, "Team command permission level", "Allows changing the permission level for the /team command", () -> {
+			teamPermissionLevel = new TeamPermissionLevel( //@formatter:off
+					enabled(builder),
+					builder.comment("The minimum permission level needed for the /team command").defineInRange("permission_level", 1, 0, 5));
+					//@formatter:on
+			SCServerUtilsMixinPlugin.addMixinModifier(teamPermissionLevel);
 		});
 	}
 
