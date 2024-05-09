@@ -15,6 +15,7 @@ public class Configuration {
 	public AutosaveInterval autosaveInterval;
 	public Commands commands;
 	public DamageSourceLanguageFallback damageSourceLanguageFallback;
+	public PhantomSpawns phantomSpawns;
 	public TeamPermissionLevel teamPermissionLevel;
 
 	public static void init() {
@@ -59,6 +60,13 @@ public class Configuration {
 		pushPop(builder, "Damage source language fallback", "Adds a fallback to the \"/trigger kill_self\" death message so people without the resource pack see the correct message", () -> {
 			damageSourceLanguageFallback = new DamageSourceLanguageFallback(enabled(builder));
 			SCServerUtilsMixinPlugin.addMixinModifier(damageSourceLanguageFallback);
+		});
+		pushPop(builder, "Phantom spawns", "Makes it possible to change how many phantoms spawn when the game wants to spawn them.", () -> {
+			phantomSpawns = new PhantomSpawns( //@formatter:off
+					enabled(builder),
+					builder.comment("The minimum amount of phantoms to spawn").defineInRange("min_spawns", 0, 0, Integer.MAX_VALUE),
+					builder.comment("The maximum amount of phantoms to spawn").defineInRange("max_spawns", 1, 0, Integer.MAX_VALUE));
+					//@formatter:on
 		});
 		pushPop(builder, "Team command permission level", "Allows changing the permission level for the /team command", () -> {
 			teamPermissionLevel = new TeamPermissionLevel( //@formatter:off

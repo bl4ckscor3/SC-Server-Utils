@@ -12,6 +12,7 @@ import bl4ckscor3.mod.scserverutils.commands.RulesCommand;
 import bl4ckscor3.mod.scserverutils.configuration.AutosaveInterval;
 import bl4ckscor3.mod.scserverutils.configuration.Commands;
 import bl4ckscor3.mod.scserverutils.configuration.Configuration;
+import bl4ckscor3.mod.scserverutils.configuration.PhantomSpawns;
 import bl4ckscor3.mod.scserverutils.mixin.MinecraftServerAccessor;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
@@ -21,6 +22,7 @@ import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.common.Mod.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerSpawnPhantomsEvent;
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 
 @Mod("scserverutils")
@@ -59,5 +61,13 @@ public class SCServerUtils {
 
 		if (commandsConfig.rulesEnabled().get())
 			RulesCommand.register(dispatcher);
+	}
+
+	@SubscribeEvent
+	public static void onPlayerSpawnPhantoms(PlayerSpawnPhantomsEvent event) {
+		PhantomSpawns phantomSpawns = Configuration.instance.phantomSpawns;
+
+		if (phantomSpawns.enabled().get())
+			event.setPhantomsToSpawn(phantomSpawns.min().get() + event.getEntity().level().random.nextInt(phantomSpawns.max().get() + 1));
 	}
 }
