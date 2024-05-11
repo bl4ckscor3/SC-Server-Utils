@@ -57,7 +57,12 @@ public class Configuration {
 			SCServerUtilsMixinPlugin.addMixinModifier(autosaveInterval);
 		});
 		pushPop(builder, "Commands", "Enable or disable commands of the mod", () -> {
-			commands = new Commands(Commands.createConfig(builder, "enderchest"), Commands.createConfig(builder, "invsee"), Commands.createConfig(builder, "rules"));
+			commands = new Commands( //@formatter:off
+					Commands.createConfig(builder, "deathlog"),
+					Commands.createConfig(builder, "enderchest"),
+					Commands.createConfig(builder, "invsee"),
+					Commands.createConfig(builder, "rules"));
+					//@formatter:on
 		});
 		pushPop(builder, "Damage source language fallback", "Adds a fallback to the \"/trigger kill_self\" death message so people without the resource pack see the correct message", () -> {
 			damageSourceLanguageFallback = new DamageSourceLanguageFallback(enabled(builder));

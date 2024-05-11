@@ -22,8 +22,8 @@ import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 
 public class DeathLogger {
-	private static final Path DEATH_LOGS = FMLPaths.getOrCreateGameRelativePath(Paths.get(Configuration.instance.deathLog.savePath().get()));
-	private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
+	public static final Path DEATH_LOGS = FMLPaths.getOrCreateGameRelativePath(Paths.get(Configuration.instance.deathLog.savePath().get()));
+	private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
 
 	public static void onLivingDeath(LivingDeathEvent event) {
 		if (event.getEntity() instanceof ServerPlayer player) {

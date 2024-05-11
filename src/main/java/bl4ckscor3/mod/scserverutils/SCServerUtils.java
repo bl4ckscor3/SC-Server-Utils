@@ -6,6 +6,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.logging.LogUtils;
 
+import bl4ckscor3.mod.scserverutils.commands.DeathLogCommand;
 import bl4ckscor3.mod.scserverutils.commands.EnderchestCommand;
 import bl4ckscor3.mod.scserverutils.commands.InvseeCommand;
 import bl4ckscor3.mod.scserverutils.commands.RulesCommand;
@@ -57,6 +58,9 @@ public class SCServerUtils {
 	public static void onRegisterCommands(RegisterCommandsEvent event) {
 		Commands commandsConfig = Configuration.instance.commands;
 		CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
+
+		if (commandsConfig.deathlogEnabled().get())
+			DeathLogCommand.register(dispatcher);
 
 		if (commandsConfig.enderchestEnabled().get())
 			EnderchestCommand.register(dispatcher);
