@@ -56,10 +56,10 @@ public class EnderchestCommand {
 									}
 								}
 								else
-									cmdSource.sendSuccess(() -> Component.literal("Player is not online."), true);
+									cmdSource.sendSuccess(() -> Component.literal("Player is not online"), true);
 							}
 							else
-								cmdSource.sendSuccess(() -> Component.literal("Couldn't find the given player."), true);
+								cmdSource.sendSuccess(() -> Component.literal("Couldn't find the given player"), true);
 
 							return 1;
 						}));
