@@ -2,7 +2,6 @@ package bl4ckscor3.mod.scserverutils.commands;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -21,14 +20,17 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.core.GlobalPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 
 public class DeathLogCommand {
-	public static final SimpleCommandExceptionType ERROR_READING_INVENTORY = new SimpleCommandExceptionType(Component.literal("There was an error reading the inventory from disk."));
+	public static final SimpleCommandExceptionType ERROR_READING_DEATH_LOG = new SimpleCommandExceptionType(Component.literal("There was an error reading the death log from disk."));
 	private static final SuggestionProvider<CommandSourceStack> DEATHS = (ctx, builder) -> {
 		List<String> suggestions = new ArrayList<>();
 
@@ -45,26 +47,70 @@ public class DeathLogCommand {
 				.requires(commandSource -> commandSource.hasPermission(2))
 				.then(Commands.argument("death", StringArgumentType.word())
 						.suggests(DEATHS)
+						.then(Commands.literal("view")
+								.executes(DeathLogCommand::viewDeathLog))
 						.then(Commands.literal("apply")
 								.then(Commands.argument("player", EntityArgument.player())
 										.executes(DeathLogCommand::applyDeathInventory)))));
 		//@formatter:on
 	}
 
-	private static int applyDeathInventory(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+	private static int viewDeathLog(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
 		try {
-			String relativeLogLocation = ctx.getArgument("death", String.class).replaceFirst("\\.", "/") + ".nbt";
-			Path path = DeathLogger.DEATH_LOGS.resolve(relativeLogLocation);
-			Player player = EntityArgument.getPlayer(ctx, "player");
+			String relativeLogLocation = getLogLocation(ctx);
+			CompoundTag death = DeathLogger.getDeath(relativeLogLocation);
+			CompoundTag damageSource = death.getCompound("cause");
+			CommandSourceStack cmdSource = ctx.getSource();
 
-			SCServerUtils.LOGGER.info("Old inventory: {}", player.getInventory().save(new ListTag()));
-			player.getInventory().load(NbtIo.read(path).getList("inventory", Tag.TAG_COMPOUND));
-			ctx.getSource().sendSuccess(() -> Component.translatable("Replaced the inventory of %s with the inventory of death %s", ChatFormatting.GRAY + player.getName().getString(), ChatFormatting.GRAY + relativeLogLocation), true);
+			sendMessage(cmdSource, "Player UUID: %s", death.getString("uuid"));
+			sendMessage(cmdSource, "Damage Source:", "");
+			sendMessage(cmdSource, "- Type: %s", damageSource.getString("type"));
+
+			if (damageSource.contains("direct_entity"))
+				sendMessage(cmdSource, "- Direct Entity: %s", damageSource.getString("direct_entity"));
+
+			if (damageSource.contains("causing_entity"))
+				sendMessage(cmdSource, "- Causing Entity: %s", damageSource.getString("causing_entity"));
+
+			sendMessage(cmdSource, "Position: %s", prettyString(GlobalPos.CODEC.decode(NbtOps.INSTANCE, death.getCompound("position")).get().left().get().getFirst()));
+			//TODO: Add inventory here and make it clickable to open a UI
+
+			if (damageSource.contains("respawn_position"))
+				sendMessage(cmdSource, "\tRespawn Position: %s", NbtUtils.readBlockPos(death.getCompound("respawn_position")).toShortString());
 		}
 		catch (IOException e) {
-			throw ERROR_READING_INVENTORY.create();
+			throw ERROR_READING_DEATH_LOG.create();
 		}
 
 		return 1;
+	}
+
+	private static int applyDeathInventory(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		try {
+			String relativeLogLocation = getLogLocation(ctx);
+			CompoundTag death = DeathLogger.getDeath(relativeLogLocation);
+			Player player = EntityArgument.getPlayer(ctx, "player");
+
+			SCServerUtils.LOGGER.info("Old inventory: {}", player.getInventory().save(new ListTag()));
+			player.getInventory().load(death.getList("inventory", Tag.TAG_COMPOUND));
+			ctx.getSource().sendSuccess(() -> Component.translatable("Replaced the inventory of %s with the inventory of death %s", ChatFormatting.GRAY + player.getName().getString(), ChatFormatting.GRAY + relativeLogLocation), true);
+		}
+		catch (IOException e) {
+			throw ERROR_READING_DEATH_LOG.create();
+		}
+
+		return 1;
+	}
+
+	private static String getLogLocation(CommandContext<CommandSourceStack> ctx) {
+		return ctx.getArgument("death", String.class).replaceFirst("\\.", "/") + ".nbt";
+	}
+
+	private static void sendMessage(CommandSourceStack cmdSource, String message, String arg) {
+		cmdSource.sendSystemMessage(Component.translatable(message, Component.translatable(arg).withStyle(ChatFormatting.GREEN)));
+	}
+
+	private static String prettyString(GlobalPos pos) {
+		return "In " + ChatFormatting.GOLD + pos.dimension().location() + ChatFormatting.GREEN + " at " + ChatFormatting.GOLD + pos.pos().toShortString();
 	}
 }

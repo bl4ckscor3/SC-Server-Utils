@@ -1,6 +1,7 @@
 package bl4ckscor3.mod.scserverutils;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormat;
@@ -62,6 +63,10 @@ public class DeathLogger {
 				SCServerUtils.LOGGER.info(data.toString());
 			}
 		}
+	}
+
+	public static CompoundTag getDeath(String log) throws IOException {
+		return NbtIo.read(DeathLogger.DEATH_LOGS.resolve(log));
 	}
 
 	public static Path playerPath(Player player) {
