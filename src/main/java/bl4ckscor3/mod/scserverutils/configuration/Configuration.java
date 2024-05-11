@@ -3,6 +3,7 @@ package bl4ckscor3.mod.scserverutils.configuration;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;
 
+import bl4ckscor3.mod.scserverutils.SCServerUtils;
 import bl4ckscor3.mod.scserverutils.SCServerUtilsMixinPlugin;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.common.ModConfigSpec;
@@ -15,6 +16,7 @@ public class Configuration {
 	public AutosaveInterval autosaveInterval;
 	public Commands commands;
 	public DamageSourceLanguageFallback damageSourceLanguageFallback;
+	public DeathLog deathLog;
 	public PhantomSpawns phantomSpawns;
 	public TeamPermissionLevel teamPermissionLevel;
 
@@ -60,6 +62,13 @@ public class Configuration {
 		pushPop(builder, "Damage source language fallback", "Adds a fallback to the \"/trigger kill_self\" death message so people without the resource pack see the correct message", () -> {
 			damageSourceLanguageFallback = new DamageSourceLanguageFallback(enabled(builder));
 			SCServerUtilsMixinPlugin.addMixinModifier(damageSourceLanguageFallback);
+		});
+		pushPop(builder, "Death logging", "Logs all players' deaths as they happen, containing complete inventory info etc.", () -> {
+			deathLog = new DeathLog( //@formatter:off
+					enabled(builder),
+					builder.comment("The path where death logs are saved, relative to the game directory.").define("save_path", SCServerUtils.MODID + "/death_logs")
+					);
+					//@formatter:on
 		});
 		pushPop(builder, "Phantom spawns", "Makes it possible to change how many phantoms spawn when the game wants to spawn them.", () -> {
 			phantomSpawns = new PhantomSpawns( //@formatter:off

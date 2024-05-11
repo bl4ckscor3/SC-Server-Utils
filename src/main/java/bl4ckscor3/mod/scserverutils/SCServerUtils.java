@@ -21,19 +21,24 @@ import net.neoforged.fml.IExtensionPoint;
 import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.common.Mod.EventBusSubscriber;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerSpawnPhantomsEvent;
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 
-@Mod("scserverutils")
+@Mod(SCServerUtils.MODID)
 @EventBusSubscriber
 public class SCServerUtils {
+	public static final String MODID = "scserverutils";
 	public static final Logger LOGGER = LogUtils.getLogger();
 	public static final SimpleCommandExceptionType NOT_PLAYER_EXCEPTION = new SimpleCommandExceptionType(Component.literal("This command is only accessible for players."));
 
 	public SCServerUtils() {
 		//clients don't need the mod installed
 		ModLoadingContext.get().registerExtensionPoint(IExtensionPoint.DisplayTest.class, () -> new IExtensionPoint.DisplayTest(() -> IExtensionPoint.DisplayTest.IGNORESERVERONLY, (remote, isServer) -> true));
+
+		if (Configuration.instance.deathLog.enabled().get())
+			NeoForge.EVENT_BUS.addListener(DeathLogger::onLivingDeath);
 	}
 
 	@SubscribeEvent
