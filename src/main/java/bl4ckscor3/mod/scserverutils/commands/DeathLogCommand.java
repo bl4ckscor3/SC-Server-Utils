@@ -33,7 +33,7 @@ public class DeathLogCommand {
 		List<String> suggestions = new ArrayList<>();
 
 		Arrays.stream(DeathLogger.DEATH_LOGS.toFile().listFiles()).filter(File::isDirectory).forEach(dir -> {
-			Arrays.stream(dir.listFiles()).filter(file -> file.getName().endsWith(".nbt")).forEach(file -> suggestions.add(dir.getName() + "_" + file.getName().replace(".nbt", "")));
+			Arrays.stream(dir.listFiles()).filter(file -> file.getName().endsWith(".nbt")).forEach(file -> suggestions.add(dir.getName() + "." + file.getName().replace(".nbt", "")));
 		});
 
 		return SharedSuggestionProvider.suggest(suggestions.stream(), builder);
@@ -53,7 +53,7 @@ public class DeathLogCommand {
 
 	private static int applyDeathInventory(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
 		try {
-			String relativeLogLocation = ctx.getArgument("death", String.class).replaceFirst("_", "/") + ".nbt";
+			String relativeLogLocation = ctx.getArgument("death", String.class).replaceFirst("\\.", "/") + ".nbt";
 			Path path = DeathLogger.DEATH_LOGS.resolve(relativeLogLocation);
 			Player player = EntityArgument.getPlayer(ctx, "player");
 
