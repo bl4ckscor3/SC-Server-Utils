@@ -13,6 +13,8 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 
+import bl4ckscor3.mod.scserverutils.DeathInfo;
+import bl4ckscor3.mod.scserverutils.DeathInfo.Cause;
 import bl4ckscor3.mod.scserverutils.DeathLogger;
 import bl4ckscor3.mod.scserverutils.SCServerUtils;
 import net.minecraft.ChatFormatting;
@@ -24,7 +26,6 @@ import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
@@ -58,25 +59,19 @@ public class DeathLogCommand {
 	private static int viewDeathLog(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
 		try {
 			String relativeLogLocation = getLogLocation(ctx);
-			CompoundTag death = DeathLogger.getDeath(relativeLogLocation);
-			CompoundTag damageSource = death.getCompound("cause");
+			DeathInfo deathInfo = DeathInfo.CODEC.decode(NbtOps.INSTANCE, DeathLogger.getDeath(relativeLogLocation)).get().orThrow().getFirst();
+			Cause cause = deathInfo.cause();
+			GlobalPos position = deathInfo.position();
 			CommandSourceStack cmdSource = ctx.getSource();
 
-			sendMessage(cmdSource, "Player UUID: %s", death.getString("uuid"));
+			sendMessage(cmdSource, "Player UUID: %s", deathInfo.uuid());
 			sendMessage(cmdSource, "Damage Source:", "");
-			sendMessage(cmdSource, "- Type: %s", damageSource.getString("type"));
-
-			if (damageSource.contains("direct_entity"))
-				sendMessage(cmdSource, "- Direct Entity: %s", damageSource.getString("direct_entity"));
-
-			if (damageSource.contains("causing_entity"))
-				sendMessage(cmdSource, "- Causing Entity: %s", damageSource.getString("causing_entity"));
-
-			sendMessage(cmdSource, "Position: %s", prettyString(GlobalPos.CODEC.decode(NbtOps.INSTANCE, death.getCompound("position")).get().left().get().getFirst()));
-			//TODO: Add inventory here and make it clickable to open a UI
-
-			if (damageSource.contains("respawn_position"))
-				sendMessage(cmdSource, "\tRespawn Position: %s", NbtUtils.readBlockPos(death.getCompound("respawn_position")).toShortString());
+			sendMessage(cmdSource, "- Type: %s", cause.type().toString());
+			cause.directEntity().ifPresent(directEntity -> sendMessage(cmdSource, "- Direct Entity: %s", directEntity.toString()));
+			cause.causingEntity().ifPresent(causingEntity -> sendMessage(cmdSource, "- Causing Entity: %s", causingEntity.toString()));
+			sendMessage(cmdSource, "Position: %s", "In " + ChatFormatting.GOLD + position.dimension().location() + ChatFormatting.GREEN + " at " + ChatFormatting.GOLD + position.pos().toShortString());
+			//TODO: Add inventory here and make it clickable to
+			deathInfo.respawnPosition().ifPresent(respawnPosition -> sendMessage(cmdSource, "Respawn Position: %s", respawnPosition.toShortString()));
 		}
 		catch (IOException e) {
 			throw ERROR_READING_DEATH_LOG.create();
@@ -108,9 +103,5 @@ public class DeathLogCommand {
 
 	private static void sendMessage(CommandSourceStack cmdSource, String message, String arg) {
 		cmdSource.sendSystemMessage(Component.translatable(message, Component.translatable(arg).withStyle(ChatFormatting.GREEN)));
-	}
-
-	private static String prettyString(GlobalPos pos) {
-		return "In " + ChatFormatting.GOLD + pos.dimension().location() + ChatFormatting.GREEN + " at " + ChatFormatting.GOLD + pos.pos().toShortString();
 	}
 }
