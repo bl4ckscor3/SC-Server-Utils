@@ -3,7 +3,6 @@ package bl4ckscor3.mod.scserverutils;
 import org.slf4j.Logger;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.logging.LogUtils;
 
 import bl4ckscor3.mod.scserverutils.commands.DeathLogCommand;
@@ -16,7 +15,6 @@ import bl4ckscor3.mod.scserverutils.configuration.Configuration;
 import bl4ckscor3.mod.scserverutils.configuration.PhantomSpawns;
 import bl4ckscor3.mod.scserverutils.mixin.MinecraftServerAccessor;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.Component;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.IExtensionPoint;
 import net.neoforged.fml.ModLoadingContext;
@@ -32,7 +30,6 @@ import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 public class SCServerUtils {
 	public static final String MODID = "scserverutils";
 	public static final Logger LOGGER = LogUtils.getLogger();
-	public static final SimpleCommandExceptionType NOT_PLAYER_EXCEPTION = new SimpleCommandExceptionType(Component.literal("This command is only accessible for players."));
 
 	public SCServerUtils() {
 		//clients don't need the mod installed

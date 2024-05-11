@@ -4,9 +4,7 @@ import java.util.Collection;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
-import bl4ckscor3.mod.scserverutils.SCServerUtils;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.GameProfileArgument;
@@ -29,18 +27,10 @@ public class InvseeCommand {
 						.executes(ctx -> {
 							//@formatter:on
 							CommandSourceStack cmdSource = ctx.getSource();
-
-							try {
-								cmdSource.getEntityOrException();
-							}
-							catch (CommandSyntaxException e) {
-								throw SCServerUtils.NOT_PLAYER_EXCEPTION.create();
-							}
-
+							ServerPlayer source = cmdSource.getPlayerOrException();
 							Collection<GameProfile> profiles = GameProfileArgument.getGameProfiles(ctx, "player");
 
 							if (!profiles.isEmpty()) {
-								ServerPlayer source = cmdSource.getPlayerOrException();
 								GameProfile targetProfile = profiles.iterator().next();
 								ServerPlayer target = source.getServer().getPlayerList().getPlayer(targetProfile.getId());
 								String targetName = targetProfile.getName();
