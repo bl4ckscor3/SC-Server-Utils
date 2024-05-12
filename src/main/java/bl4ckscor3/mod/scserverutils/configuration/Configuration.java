@@ -3,6 +3,7 @@ package bl4ckscor3.mod.scserverutils.configuration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;
@@ -67,10 +68,10 @@ public class Configuration {
 			SCServerUtilsMixinPlugin.addMixinModifier(autosaveInterval);
 		});
 		pushPop(builder, "Commands", "Configure commands of this mod", () -> {
-			addCommandConfig(builder, "deathlog", 2, DeathLogCommand::register);
-			addCommandConfig(builder, "enderchest", 2, EnderchestCommand::register);
-			addCommandConfig(builder, "invsee", 2, InvseeCommand::register);
-			addCommandConfig(builder, "rules", 0, DeathLogCommand::register);
+			addCommandConfig(builder, "deathlog", 2, () -> DeathLogCommand::register);
+			addCommandConfig(builder, "enderchest", 2, () -> EnderchestCommand::register);
+			addCommandConfig(builder, "invsee", 2, () -> InvseeCommand::register);
+			addCommandConfig(builder, "rules", 0, () -> DeathLogCommand::register);
 		});
 		pushPop(builder, "Damage source language fallback", "Adds a fallback to the \"/trigger kill_self\" death message so people without the resource pack see the correct message", () -> {
 			damageSourceLanguageFallback = new DamageSourceLanguageFallback(enabled(builder));
@@ -120,7 +121,7 @@ public class Configuration {
 		return builder.comment("The minimum permission level needed for the /" + commandName + " command").defineInRange("permission_level", defaultPermissionLevel, 0, 5);
 	}
 
-	private void addCommandConfig(ModConfigSpec.Builder builder, String commandName, int defaultPermissionLevel, BiConsumer<CommandDispatcher<CommandSourceStack>, Integer> registrar) {
+	private void addCommandConfig(ModConfigSpec.Builder builder, String commandName, int defaultPermissionLevel, Supplier<BiConsumer<CommandDispatcher<CommandSourceStack>, Integer>> registrar) {
 		pushPop(builder, commandName, null, () -> {
 			//@formatter:off
 			commands.add(new CommandConfig(

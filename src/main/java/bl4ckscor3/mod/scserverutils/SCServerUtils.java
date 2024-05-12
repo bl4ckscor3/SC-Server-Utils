@@ -53,7 +53,7 @@ public class SCServerUtils {
 
 		for (CommandConfig commandConfig : Configuration.instance.commands) {
 			if (commandConfig.enabled().get())
-				commandConfig.registrar().accept(dispatcher, commandConfig.permissionLevel().get());
+				commandConfig.registrar().get().accept(dispatcher, commandConfig.permissionLevel().get());
 		}
 	}
 
