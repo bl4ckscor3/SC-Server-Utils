@@ -97,6 +97,7 @@ public class DeathLogCommand {
 			CommandSourceStack cmdSource = ctx.getSource();
 			MutableComponent viewInventoryText = Component.translatable("[%s]", Component.translatable("View Inventory").withStyle(ChatFormatting.LIGHT_PURPLE));
 
+			cmdSource.sendSystemMessage(Component.translatable(relativeLogLocation + ":").withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
 			sendMessage(cmdSource, "Player UUID: %s", deathInfo.uuid(), style -> clickToCopy(style, deathInfo.uuid()));
 			sendMessage(cmdSource, "Damage Source:", "");
 			sendMessage(cmdSource, "- Type: %s", cause.type().toString());
