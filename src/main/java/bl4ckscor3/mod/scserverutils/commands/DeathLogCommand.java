@@ -27,8 +27,17 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.ClickEvent.Action;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ChestMenu;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.ItemStack;
 
 public class DeathLogCommand {
 	public static final SimpleCommandExceptionType ERROR_READING_DEATH_LOG = new SimpleCommandExceptionType(Component.literal("There was an error reading the death log from disk."));
@@ -50,6 +59,8 @@ public class DeathLogCommand {
 						.suggests(DEATHS)
 						.then(Commands.literal("view")
 								.executes(DeathLogCommand::viewDeathLog))
+						.then(Commands.literal("info")
+								.executes(DeathLogCommand::showDeathLogInfo))
 						.then(Commands.literal("apply")
 								.then(Commands.argument("player", EntityArgument.player())
 										.executes(DeathLogCommand::applyDeathInventory)))));
@@ -60,9 +71,29 @@ public class DeathLogCommand {
 		try {
 			String relativeLogLocation = getLogLocation(ctx);
 			DeathInfo deathInfo = DeathInfo.CODEC.decode(NbtOps.INSTANCE, DeathLogger.getDeath(relativeLogLocation)).get().orThrow().getFirst();
+
+			ctx.getSource().getPlayerOrException().openMenu(new SimpleMenuProvider((id, ownInv, player) -> new ChestMenu(MenuType.GENERIC_9x5, id, ownInv, createInventoryForChestMenu(deathInfo), 5) {
+				@Override
+				public boolean stillValid(Player player) {
+					return true;
+				}
+			}, Component.literal(relativeLogLocation)));
+		}
+		catch (IOException e) {
+			throw ERROR_READING_DEATH_LOG.create();
+		}
+
+		return 1;
+	}
+
+	private static int showDeathLogInfo(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		try {
+			String relativeLogLocation = getLogLocation(ctx);
+			DeathInfo deathInfo = DeathInfo.CODEC.decode(NbtOps.INSTANCE, DeathLogger.getDeath(relativeLogLocation)).get().orThrow().getFirst();
 			Cause cause = deathInfo.cause();
 			GlobalPos position = deathInfo.position();
 			CommandSourceStack cmdSource = ctx.getSource();
+			MutableComponent viewInventoryText = Component.translatable("[%s]", Component.translatable("View Inventory").withStyle(ChatFormatting.LIGHT_PURPLE));
 
 			sendMessage(cmdSource, "Player UUID: %s", deathInfo.uuid());
 			sendMessage(cmdSource, "Damage Source:", "");
@@ -70,8 +101,9 @@ public class DeathLogCommand {
 			cause.directEntity().ifPresent(directEntity -> sendMessage(cmdSource, "- Direct Entity: %s", directEntity.toString()));
 			cause.causingEntity().ifPresent(causingEntity -> sendMessage(cmdSource, "- Causing Entity: %s", causingEntity.toString()));
 			sendMessage(cmdSource, "Position: %s", "In " + ChatFormatting.GOLD + position.dimension().location() + ChatFormatting.GREEN + " at " + ChatFormatting.GOLD + position.pos().toShortString());
-			//TODO: Add inventory here and make it clickable to
 			deathInfo.respawnPosition().ifPresent(respawnPosition -> sendMessage(cmdSource, "Respawn Position: %s", respawnPosition.toShortString()));
+			viewInventoryText.setStyle(viewInventoryText.getStyle().withClickEvent(new ClickEvent(Action.RUN_COMMAND, String.format("/deathlog %s view", ctx.getArgument("death", String.class)))));
+			cmdSource.sendSystemMessage(viewInventoryText);
 		}
 		catch (IOException e) {
 			throw ERROR_READING_DEATH_LOG.create();
@@ -103,5 +135,28 @@ public class DeathLogCommand {
 
 	private static void sendMessage(CommandSourceStack cmdSource, String message, String arg) {
 		cmdSource.sendSystemMessage(Component.translatable(message, Component.translatable(arg).withStyle(ChatFormatting.GREEN)));
+	}
+
+	private static Container createInventoryForChestMenu(DeathInfo deathInfo) {
+		ItemStack[] stacks = new ItemStack[45];
+		ListTag inventory = deathInfo.inventory();
+
+		Arrays.fill(stacks, ItemStack.EMPTY);
+
+		for (int i = 0; i < inventory.size(); i++) {
+			CompoundTag entry = inventory.getCompound(i);
+			int slot = entry.getByte("Slot") & 255;
+
+			//offhand
+			if (slot >= 150)
+				slot = slot - 150 + 40; //150 is the offset the slot gets saved at, and there are 36 inventory + 4 armor slots before the offhand slot
+			//armor
+			else if (slot >= 100)
+				slot = slot - 100 + 36; //100 is the offset the slots get saved at, and there are 36 inventory slots before the armor slots
+
+			stacks[slot] = ItemStack.of(entry);
+		}
+
+		return new SimpleContainer(stacks);
 	}
 }
