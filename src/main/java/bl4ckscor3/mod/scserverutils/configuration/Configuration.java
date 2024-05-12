@@ -1,20 +1,30 @@
 package bl4ckscor3.mod.scserverutils.configuration;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.BiConsumer;
+
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;
+import com.mojang.brigadier.CommandDispatcher;
 
 import bl4ckscor3.mod.scserverutils.SCServerUtils;
 import bl4ckscor3.mod.scserverutils.SCServerUtilsMixinPlugin;
+import bl4ckscor3.mod.scserverutils.commands.DeathLogCommand;
+import bl4ckscor3.mod.scserverutils.commands.EnderchestCommand;
+import bl4ckscor3.mod.scserverutils.commands.InvseeCommand;
+import net.minecraft.commands.CommandSourceStack;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.common.ModConfigSpec.BooleanValue;
+import net.neoforged.neoforge.common.ModConfigSpec.IntValue;
 
 public class Configuration {
 	public static Configuration instance;
 	private static boolean initialized = false;
 	public AttributeLogFix attributeLogFix;
 	public AutosaveInterval autosaveInterval;
-	public Commands commands;
+	public List<CommandConfig> commands = new ArrayList<>();
 	public DamageSourceLanguageFallback damageSourceLanguageFallback;
 	public DeathLog deathLog;
 	public PhantomSpawns phantomSpawns;
@@ -56,13 +66,11 @@ public class Configuration {
 					//@formatter:on
 			SCServerUtilsMixinPlugin.addMixinModifier(autosaveInterval);
 		});
-		pushPop(builder, "Commands", "Enable or disable commands of the mod", () -> {
-			commands = new Commands( //@formatter:off
-					Commands.createConfig(builder, "deathlog"),
-					Commands.createConfig(builder, "enderchest"),
-					Commands.createConfig(builder, "invsee"),
-					Commands.createConfig(builder, "rules"));
-					//@formatter:on
+		pushPop(builder, "Commands", "Configure commands of this mod", () -> {
+			addCommandConfig(builder, "deathlog", 2, DeathLogCommand::register);
+			addCommandConfig(builder, "enderchest", 2, EnderchestCommand::register);
+			addCommandConfig(builder, "invsee", 2, InvseeCommand::register);
+			addCommandConfig(builder, "rules", 0, DeathLogCommand::register);
 		});
 		pushPop(builder, "Damage source language fallback", "Adds a fallback to the \"/trigger kill_self\" death message so people without the resource pack see the correct message", () -> {
 			damageSourceLanguageFallback = new DamageSourceLanguageFallback(enabled(builder));
@@ -85,7 +93,7 @@ public class Configuration {
 		pushPop(builder, "Team command permission level", "Allows changing the permission level for the /team command", () -> {
 			teamPermissionLevel = new TeamPermissionLevel( //@formatter:off
 					enabled(builder),
-					builder.comment("The minimum permission level needed for the /team command").defineInRange("permission_level", 1, 0, 5));
+					permissionLevel(builder, "team", 1));
 					//@formatter:on
 			SCServerUtilsMixinPlugin.addMixinModifier(teamPermissionLevel);
 		});
@@ -101,6 +109,25 @@ public class Configuration {
 	}
 
 	private BooleanValue enabled(ModConfigSpec.Builder builder) {
-		return builder.comment("Whether this feature is enabled").define("enabled", true);
+		return enabled(builder, "feature");
+	}
+
+	private BooleanValue enabled(ModConfigSpec.Builder builder, String thing) {
+		return builder.comment("Whether this " + thing + " is enabled").define("enabled", true);
+	}
+
+	private IntValue permissionLevel(ModConfigSpec.Builder builder, String commandName, int defaultPermissionLevel) {
+		return builder.comment("The minimum permission level needed for the /" + commandName + " command").defineInRange("permission_level", defaultPermissionLevel, 0, 5);
+	}
+
+	private void addCommandConfig(ModConfigSpec.Builder builder, String commandName, int defaultPermissionLevel, BiConsumer<CommandDispatcher<CommandSourceStack>, Integer> registrar) {
+		pushPop(builder, commandName, null, () -> {
+			//@formatter:off
+			commands.add(new CommandConfig(
+					enabled(builder, "command"),
+					permissionLevel(builder, commandName, defaultPermissionLevel),
+					registrar));
+			//@formatter:on
+		});
 	}
 }

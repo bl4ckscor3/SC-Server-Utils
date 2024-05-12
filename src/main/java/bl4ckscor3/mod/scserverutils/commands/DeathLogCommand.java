@@ -53,10 +53,10 @@ public class DeathLogCommand {
 		return SharedSuggestionProvider.suggest(suggestions.stream(), builder);
 	};
 
-	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+	public static void register(CommandDispatcher<CommandSourceStack> dispatcher, int permissionLevel) {
 		//@formatter:off
 		dispatcher.register(Commands.literal("deathlog")
-				.requires(commandSource -> commandSource.hasPermission(2))
+				.requires(commandSource -> commandSource.hasPermission(permissionLevel))
 				.then(Commands.argument("death", StringArgumentType.word())
 						.suggests(DEATHS)
 						.then(Commands.literal("view")

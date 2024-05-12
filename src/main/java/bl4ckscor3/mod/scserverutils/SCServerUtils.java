@@ -5,12 +5,8 @@ import org.slf4j.Logger;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.logging.LogUtils;
 
-import bl4ckscor3.mod.scserverutils.commands.DeathLogCommand;
-import bl4ckscor3.mod.scserverutils.commands.EnderchestCommand;
-import bl4ckscor3.mod.scserverutils.commands.InvseeCommand;
-import bl4ckscor3.mod.scserverutils.commands.RulesCommand;
 import bl4ckscor3.mod.scserverutils.configuration.AutosaveInterval;
-import bl4ckscor3.mod.scserverutils.configuration.Commands;
+import bl4ckscor3.mod.scserverutils.configuration.CommandConfig;
 import bl4ckscor3.mod.scserverutils.configuration.Configuration;
 import bl4ckscor3.mod.scserverutils.configuration.PhantomSpawns;
 import bl4ckscor3.mod.scserverutils.mixin.MinecraftServerAccessor;
@@ -53,20 +49,12 @@ public class SCServerUtils {
 
 	@SubscribeEvent
 	public static void onRegisterCommands(RegisterCommandsEvent event) {
-		Commands commandsConfig = Configuration.instance.commands;
 		CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
 
-		if (commandsConfig.deathlogEnabled().get())
-			DeathLogCommand.register(dispatcher);
-
-		if (commandsConfig.enderchestEnabled().get())
-			EnderchestCommand.register(dispatcher);
-
-		if (commandsConfig.invseeEnabled().get())
-			InvseeCommand.register(dispatcher);
-
-		if (commandsConfig.rulesEnabled().get())
-			RulesCommand.register(dispatcher);
+		for (CommandConfig commandConfig : Configuration.instance.commands) {
+			if (commandConfig.enabled().get())
+				commandConfig.registrar().accept(dispatcher, commandConfig.permissionLevel().get());
+		}
 	}
 
 	@SubscribeEvent

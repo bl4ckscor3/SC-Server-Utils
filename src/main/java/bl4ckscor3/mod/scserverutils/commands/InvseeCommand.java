@@ -19,10 +19,10 @@ import net.minecraft.world.inventory.MenuType;
 public class InvseeCommand {
 	private static final Component INVENTORY_CONTAINER_NAME = Component.translatable("container.inventory");
 
-	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+	public static void register(CommandDispatcher<CommandSourceStack> dispatcher, int permissionLevel) {
 		//@formatter:off
 		dispatcher.register(Commands.literal("invsee")
-				.requires(commandSource -> commandSource.hasPermission(2))
+				.requires(commandSource -> commandSource.hasPermission(permissionLevel))
 				.then(Commands.argument("player", GameProfileArgument.gameProfile())
 						.executes(ctx -> {
 							//@formatter:on

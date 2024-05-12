@@ -20,15 +20,15 @@ import net.minecraft.world.inventory.PlayerEnderChestContainer;
 public class EnderchestCommand {
 	private static final Component ENDER_CHEST_CONTAINER_NAME = Component.translatable("container.enderchest");
 
-	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-		dispatcher.register(alias("enderchest"));
-		dispatcher.register(alias("echest"));
+	public static void register(CommandDispatcher<CommandSourceStack> dispatcher, int permissionLevel) {
+		dispatcher.register(alias("enderchest", permissionLevel));
+		dispatcher.register(alias("echest", permissionLevel));
 	}
 
-	private static LiteralArgumentBuilder<CommandSourceStack> alias(String name) {
+	private static LiteralArgumentBuilder<CommandSourceStack> alias(String name, int permissionLevel) {
 		//@formatter:off
 		return Commands.literal(name)
-				.requires(commandSource -> commandSource.hasPermission(2))
+				.requires(commandSource -> commandSource.hasPermission(permissionLevel))
 				.then(Commands.argument("player", GameProfileArgument.gameProfile())
 						.executes(ctx -> {
 							//@formatter:on

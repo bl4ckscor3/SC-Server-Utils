@@ -9,15 +9,15 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.scores.Scoreboard;
 
 public class RulesCommand {
-	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-		dispatcher.register(alias("rule"));
-		dispatcher.register(alias("rules"));
+	public static void register(CommandDispatcher<CommandSourceStack> dispatcher, int permissionLevel) {
+		dispatcher.register(alias("rule", permissionLevel));
+		dispatcher.register(alias("rules", permissionLevel));
 	}
 
-	private static LiteralArgumentBuilder<CommandSourceStack> alias(String name) {
+	private static LiteralArgumentBuilder<CommandSourceStack> alias(String name, int permissionLevel) {
 		//@formatter:off
 		return Commands.literal(name)
-				.requires(player -> player.hasPermission(0))
+				.requires(player -> player.hasPermission(permissionLevel))
 				.executes(ctx -> {
 					//@formatter:on
 					ServerPlayer player = ctx.getSource().getPlayerOrException();
