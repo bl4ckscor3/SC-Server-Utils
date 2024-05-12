@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.UnaryOperator;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -28,9 +29,10 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.ClickEvent;
-import net.minecraft.network.chat.ClickEvent.Action;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.SimpleMenuProvider;
@@ -95,14 +97,14 @@ public class DeathLogCommand {
 			CommandSourceStack cmdSource = ctx.getSource();
 			MutableComponent viewInventoryText = Component.translatable("[%s]", Component.translatable("View Inventory").withStyle(ChatFormatting.LIGHT_PURPLE));
 
-			sendMessage(cmdSource, "Player UUID: %s", deathInfo.uuid());
+			sendMessage(cmdSource, "Player UUID: %s", deathInfo.uuid(), style -> clickToCopy(style, deathInfo.uuid()));
 			sendMessage(cmdSource, "Damage Source:", "");
 			sendMessage(cmdSource, "- Type: %s", cause.type().toString());
 			cause.directEntity().ifPresent(directEntity -> sendMessage(cmdSource, "- Direct Entity: %s", directEntity.toString()));
 			cause.causingEntity().ifPresent(causingEntity -> sendMessage(cmdSource, "- Causing Entity: %s", causingEntity.toString()));
-			sendMessage(cmdSource, "Position: %s", "In " + ChatFormatting.GOLD + position.dimension().location() + ChatFormatting.GREEN + " at " + ChatFormatting.GOLD + position.pos().toShortString());
+			sendMessage(cmdSource, "Position: %s", "In " + ChatFormatting.GOLD + position.dimension().location() + ChatFormatting.GREEN + " at " + ChatFormatting.GOLD + position.pos().toShortString(), style -> clickToTeleportToPosition(style, position));
 			deathInfo.respawnPosition().ifPresent(respawnPosition -> sendMessage(cmdSource, "Respawn Position: %s", respawnPosition.toShortString()));
-			viewInventoryText.setStyle(viewInventoryText.getStyle().withClickEvent(new ClickEvent(Action.RUN_COMMAND, String.format("/deathlog %s view", ctx.getArgument("death", String.class)))));
+			viewInventoryText.setStyle(viewInventoryText.getStyle().withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, String.format("/deathlog %s view", ctx.getArgument("death", String.class)))));
 			cmdSource.sendSystemMessage(viewInventoryText);
 		}
 		catch (IOException e) {
@@ -133,8 +135,25 @@ public class DeathLogCommand {
 		return ctx.getArgument("death", String.class).replaceFirst("\\.", "/") + ".nbt";
 	}
 
+	private static Style clickToCopy(Style style, String copyThis) {
+		style = style.withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, copyThis));
+		return style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("Click to copy UUID")));
+	}
+
+	private static Style clickToTeleportToPosition(Style style, GlobalPos pos) {
+		style = style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, String.format("/execute in %s run tp @s %s", pos.dimension().location(), pos.pos().toShortString().replace(",", ""))));
+		return style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("Click to teleport to this position")));
+	}
+
 	private static void sendMessage(CommandSourceStack cmdSource, String message, String arg) {
-		cmdSource.sendSystemMessage(Component.translatable(message, Component.translatable(arg).withStyle(ChatFormatting.GREEN)));
+		sendMessage(cmdSource, message, arg, UnaryOperator.identity());
+	}
+
+	private static void sendMessage(CommandSourceStack cmdSource, String message, String arg, UnaryOperator<Style> style) {
+		MutableComponent component = Component.translatable(arg);
+
+		component.setStyle(style.apply(component.getStyle().withColor(ChatFormatting.GREEN)));
+		cmdSource.sendSystemMessage(Component.translatable(message, component));
 	}
 
 	private static Container createInventoryForChestMenu(DeathInfo deathInfo) {
