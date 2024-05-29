@@ -83,8 +83,7 @@ public class Configuration {
 		pushPop(builder, "Death logging", "Logs all players' deaths as they happen, containing complete inventory info etc.", () -> {
 			deathLog = new DeathLog( //@formatter:off
 					enabled(builder),
-					builder.comment("The path where death logs are saved, relative to the game directory.").define("save_path", SCServerUtils.MODID + "/death_logs")
-					);
+					builder.comment("The path where death logs are saved, relative to the game directory.").define("save_path", SCServerUtils.MODID + "/death_logs"));
 					//@formatter:on
 		});
 		pushPop(builder, "Nether Spawn Protection", "Adds spawn protection to the nether", () -> {
@@ -94,6 +93,7 @@ public class Configuration {
 					builder.comment("The X coordinate of the nether spawn's origin").defineInRange("x_origin", 0, Integer.MIN_VALUE, Integer.MAX_VALUE),
 					builder.comment("The Z coordinate of the nether spawn's origin").defineInRange("z_origin", 0, Integer.MIN_VALUE, Integer.MAX_VALUE));
 					//@formatter:on
+			SCServerUtilsMixinPlugin.addMixinModifier(netherSpawnProtection);
 		});
 		pushPop(builder, "Phantom spawns", "Makes it possible to change how many phantoms spawn when the game wants to spawn them.", () -> {
 			phantomSpawns = new PhantomSpawns( //@formatter:off
