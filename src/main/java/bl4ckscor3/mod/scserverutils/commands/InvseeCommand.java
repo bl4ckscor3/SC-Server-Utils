@@ -19,6 +19,8 @@ import net.minecraft.world.inventory.MenuType;
 public class InvseeCommand {
 	private static final Component INVENTORY_CONTAINER_NAME = Component.translatable("container.inventory");
 
+	private InvseeCommand() {}
+
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher, int permissionLevel) {
 		//@formatter:off
 		dispatcher.register(Commands.literal("invsee")

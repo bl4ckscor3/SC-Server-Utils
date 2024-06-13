@@ -12,10 +12,8 @@ import bl4ckscor3.mod.scserverutils.configuration.PhantomSpawns;
 import bl4ckscor3.mod.scserverutils.mixin.MinecraftServerAccessor;
 import net.minecraft.commands.CommandSourceStack;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.IExtensionPoint;
-import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.common.Mod.EventBusSubscriber;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerSpawnPhantomsEvent;
@@ -28,9 +26,6 @@ public class SCServerUtils {
 	public static final Logger LOGGER = LogUtils.getLogger();
 
 	public SCServerUtils() {
-		//clients don't need the mod installed
-		ModLoadingContext.get().registerExtensionPoint(IExtensionPoint.DisplayTest.class, () -> new IExtensionPoint.DisplayTest(() -> IExtensionPoint.DisplayTest.IGNORESERVERONLY, (remote, isServer) -> true));
-
 		if (Configuration.instance.deathLog.enabled().get())
 			NeoForge.EVENT_BUS.addListener(DeathLogger::onLivingDeath);
 	}

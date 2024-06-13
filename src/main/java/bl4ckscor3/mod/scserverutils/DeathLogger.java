@@ -22,6 +22,8 @@ public class DeathLogger {
 	public static final Path DEATH_LOGS = FMLPaths.getOrCreateGameRelativePath(Paths.get(Configuration.instance.deathLog.savePath().get()));
 	private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
 
+	private DeathLogger() {}
+
 	public static void onLivingDeath(LivingDeathEvent event) {
 		if (event.getEntity() instanceof ServerPlayer player) {
 			Path playerPath = playerPath(player);
@@ -35,7 +37,7 @@ public class DeathLogger {
 			try {
 				DeathInfo deathInfo = DeathInfo.of(player, event.getSource());
 
-				NbtIo.write((CompoundTag) DeathInfo.CODEC.encodeStart(NbtOps.INSTANCE, deathInfo).get().orThrow(), filePath);
+				NbtIo.write((CompoundTag) DeathInfo.CODEC.encodeStart(NbtOps.INSTANCE, deathInfo).getOrThrow(), filePath);
 			}
 			catch (Exception e) {
 				SCServerUtils.LOGGER.error("Error trying to save death log " + filePath, e);

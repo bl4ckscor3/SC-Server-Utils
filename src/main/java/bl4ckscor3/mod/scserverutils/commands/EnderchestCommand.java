@@ -20,6 +20,8 @@ import net.minecraft.world.inventory.PlayerEnderChestContainer;
 public class EnderchestCommand {
 	private static final Component ENDER_CHEST_CONTAINER_NAME = Component.translatable("container.enderchest");
 
+	private EnderchestCommand() {}
+
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher, int permissionLevel) {
 		dispatcher.register(alias("enderchest", permissionLevel));
 		dispatcher.register(alias("echest", permissionLevel));

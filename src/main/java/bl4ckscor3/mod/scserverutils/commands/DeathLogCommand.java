@@ -24,6 +24,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.core.GlobalPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
@@ -53,6 +54,8 @@ public class DeathLogCommand {
 		return SharedSuggestionProvider.suggest(suggestions.stream(), builder);
 	};
 
+	private DeathLogCommand() {}
+
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher, int permissionLevel) {
 		//@formatter:off
 		dispatcher.register(Commands.literal("deathlog")
@@ -72,9 +75,9 @@ public class DeathLogCommand {
 	private static int viewDeathLog(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
 		try {
 			String relativeLogLocation = getLogLocation(ctx);
-			DeathInfo deathInfo = DeathInfo.CODEC.decode(NbtOps.INSTANCE, DeathLogger.getDeath(relativeLogLocation)).get().orThrow().getFirst();
+			DeathInfo deathInfo = DeathInfo.CODEC.decode(NbtOps.INSTANCE, DeathLogger.getDeath(relativeLogLocation)).getOrThrow().getFirst();
 
-			ctx.getSource().getPlayerOrException().openMenu(new SimpleMenuProvider((id, ownInv, player) -> new ChestMenu(MenuType.GENERIC_9x5, id, ownInv, createInventoryForChestMenu(deathInfo), 5) {
+			ctx.getSource().getPlayerOrException().openMenu(new SimpleMenuProvider((id, ownInv, player) -> new ChestMenu(MenuType.GENERIC_9x5, id, ownInv, createInventoryForChestMenu(player.registryAccess(), deathInfo), 5) {
 				@Override
 				public boolean stillValid(Player player) {
 					return true;
@@ -91,7 +94,7 @@ public class DeathLogCommand {
 	private static int showDeathLogInfo(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
 		try {
 			String relativeLogLocation = getLogLocation(ctx);
-			DeathInfo deathInfo = DeathInfo.CODEC.decode(NbtOps.INSTANCE, DeathLogger.getDeath(relativeLogLocation)).get().orThrow().getFirst();
+			DeathInfo deathInfo = DeathInfo.CODEC.decode(NbtOps.INSTANCE, DeathLogger.getDeath(relativeLogLocation)).getOrThrow().getFirst();
 			Cause cause = deathInfo.cause();
 			GlobalPos position = deathInfo.position();
 			CommandSourceStack cmdSource = ctx.getSource();
@@ -157,7 +160,7 @@ public class DeathLogCommand {
 		cmdSource.sendSystemMessage(Component.translatable(message, component));
 	}
 
-	private static Container createInventoryForChestMenu(DeathInfo deathInfo) {
+	private static Container createInventoryForChestMenu(HolderLookup.Provider lookupProvider, DeathInfo deathInfo) {
 		ItemStack[] stacks = new ItemStack[45];
 		ListTag inventory = deathInfo.inventory();
 
@@ -174,7 +177,7 @@ public class DeathLogCommand {
 			else if (slot >= 100)
 				slot = slot - 100 + 36; //100 is the offset the slots get saved at, and there are 36 inventory slots before the armor slots
 
-			stacks[slot] = ItemStack.of(entry);
+			stacks[slot] = ItemStack.parseOptional(lookupProvider, entry);
 		}
 
 		return new SimpleContainer(stacks);

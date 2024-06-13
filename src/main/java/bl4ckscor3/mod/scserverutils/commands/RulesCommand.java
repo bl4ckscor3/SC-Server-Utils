@@ -9,6 +9,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.scores.Scoreboard;
 
 public class RulesCommand {
+	private RulesCommand() {}
+
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher, int permissionLevel) {
 		dispatcher.register(alias("rule", permissionLevel));
 		dispatcher.register(alias("rules", permissionLevel));
