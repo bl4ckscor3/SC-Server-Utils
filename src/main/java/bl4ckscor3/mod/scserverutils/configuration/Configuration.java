@@ -31,6 +31,7 @@ public class Configuration {
 	public DeathLog deathLog;
 	public NetherSpawnProtection netherSpawnProtection;
 	public PhantomSpawns phantomSpawns;
+	public SpawnProtectionPvpPrevention spawnProtectionPvpPrevention;
 	public TeamPermissionLevel teamPermissionLevel;
 
 	public static void init() {
@@ -86,7 +87,7 @@ public class Configuration {
 					builder.comment("The path where death logs are saved, relative to the game directory.").define("save_path", SCServerUtils.MODID + "/death_logs"));
 					//@formatter:on
 		});
-		pushPop(builder, "Nether Spawn Protection", "Adds spawn protection to the nether", () -> {
+		pushPop(builder, "Nether spawn protection", "Adds spawn protection to the nether", () -> {
 			netherSpawnProtection = new NetherSpawnProtection( //@formatter:off
 					enabled(builder),
 					builder.comment("The square radius in blocks that is under spawn protection.").defineInRange("radius", 32, 0, Integer.MAX_VALUE),
@@ -100,6 +101,12 @@ public class Configuration {
 					enabled(builder),
 					builder.comment("The minimum amount of phantoms to spawn").defineInRange("min_spawns", 0, 0, Integer.MAX_VALUE),
 					builder.comment("The maximum amount of phantoms to spawn").defineInRange("max_spawns", 1, 0, Integer.MAX_VALUE));
+					//@formatter:on
+		});
+		pushPop(builder, "Spawn protection PvP prevention", "Disables pvp in spawn protection", () -> {
+			spawnProtectionPvpPrevention = new SpawnProtectionPvpPrevention( //@formatter:off
+					enabled(builder),
+					builder.comment("Whether to also disable PvP in the nether spawn protection, which needs to be enabled for this setting to take effect").define("disable_in_nether", false));
 					//@formatter:on
 		});
 		pushPop(builder, "Team command permission level", "Allows changing the permission level for the /team command", () -> {
