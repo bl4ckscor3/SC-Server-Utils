@@ -22,12 +22,12 @@ runs {
     }
 
     client {
-        workingDirectory project.file('run/client')
+        workingDirectory project.file('runs/client')
     }
 
     server {
-        workingDirectory project.file('run/server')
-        programArgument '-nogui'
+        workingDirectory project.file('runs/server')
+        argument '-nogui'
     }
 }
 
