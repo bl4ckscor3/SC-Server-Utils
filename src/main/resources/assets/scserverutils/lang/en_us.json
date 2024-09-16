@@ -1,3 +1,5 @@
 {
-	"death.attack.trigger_kill": "%1$s found themselves in a dreadful situation and took the easy way out."
+	"death.attack.trigger_kill": "%1$s found themselves in a dreadful situation and took the easy way out.",
+	"scserverutils.pvp_on": "PvP is now on!",
+	"scserverutils.pvp_off": "PvP is no longer active."
 }

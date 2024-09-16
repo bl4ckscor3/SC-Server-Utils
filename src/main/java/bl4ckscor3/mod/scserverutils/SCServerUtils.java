@@ -30,7 +30,7 @@ public class SCServerUtils {
 			NeoForge.EVENT_BUS.addListener(DeathLogger::onLivingDeath);
 
 		if (Configuration.instance.spawnProtectionPvpPrevention.enabled().get())
-			NeoForge.EVENT_BUS.addListener(PvpPrevention::onAttackEntity);
+			PvpPrevention.addListeners();
 	}
 
 	@SubscribeEvent
