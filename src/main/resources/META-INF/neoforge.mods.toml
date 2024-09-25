@@ -12,18 +12,21 @@ authors="bl4ckscor3"
 	description='''Adds player and moderator utilities for the official SecurityCraft server.'''
 
 [[mixins]]
-    config="scserverutils.mixins.json"
+	config="scserverutils.mixins.json"
+	
+[[mixins]]
+	config="scserverutils.hidden.mixins.json"
 
 [[dependencies.scrules]]
-    modId="neoforge"
-    type="required"
-    versionRange="[20.6,)"
-    ordering="NONE"
-    side="BOTH"
+	modId="neoforge"
+	type="required"
+	versionRange="[20.6,)"
+	ordering="NONE"
+	side="BOTH"
 
 [[dependencies.scrules]]
-    modId="minecraft"
-    type="required"
-    versionRange="[1.20.6,)"
-    ordering="NONE"
-    side="BOTH"
+	modId="minecraft"
+	type="required"
+	versionRange="[1.20.6,)"
+	ordering="NONE"
+	side="BOTH"

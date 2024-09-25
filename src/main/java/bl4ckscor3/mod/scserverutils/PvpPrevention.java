@@ -8,27 +8,28 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
+import net.neoforged.neoforge.event.entity.living.LivingAttackEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 public class PvpPrevention {
 	public static final String IN_SPAWN_PROTECTION_TAG = "in_spawn_protection";
 
 	public static void addListeners() {
-		NeoForge.EVENT_BUS.addListener(PvpPrevention::onAttackEntity);
+		NeoForge.EVENT_BUS.addListener(PvpPrevention::onLivingAttack);
 		NeoForge.EVENT_BUS.addListener(PvpPrevention::onPlayerTickPost);
 	}
 
-	public static void onAttackEntity(AttackEntityEvent event) {
-		if (event.getTarget() instanceof Player target && target.level() instanceof ServerLevel level) {
+	public static void onLivingAttack(LivingAttackEvent event) {
+		if (event.getEntity() instanceof Player target && target.level() instanceof ServerLevel level) {
 			if (level.dimension().equals(Level.NETHER) && !Configuration.instance.spawnProtectionPvpPrevention.inNether().get())
 				return;
 
-			Player attacker = event.getEntity();
-			MinecraftServer server = level.getServer();
+			if (event.getSource().getEntity() instanceof Player attacker) {
+				MinecraftServer server = level.getServer();
 
-			if (server.isUnderSpawnProtection(level, target.blockPosition(), target) || server.isUnderSpawnProtection(level, attacker.blockPosition(), attacker))
-				event.setCanceled(true);
+				if (server.isUnderSpawnProtection(level, target.blockPosition(), target) || server.isUnderSpawnProtection(level, attacker.blockPosition(), attacker))
+					event.setCanceled(true);
+			}
 		}
 	}
 

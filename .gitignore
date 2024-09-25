@@ -9,3 +9,7 @@
 /runs
 /logs
 /.idea
+
+src/main/java/bl4ckscor3/mod/scserverutils/hidden/
+src/main/resources/scserverutils.hidden.mixins.json
+
