@@ -29,6 +29,7 @@ public class Configuration {
 	public List<CommandConfig> commands = new ArrayList<>();
 	public DamageSourceLanguageFallback damageSourceLanguageFallback;
 	public DeathLog deathLog;
+	public DestroyMismatchLogFix destroyMismatchLogFix;
 	public NetherSpawnProtection netherSpawnProtection;
 	public PhantomSpawns phantomSpawns;
 	public SpawnProtectionPvpPrevention spawnProtectionPvpPrevention;
@@ -86,6 +87,10 @@ public class Configuration {
 					enabled(builder),
 					builder.comment("The path where death logs are saved, relative to the game directory.").define("save_path", SCServerUtils.MODID + "/death_logs"));
 					//@formatter:on
+		});
+		pushPop(builder, "Destroy mismatch log removal", "Removes the \"Mismatch in destroy block pos\" log message to reduce console spam", () -> {
+			destroyMismatchLogFix = new DestroyMismatchLogFix(enabled(builder));
+			SCServerUtilsMixinPlugin.addMixinModifier(destroyMismatchLogFix);
 		});
 		pushPop(builder, "Nether spawn protection", "Adds spawn protection to the nether", () -> {
 			netherSpawnProtection = new NetherSpawnProtection( //@formatter:off

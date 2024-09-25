@@ -11,6 +11,7 @@
     "DedicatedServerMixin",
 	"MinecraftServerAccessor",
     "MinecraftServerMixin",
+	"ServerPlayerGameModeMixin",
     "TeamCommandMixin"
   ],
   "injectors": {
