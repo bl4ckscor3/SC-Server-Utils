@@ -4,6 +4,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
+import bl4ckscor3.mod.scserverutils.configuration.Configuration;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
 
 /**
@@ -14,6 +15,9 @@ import net.minecraft.world.entity.ai.attributes.AttributeMap;
 public class AttributeMapMixin {
 	@ModifyArg(method = "load", at = @At(value = "INVOKE", target = "Lnet/minecraft/Util;ifElse(Ljava/util/Optional;Ljava/util/function/Consumer;Ljava/lang/Runnable;)Ljava/util/Optional;"), index = 2)
 	public Runnable scserverutils$silenceUnknownAttributeLine(Runnable oldOrElse) {
-		return () -> {};
+		if (Configuration.instance.attributeLogFix.enabled().get())
+			return () -> {};
+		else
+			return oldOrElse;
 	}
 }

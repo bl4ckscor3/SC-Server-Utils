@@ -12,8 +12,10 @@ import bl4ckscor3.mod.scserverutils.configuration.PhantomSpawns;
 import bl4ckscor3.mod.scserverutils.mixin.MinecraftServerAccessor;
 import net.minecraft.commands.CommandSourceStack;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig.Type;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerSpawnPhantomsEvent;
@@ -25,7 +27,9 @@ public class SCServerUtils {
 	public static final String MODID = "scserverutils";
 	public static final Logger LOGGER = LogUtils.getLogger();
 
-	public SCServerUtils() {
+	public SCServerUtils(ModContainer modContainer) {
+		modContainer.registerConfig(Type.STARTUP, Configuration.SPEC, "scserverutils-common.toml");
+
 		if (Configuration.instance.deathLog.enabled().get())
 			NeoForge.EVENT_BUS.addListener(DeathLogger::onLivingDeath);
 

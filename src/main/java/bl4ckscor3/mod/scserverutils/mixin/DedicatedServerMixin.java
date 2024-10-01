@@ -24,10 +24,11 @@ public abstract class DedicatedServerMixin {
 	@Inject(method = "isUnderSpawnProtection", at = @At(value = "RETURN", ordinal = 0), cancellable = true)
 	private void scserverutils$protectNether(ServerLevel level, BlockPos pos, Player player, CallbackInfoReturnable<Boolean> cir) {
 		if (level.dimension() == Level.NETHER) {
-			if (getPlayerList().getOps().isEmpty() || getPlayerList().isOp(player.getGameProfile()))
+			NetherSpawnProtection netherSpawnProtection = Configuration.instance.netherSpawnProtection;
+
+			if (!netherSpawnProtection.enabled().get() || getPlayerList().getOps().isEmpty() || getPlayerList().isOp(player.getGameProfile()))
 				return;
 
-			NetherSpawnProtection netherSpawnProtection = Configuration.instance.netherSpawnProtection;
 			int adjustedX = Mth.abs(pos.getX() - netherSpawnProtection.xOrigin().get());
 			int adjustedZ = Mth.abs(pos.getZ() - netherSpawnProtection.zOrigin().get());
 

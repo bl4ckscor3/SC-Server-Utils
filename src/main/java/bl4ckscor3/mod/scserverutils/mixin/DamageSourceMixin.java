@@ -6,6 +6,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
+import bl4ckscor3.mod.scserverutils.configuration.Configuration;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.damagesource.DamageSource;
@@ -20,7 +21,7 @@ public abstract class DamageSourceMixin {
 	private MutableComponent scserverutils$addFallbackToTriggerKillMessage(String fullMsgId, Object[] args, Operation<MutableComponent> original) {
 		MutableComponent originalReturnValue = original.call(fullMsgId, args);
 
-		if (fullMsgId.equals("death.attack.trigger_kill"))
+		if (Configuration.instance.damageSourceLanguageFallback.enabled().get() && fullMsgId.equals("death.attack.trigger_kill"))
 			return Component.translatableWithFallback(fullMsgId, originalReturnValue.getString(), args);
 		else
 			return originalReturnValue;

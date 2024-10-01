@@ -8,18 +8,18 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.entity.living.LivingAttackEvent;
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 public class PvpPrevention {
 	public static final String IN_SPAWN_PROTECTION_TAG = "in_spawn_protection";
 
 	public static void addListeners() {
-		NeoForge.EVENT_BUS.addListener(PvpPrevention::onLivingAttack);
+		NeoForge.EVENT_BUS.addListener(PvpPrevention::onLivingIncomingDamage);
 		NeoForge.EVENT_BUS.addListener(PvpPrevention::onPlayerTickPost);
 	}
 
-	public static void onLivingAttack(LivingAttackEvent event) {
+	public static void onLivingIncomingDamage(LivingIncomingDamageEvent event) {
 		if (event.getEntity() instanceof Player target && target.level() instanceof ServerLevel level) {
 			if (level.dimension().equals(Level.NETHER) && !Configuration.instance.spawnProtectionPvpPrevention.inNether().get())
 				return;
