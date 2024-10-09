@@ -30,6 +30,7 @@ public class Configuration {
 	public DestroyMismatchLogFix destroyMismatchLogFix;
 	public NetherSpawnProtection netherSpawnProtection;
 	public NoSpawnProtectionSnow noSpawnProtectionSnow;
+	public NoSpawnProtectionSpawns noSpawnProtectionSpawns;
 	public PhantomSpawns phantomSpawns;
 	public SpawnProtectionEffects spawnProtectionEffects;
 	public SpawnProtectionPvpPrevention spawnProtectionPvpPrevention;
@@ -82,6 +83,9 @@ public class Configuration {
 		});
 		pushPop(builder, "No snow in spawn protection", "Disables snow accumulation in spawn protection", () -> {
 			noSpawnProtectionSnow = new NoSpawnProtectionSnow(enabled(builder));
+		});
+		pushPop(builder, "No mobs in spawn protection", "Disables mob spawns in spawn protection", () -> {
+			noSpawnProtectionSpawns = new NoSpawnProtectionSpawns(enabled(builder));
 		});
 		pushPop(builder, "Phantom spawns", "Makes it possible to change how many phantoms spawn when the game wants to spawn them.", () -> {
 			phantomSpawns = new PhantomSpawns( //@formatter:off

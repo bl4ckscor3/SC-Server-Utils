@@ -17,6 +17,7 @@ import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
@@ -39,6 +40,9 @@ public class SpawnProtectionHandler {
 			effects = config.spawnProtectionEffects.resolve();
 			modEventBus.addListener(SpawnProtectionHandler::reloadEffects);
 		}
+
+		if (config.noSpawnProtectionSpawns.enabled().get())
+			NeoForge.EVENT_BUS.addListener(SpawnProtectionHandler::onFinalizeSpawn);
 	}
 
 	private static void onLivingIncomingDamage(LivingIncomingDamageEvent event) {
@@ -72,6 +76,13 @@ public class SpawnProtectionHandler {
 					effects.forEach(effect -> player.addEffect(effect.get()));
 				}
 			}
+		}
+	}
+
+	private static void onFinalizeSpawn(FinalizeSpawnEvent event) {
+		if (event.getLevel() instanceof ServerLevel level && isInSpawnProtection(level, BlockPos.containing(event.getX(), event.getY(), event.getZ()))) {
+			event.setSpawnCancelled(true);
+			event.setCanceled(true);
 		}
 	}
 
