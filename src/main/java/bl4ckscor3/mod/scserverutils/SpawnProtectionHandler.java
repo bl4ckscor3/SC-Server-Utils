@@ -4,33 +4,27 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-import org.slf4j.Logger;
-
-import com.mojang.logging.LogUtils;
-
 import bl4ckscor3.mod.scserverutils.configuration.Configuration;
 import bl4ckscor3.mod.scserverutils.configuration.NetherSpawnProtection;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.common.ModConfigSpec.ConfigValue;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 public class SpawnProtectionHandler {
-	private static final Logger LOGGER = LogUtils.getLogger();
 	public static final String IN_SPAWN_PROTECTION_TAG = "in_spawn_protection";
 	private static List<Supplier<MobEffectInstance>> effects = new ArrayList<>();
 
-	public static void addListeners() {
+	public static void addListeners(IEventBus modEventBus) {
 		Configuration config = Configuration.instance;
 		boolean pvpPreventionEnabled = config.spawnProtectionPvpPrevention.enabled().get();
 		boolean effectsEnabled = config.spawnProtectionEffects.enabled().get();
@@ -41,11 +35,13 @@ public class SpawnProtectionHandler {
 		if (pvpPreventionEnabled)
 			NeoForge.EVENT_BUS.addListener(SpawnProtectionHandler::onLivingIncomingDamage);
 
-		if (effectsEnabled)
-			loadEffects(config.spawnProtectionEffects.effects(), effects);
+		if (effectsEnabled) {
+			effects = config.spawnProtectionEffects.resolve();
+			modEventBus.addListener(SpawnProtectionHandler::reloadEffects);
+		}
 	}
 
-	public static void onLivingIncomingDamage(LivingIncomingDamageEvent event) {
+	private static void onLivingIncomingDamage(LivingIncomingDamageEvent event) {
 		if (event.getEntity() instanceof Player target && target.level() instanceof ServerLevel level) {
 			if (level.dimension().equals(Level.NETHER) && !Configuration.instance.spawnProtectionPvpPrevention.inNether().get())
 				return;
@@ -55,7 +51,7 @@ public class SpawnProtectionHandler {
 		}
 	}
 
-	public static void onPlayerTickPost(PlayerTickEvent.Post event) {
+	private static void onPlayerTickPost(PlayerTickEvent.Post event) {
 		Player player = event.getEntity();
 
 		if (player.level() instanceof ServerLevel level) {
@@ -77,42 +73,6 @@ public class SpawnProtectionHandler {
 				}
 			}
 		}
-	}
-
-	private static void loadEffects(ConfigValue<List<? extends String>> effectsValue, List<Supplier<MobEffectInstance>> effects) {
-		effects.clear();
-
-		for (String entry : effectsValue.get()) {
-			String[] split = entry.split("\\|");
-
-			if (split.length == 3) {
-				int duration = Integer.parseInt(split[1]);
-				int amplifier = Integer.parseInt(split[2]);
-
-				if (validateValue(duration, entry, -1) && validateValue(amplifier, entry, 1)) {
-					ResourceLocation effectLocation = ResourceLocation.parse(split[0]);
-
-					if (!BuiltInRegistries.MOB_EFFECT.containsKey(effectLocation)) {
-						LOGGER.warn("Effect \"{}\" does not exist, skipping", effectLocation);
-						continue;
-					}
-
-					//the amplifier is actually 0-indexed, but 1-indexed in the config for ease of use
-					effects.add(() -> new MobEffectInstance(BuiltInRegistries.MOB_EFFECT.getHolder(effectLocation).get(), duration, amplifier - 1));
-				}
-			}
-			else
-				LOGGER.warn("Not enough information provided for effect \"{}\", skipping", entry);
-		}
-	}
-
-	private static boolean validateValue(int value, String entry, int min) {
-		if (value < min) {
-			LOGGER.warn("Value \"{}\" cannot be less than {} for entry \"{}\", skipping", value, min, entry);
-			return false;
-		}
-
-		return true;
 	}
 
 	public static boolean isInSpawnProtection(ServerLevel level, BlockPos pos) {
@@ -140,5 +100,10 @@ public class SpawnProtectionHandler {
 		int adjustedZ = Mth.abs(pos.getZ() - zOrigin);
 
 		return Math.max(adjustedX, adjustedZ) <= radius;
+	}
+
+	private static void reloadEffects(ModConfigEvent.Reloading event) {
+		if (event.getConfig().getSpec() == Configuration.SPEC)
+			effects = Configuration.instance.spawnProtectionEffects.resolve();
 	}
 }
