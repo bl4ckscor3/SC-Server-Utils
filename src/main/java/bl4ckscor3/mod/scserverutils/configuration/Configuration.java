@@ -29,6 +29,7 @@ public class Configuration {
 	public DeathLog deathLog;
 	public DestroyMismatchLogFix destroyMismatchLogFix;
 	public NetherSpawnProtection netherSpawnProtection;
+	public NoSpawnProtectionSnow noSpawnProtectionSnow;
 	public PhantomSpawns phantomSpawns;
 	public SpawnProtectionPvpPrevention spawnProtectionPvpPrevention;
 	public TeamPermissionLevel teamPermissionLevel;
@@ -77,6 +78,9 @@ public class Configuration {
 					builder.comment("The X coordinate of the nether spawn's origin").defineInRange("x_origin", 0, Integer.MIN_VALUE, Integer.MAX_VALUE),
 					builder.comment("The Z coordinate of the nether spawn's origin").defineInRange("z_origin", 0, Integer.MIN_VALUE, Integer.MAX_VALUE));
 					//@formatter:on
+		});
+		pushPop(builder, "No snow in spawn protection", "Disables snow accumulation in spawn protection", () -> {
+			noSpawnProtectionSnow = new NoSpawnProtectionSnow(enabled(builder));
 		});
 		pushPop(builder, "Phantom spawns", "Makes it possible to change how many phantoms spawn when the game wants to spawn them.", () -> {
 			phantomSpawns = new PhantomSpawns( //@formatter:off
