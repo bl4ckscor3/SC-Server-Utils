@@ -9,12 +9,14 @@ import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
 
 import bl4ckscor3.mod.scserverutils.configuration.Configuration;
+import bl4ckscor3.mod.scserverutils.configuration.NetherSpawnProtection;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -48,12 +50,8 @@ public class SpawnProtectionHandler {
 			if (level.dimension().equals(Level.NETHER) && !Configuration.instance.spawnProtectionPvpPrevention.inNether().get())
 				return;
 
-			if (event.getSource().getEntity() instanceof Player attacker) {
-				MinecraftServer server = level.getServer();
-
-				if (server.isUnderSpawnProtection(level, target.blockPosition(), target) || server.isUnderSpawnProtection(level, attacker.blockPosition(), attacker))
-					event.setCanceled(true);
-			}
+			if (event.getSource().getEntity() instanceof Player attacker)
+				event.setCanceled(isInSpawnProtection(level, target.blockPosition()) || isInSpawnProtection(level, attacker.blockPosition()));
 		}
 	}
 
@@ -66,7 +64,7 @@ public class SpawnProtectionHandler {
 
 			boolean wasInSpawnProtectedArea = player.getTags().contains(IN_SPAWN_PROTECTION_TAG);
 
-			if (wasInSpawnProtectedArea != player.getServer().isUnderSpawnProtection(level, player.blockPosition(), player)) {
+			if (wasInSpawnProtectedArea != isInSpawnProtection(level, player.blockPosition())) {
 				if (wasInSpawnProtectedArea) {
 					player.displayClientMessage(Component.translatable("scserverutils.pvp_on").withStyle(ChatFormatting.RED), true);
 					player.removeTag(IN_SPAWN_PROTECTION_TAG);
@@ -115,5 +113,32 @@ public class SpawnProtectionHandler {
 		}
 
 		return true;
+	}
+
+	public static boolean isInSpawnProtection(ServerLevel level, BlockPos pos) {
+		int radius, xOrigin, zOrigin;
+
+		if (level.dimension() == Level.NETHER) {
+			NetherSpawnProtection netherSpawnProtection = Configuration.instance.netherSpawnProtection;
+
+			if (!netherSpawnProtection.enabled().get())
+				return false;
+
+			radius = netherSpawnProtection.radius().get();
+			xOrigin = netherSpawnProtection.xOrigin().get();
+			zOrigin = netherSpawnProtection.zOrigin().get();
+		}
+		else {
+			BlockPos spawnPos = level.getSharedSpawnPos();
+
+			radius = level.getServer().getSpawnProtectionRadius();
+			xOrigin = spawnPos.getX();
+			zOrigin = spawnPos.getZ();
+		}
+
+		int adjustedX = Mth.abs(pos.getX() - xOrigin);
+		int adjustedZ = Mth.abs(pos.getZ() - zOrigin);
+
+		return Math.max(adjustedX, adjustedZ) <= radius;
 	}
 }
