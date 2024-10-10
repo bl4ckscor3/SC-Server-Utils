@@ -80,7 +80,9 @@ public class SpawnProtectionHandler {
 	}
 
 	private static void onFinalizeSpawn(FinalizeSpawnEvent event) {
-		if (event.getLevel() instanceof ServerLevel level && isInSpawnProtection(level, BlockPos.containing(event.getX(), event.getY(), event.getZ()))) {
+		ServerLevel level = event.getLevel().getLevel();
+
+		if (isInSpawnProtection(level, BlockPos.containing(event.getX(), event.getY(), event.getZ()))) {
 			event.setSpawnCancelled(true);
 			event.setCanceled(true);
 		}

@@ -27,13 +27,13 @@ public class Configuration {
 	public List<CommandConfig> commands = new ArrayList<>();
 	public DamageSourceLanguageFallback damageSourceLanguageFallback;
 	public DeathLog deathLog;
-	public DestroyMismatchLogFix destroyMismatchLogFix;
 	public NetherSpawnProtection netherSpawnProtection;
 	public NoSpawnProtectionSnow noSpawnProtectionSnow;
 	public NoSpawnProtectionSpawns noSpawnProtectionSpawns;
 	public PhantomSpawns phantomSpawns;
 	public SpawnProtectionEffects spawnProtectionEffects;
 	public SpawnProtectionPvpPrevention spawnProtectionPvpPrevention;
+	public SuppressDestroyMismatchLog suppressDestroyMismatchLog;
 	public TeamPermissionLevel teamPermissionLevel;
 
 	static {
@@ -70,9 +70,6 @@ public class Configuration {
 					builder.comment("The path where death logs are saved, relative to the game directory.").define("save_path", SCServerUtils.MODID + "/death_logs"));
 					//@formatter:on
 		});
-		pushPop(builder, "Destroy mismatch log removal", "Removes the \"Mismatch in destroy block pos\" log message to reduce console spam", () -> {
-			destroyMismatchLogFix = new DestroyMismatchLogFix(enabled(builder));
-		});
 		pushPop(builder, "Nether spawn protection", "Adds spawn protection to the nether", () -> {
 			netherSpawnProtection = new NetherSpawnProtection( //@formatter:off
 					enabled(builder),
@@ -108,6 +105,11 @@ public class Configuration {
 					enabled(builder),
 					builder.comment("Whether to also disable PvP in the nether spawn protection, which needs to be enabled for this setting to take effect").define("disable_in_nether", false));
 					//@formatter:on
+		});
+		pushPop(builder, "Suppress destroy mismatch log", "Removes the \"Mismatch in destroy block pos\" log message to reduce console spam", () -> {
+			suppressDestroyMismatchLog = new SuppressDestroyMismatchLog( //@formatter:off
+					enabled(builder),
+					builder.comment("Whether to only disable this message when the destroy position is within spawn protection.").define("only_in_spawn_protection", true));
 		});
 		pushPop(builder, "Team command permission level", "Allows changing the permission level for the /team command", () -> {
 			teamPermissionLevel = new TeamPermissionLevel( //@formatter:off
