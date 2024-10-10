@@ -36,7 +36,7 @@ public record SpawnProtectionEffects(BooleanValue enabled, ConfigValue<List<? ex
 					}
 
 					//the amplifier is actually 0-indexed, but 1-indexed in the config for ease of use
-					resolvedEffects.add(() -> new MobEffectInstance(BuiltInRegistries.MOB_EFFECT.getHolder(effectLocation).get(), duration, amplifier - 1));
+					resolvedEffects.add(() -> new MobEffectInstance(BuiltInRegistries.MOB_EFFECT.getHolder(effectLocation).get(), duration, amplifier - 1, false, false));
 				}
 			}
 			else
