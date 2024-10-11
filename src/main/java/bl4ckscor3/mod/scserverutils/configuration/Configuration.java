@@ -14,6 +14,7 @@ import bl4ckscor3.mod.scserverutils.commands.DeathLogCommand;
 import bl4ckscor3.mod.scserverutils.commands.EnderchestCommand;
 import bl4ckscor3.mod.scserverutils.commands.InvseeCommand;
 import bl4ckscor3.mod.scserverutils.commands.PlayerHeadCommand;
+import bl4ckscor3.mod.scserverutils.commands.RulesCommand;
 import net.minecraft.commands.CommandSourceStack;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.common.ModConfigSpec.BooleanValue;
@@ -59,7 +60,7 @@ public class Configuration {
 			addCommandConfig(builder, "enderchest", 2, () -> EnderchestCommand::register);
 			addCommandConfig(builder, "invsee", 2, () -> InvseeCommand::register);
 			addCommandConfig(builder, "playerhead", 1, () -> PlayerHeadCommand::register);
-			addCommandConfig(builder, "rules", 0, () -> DeathLogCommand::register);
+			addCommandConfig(builder, "rules", 0, () -> RulesCommand::register);
 		});
 		pushPop(builder, "Damage source language fallback", "Adds a fallback to the \"/trigger kill_self\" death message so people without the resource pack see the correct message", () -> {
 			damageSourceLanguageFallback = new DamageSourceLanguageFallback(enabled(builder));
