@@ -14,9 +14,9 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.neoforged.neoforge.common.ModConfigSpec.BooleanValue;
 import net.neoforged.neoforge.common.ModConfigSpec.ConfigValue;
 
-public record SpawnProtectionEffects(BooleanValue enabled, ConfigValue<List<? extends String>> effects) {
-	private static final Logger LOGGER = LogUtils.getLogger();
+public record SpawnProtectionEffects(BooleanValue enabled, ConfigValue<List<? extends String>> effects, BooleanValue inNether) {
 
+	private static final Logger LOGGER = LogUtils.getLogger();
 	public List<Supplier<MobEffectInstance>> resolve() {
 		List<Supplier<MobEffectInstance>> resolvedEffects = new ArrayList<>();
 

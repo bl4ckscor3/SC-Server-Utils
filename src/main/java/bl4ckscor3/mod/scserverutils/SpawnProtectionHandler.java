@@ -17,6 +17,7 @@ import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.EntityTravelToDimensionEvent;
 import net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
@@ -30,8 +31,10 @@ public class SpawnProtectionHandler {
 		boolean pvpPreventionEnabled = config.spawnProtectionPvpPrevention.enabled().get();
 		boolean effectsEnabled = config.spawnProtectionEffects.enabled().get();
 
-		if (pvpPreventionEnabled || effectsEnabled)
+		if (pvpPreventionEnabled || effectsEnabled) {
 			NeoForge.EVENT_BUS.addListener(SpawnProtectionHandler::onPlayerTickPost);
+			NeoForge.EVENT_BUS.addListener(SpawnProtectionHandler::onEntityTravelToDimension);
+		}
 
 		if (pvpPreventionEnabled)
 			NeoForge.EVENT_BUS.addListener(SpawnProtectionHandler::onLivingIncomingDamage);
@@ -59,22 +62,49 @@ public class SpawnProtectionHandler {
 		Player player = event.getEntity();
 
 		if (player.level() instanceof ServerLevel level) {
-			if (level.dimension().equals(Level.NETHER) && !Configuration.instance.spawnProtectionPvpPrevention.inNether().get())
-				return;
-
 			boolean wasInSpawnProtectedArea = player.getTags().contains(IN_SPAWN_PROTECTION_TAG);
 
 			if (wasInSpawnProtectedArea != isInSpawnProtection(level, player.blockPosition())) {
+				boolean isNether = level.dimension().equals(Level.NETHER);
+
 				if (wasInSpawnProtectedArea) {
-					player.displayClientMessage(Component.translatable("scserverutils.pvp_on").withStyle(ChatFormatting.RED), true);
 					player.removeTag(IN_SPAWN_PROTECTION_TAG);
-					effects.forEach(effect -> player.removeEffect(effect.get().getEffect()));
+
+					if (!isNether || Configuration.instance.spawnProtectionPvpPrevention.inNether().get())
+						player.displayClientMessage(Component.translatable("scserverutils.pvp_on").withStyle(ChatFormatting.RED), true);
+
+					if (!isNether || Configuration.instance.spawnProtectionEffects.inNether().get())
+						effects.forEach(effect -> player.removeEffect(effect.get().getEffect()));
 				}
 				else {
-					player.displayClientMessage(Component.translatable("scserverutils.pvp_off").withStyle(ChatFormatting.GREEN), true);
 					player.addTag(IN_SPAWN_PROTECTION_TAG);
-					effects.forEach(effect -> player.addEffect(effect.get()));
+
+					if (!isNether || Configuration.instance.spawnProtectionPvpPrevention.inNether().get())
+						player.displayClientMessage(Component.translatable("scserverutils.pvp_off").withStyle(ChatFormatting.GREEN), true);
+
+					if (!isNether || Configuration.instance.spawnProtectionEffects.inNether().get())
+						effects.forEach(effect -> player.addEffect(effect.get()));
 				}
+			}
+		}
+	}
+
+	private static void onEntityTravelToDimension(EntityTravelToDimensionEvent event) {
+		if (event.getEntity() instanceof Player player && player.getTags().contains(IN_SPAWN_PROTECTION_TAG)) {
+			boolean isNether = event.getDimension().equals(Level.NETHER);
+
+			if (!Configuration.instance.spawnProtectionPvpPrevention.inNether().get()) {
+				if (isNether)
+					player.displayClientMessage(Component.translatable("scserverutils.pvp_on").withStyle(ChatFormatting.RED), true);
+				else
+					player.displayClientMessage(Component.translatable("scserverutils.pvp_off").withStyle(ChatFormatting.GREEN), true);
+			}
+
+			if (!Configuration.instance.spawnProtectionEffects.inNether().get()) {
+				if (isNether)
+					effects.forEach(effect -> player.removeEffect(effect.get().getEffect()));
+				else
+					effects.forEach(effect -> player.addEffect(effect.get()));
 			}
 		}
 	}

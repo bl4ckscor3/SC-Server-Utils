@@ -98,7 +98,8 @@ public class Configuration {
 					builder.comment("Which effects players should have while in spawn protection. One entry corresponds to one effect, and is formatted like this:",
 						"effect_namespace:effect_path|duration|amplifier",
 						"Example: The entry \"minecraft:slowness|20|1\" defines slowness 1 for 1 second (20 ticks = 1 second).")
-						.defineList("effects", List.of("minecraft:regeneration|-1|3", "minecraft:speed|-1|3"), () -> "", String.class::isInstance));
+						.defineList("effects", List.of("minecraft:regeneration|-1|3", "minecraft:speed|-1|3"), () -> "", String.class::isInstance),
+					builder.comment("Whether to add the effects in the nether as well").define("in_nether", false));
 					//@formatter:on
 		});
 		pushPop(builder, "Spawn protection PvP prevention", "Disables pvp in spawn protection", () -> {
