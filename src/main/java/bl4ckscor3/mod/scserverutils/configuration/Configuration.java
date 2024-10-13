@@ -29,6 +29,7 @@ public class Configuration {
 	public AttributeLogFix attributeLogFix;
 	public AutosaveInterval autosaveInterval;
 	public List<CommandConfig> commands = new ArrayList<>();
+	public CustomServerLinks customServerLinks;
 	public DamageSourceLanguageFallback damageSourceLanguageFallback;
 	public DeathLog deathLog;
 	public NetherSpawnProtection netherSpawnProtection;
@@ -68,6 +69,13 @@ public class Configuration {
 			addCommandConfig(builder, "playerhead", 1, () -> PlayerHeadCommand::register);
 			addCommandConfig(builder, "rules", 0, () -> RulesCommand::register);
 		});
+		pushPop(builder, "Custom server links", "Server links to send to a connecting player", () -> {
+			customServerLinks = new CustomServerLinks( //@formatter:off
+					enabled(builder),
+					builder.comment("Each entry is a triple of link|translation_key|fallback")
+					.defineList("server_links", List.of(), () -> "", String.class::isInstance));
+					//@formatter:on
+		});
 		pushPop(builder, "Damage source language fallback", "Adds a fallback to the \"/trigger kill_self\" death message so people without the resource pack see the correct message", () -> {
 			damageSourceLanguageFallback = new DamageSourceLanguageFallback(enabled(builder));
 		});
@@ -95,6 +103,7 @@ public class Configuration {
 						.comment("Types of mob spawns that are allowed to spawn a mob within spawn protection. Allowed values:",
 								Arrays.stream(MobSpawnType.values()).map(Enum::name).toList().toString())
 						.defineList("allowed_types", List.of(MobSpawnType.COMMAND.name(), MobSpawnType.SPAWN_EGG.name()), () -> "", String.class::isInstance));
+					//@formatter:on
 		});
 		pushPop(builder, "Phantom spawns", "Makes it possible to change how many phantoms spawn when the game wants to spawn them.", () -> {
 			phantomSpawns = new PhantomSpawns( //@formatter:off
