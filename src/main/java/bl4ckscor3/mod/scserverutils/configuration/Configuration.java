@@ -1,6 +1,7 @@
 package bl4ckscor3.mod.scserverutils.configuration;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
@@ -16,6 +17,7 @@ import bl4ckscor3.mod.scserverutils.commands.InvseeCommand;
 import bl4ckscor3.mod.scserverutils.commands.PlayerHeadCommand;
 import bl4ckscor3.mod.scserverutils.commands.RulesCommand;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.world.entity.MobSpawnType;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.common.ModConfigSpec.BooleanValue;
 import net.neoforged.neoforge.common.ModConfigSpec.IntValue;
@@ -87,7 +89,12 @@ public class Configuration {
 			noSpawnProtectionSnow = new NoSpawnProtectionSnow(enabled(builder));
 		});
 		pushPop(builder, "No mobs in spawn protection", "Disables mob spawns in spawn protection", () -> {
-			noSpawnProtectionSpawns = new NoSpawnProtectionSpawns(enabled(builder));
+			noSpawnProtectionSpawns = new NoSpawnProtectionSpawns( //@formatter:off
+					enabled(builder),
+					builder
+						.comment("Types of mob spawns that are allowed to spawn a mob within spawn protection. Allowed values:",
+								Arrays.stream(MobSpawnType.values()).map(Enum::name).toList().toString())
+						.defineList("allowed_types", List.of(MobSpawnType.COMMAND.name(), MobSpawnType.SPAWN_EGG.name()), () -> "", String.class::isInstance));
 		});
 		pushPop(builder, "Phantom spawns", "Makes it possible to change how many phantoms spawn when the game wants to spawn them.", () -> {
 			phantomSpawns = new PhantomSpawns( //@formatter:off

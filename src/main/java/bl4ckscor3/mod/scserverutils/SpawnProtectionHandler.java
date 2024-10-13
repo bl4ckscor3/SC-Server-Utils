@@ -12,6 +12,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.IEventBus;
@@ -25,6 +26,7 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 public class SpawnProtectionHandler {
 	public static final String IN_SPAWN_PROTECTION_TAG = "in_spawn_protection";
 	private static List<Supplier<MobEffectInstance>> effects = new ArrayList<>();
+	private static List<MobSpawnType> allowedSpawnTypes = new ArrayList<>();
 
 	public static void addListeners(IEventBus modEventBus) {
 		Configuration config = Configuration.instance;
@@ -41,11 +43,13 @@ public class SpawnProtectionHandler {
 
 		if (effectsEnabled) {
 			effects = config.spawnProtectionEffects.resolve();
-			modEventBus.addListener(SpawnProtectionHandler::reloadEffects);
+			modEventBus.addListener(SpawnProtectionHandler::reloadResolvedConfigValues);
 		}
 
-		if (config.noSpawnProtectionSpawns.enabled().get())
+		if (config.noSpawnProtectionSpawns.enabled().get()) {
+			allowedSpawnTypes = config.noSpawnProtectionSpawns.resolve();
 			NeoForge.EVENT_BUS.addListener(SpawnProtectionHandler::onFinalizeSpawn);
+		}
 	}
 
 	private static void onLivingIncomingDamage(LivingIncomingDamageEvent event) {
@@ -112,7 +116,7 @@ public class SpawnProtectionHandler {
 	private static void onFinalizeSpawn(FinalizeSpawnEvent event) {
 		ServerLevel level = event.getLevel().getLevel();
 
-		if (isInSpawnProtection(level, BlockPos.containing(event.getX(), event.getY(), event.getZ()))) {
+		if (isInSpawnProtection(level, BlockPos.containing(event.getX(), event.getY(), event.getZ())) && !allowedSpawnTypes.contains(event.getSpawnType())) {
 			event.setSpawnCancelled(true);
 			event.setCanceled(true);
 		}
@@ -147,8 +151,10 @@ public class SpawnProtectionHandler {
 		return Math.max(adjustedX, adjustedZ) <= radius;
 	}
 
-	private static void reloadEffects(ModConfigEvent.Reloading event) {
-		if (event.getConfig().getSpec() == Configuration.SPEC)
+	private static void reloadResolvedConfigValues(ModConfigEvent.Reloading event) {
+		if (event.getConfig().getSpec() == Configuration.SPEC) {
 			effects = Configuration.instance.spawnProtectionEffects.resolve();
+			allowedSpawnTypes = Configuration.instance.noSpawnProtectionSpawns.resolve();
+		}
 	}
 }
