@@ -12,7 +12,8 @@
     "MinecraftServerMixin",
 	"ServerLevelMixin",
 	"ServerPlayerGameModeMixin",
-    "TeamCommandMixin"
+    "TeamCommandMixin",
+	"sc.IModuleInventoryMixin"
   ],
   "injectors": {
     "defaultRequire": 1

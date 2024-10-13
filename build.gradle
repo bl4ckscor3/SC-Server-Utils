@@ -31,8 +31,18 @@ runs {
     }
 }
 
+repositories {
+    maven {
+        url "https://cursemaven.com/"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
+}
+
 dependencies {
     implementation 'net.neoforged:neoforge:21.1.47'
+    implementation "curse.maven:security-craft-64760:5779958"
 }
 
 tasks.named('jar', Jar).configure {

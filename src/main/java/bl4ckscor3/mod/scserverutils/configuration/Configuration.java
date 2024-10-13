@@ -23,6 +23,7 @@ import net.neoforged.neoforge.common.ModConfigSpec.IntValue;
 public class Configuration {
 	public static final ModConfigSpec SPEC;
 	public static final Configuration instance;
+	public AdvancementAllowlists advancementAllowlists;
 	public AttributeLogFix attributeLogFix;
 	public AutosaveInterval autosaveInterval;
 	public List<CommandConfig> commands = new ArrayList<>();
@@ -45,6 +46,9 @@ public class Configuration {
 	}
 
 	Configuration(ModConfigSpec.Builder builder) {
+		pushPop(builder, "Advancement-activated allowlists", "Enables allowlists to allow players who have a specific advancement by adding an advancement to its list", () -> {
+			advancementAllowlists = new AdvancementAllowlists(enabled(builder));
+		});
 		pushPop(builder, "Attribute log removal", "Removes the \"Unknown Attribute\" log message to reduce console spam", () -> {
 			attributeLogFix = new AttributeLogFix(enabled(builder));
 		});
