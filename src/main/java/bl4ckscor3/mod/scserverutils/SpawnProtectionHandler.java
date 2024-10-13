@@ -131,13 +131,15 @@ public class SpawnProtectionHandler {
 			xOrigin = netherSpawnProtection.xOrigin().get();
 			zOrigin = netherSpawnProtection.zOrigin().get();
 		}
-		else {
+		else if (level.dimension() == Level.OVERWORLD) {
 			BlockPos spawnPos = level.getSharedSpawnPos();
 
 			radius = level.getServer().getSpawnProtectionRadius();
 			xOrigin = spawnPos.getX();
 			zOrigin = spawnPos.getZ();
 		}
+		else
+			return false;
 
 		int adjustedX = Mth.abs(pos.getX() - xOrigin);
 		int adjustedZ = Mth.abs(pos.getZ() - zOrigin);
