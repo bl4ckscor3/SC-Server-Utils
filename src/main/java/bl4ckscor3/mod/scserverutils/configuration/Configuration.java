@@ -102,7 +102,10 @@ public class Configuration {
 					builder
 						.comment("Types of mob spawns that are allowed to spawn a mob within spawn protection. Allowed values:",
 								Arrays.stream(MobSpawnType.values()).map(Enum::name).toList().toString())
-						.defineList("allowed_types", List.of(MobSpawnType.COMMAND.name(), MobSpawnType.SPAWN_EGG.name()), () -> "", String.class::isInstance));
+						.defineList("allowed_types", List.of(MobSpawnType.COMMAND.name(), MobSpawnType.SPAWN_EGG.name()), () -> "", String.class::isInstance),
+					builder
+						.comment("Entity types for which verbose logging is enabled when they try to spawn")
+						.defineList("verbose_logging_for", List.of(), () -> "", String.class::isInstance));
 					//@formatter:on
 		});
 		pushPop(builder, "Phantom spawns", "Makes it possible to change how many phantoms spawn when the game wants to spawn them.", () -> {

@@ -6,13 +6,13 @@ import java.util.function.Supplier;
 
 import bl4ckscor3.mod.scserverutils.configuration.Configuration;
 import bl4ckscor3.mod.scserverutils.configuration.NetherSpawnProtection;
+import bl4ckscor3.mod.scserverutils.configuration.NoSpawnProtectionSpawns;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.IEventBus;
@@ -26,7 +26,7 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 public class SpawnProtectionHandler {
 	public static final String IN_SPAWN_PROTECTION_TAG = "in_spawn_protection";
 	private static List<Supplier<MobEffectInstance>> effects = new ArrayList<>();
-	private static List<MobSpawnType> allowedSpawnTypes = new ArrayList<>();
+	private static NoSpawnProtectionSpawns.Info spawnInfo = new NoSpawnProtectionSpawns.Info(List.of(), List.of());
 
 	public static void addListeners(IEventBus modEventBus) {
 		Configuration config = Configuration.instance;
@@ -47,7 +47,7 @@ public class SpawnProtectionHandler {
 		}
 
 		if (config.noSpawnProtectionSpawns.enabled().get()) {
-			allowedSpawnTypes = config.noSpawnProtectionSpawns.resolve();
+			spawnInfo = config.noSpawnProtectionSpawns.resolve();
 			NeoForge.EVENT_BUS.addListener(SpawnProtectionHandler::onFinalizeSpawn);
 		}
 	}
@@ -115,21 +115,44 @@ public class SpawnProtectionHandler {
 
 	private static void onFinalizeSpawn(FinalizeSpawnEvent event) {
 		ServerLevel level = event.getLevel().getLevel();
+		boolean verbose = spawnInfo.verboseLoggingFor().contains(event.getEntity().getType());
 
-		if (isInSpawnProtection(level, BlockPos.containing(event.getX(), event.getY(), event.getZ())) && !allowedSpawnTypes.contains(event.getSpawnType())) {
+		if (verbose) {
+			SCServerUtils.LOGGER.info("Spawn type: {}", event.getSpawnType());
+			SCServerUtils.LOGGER.info("Is spawn type disallowed: {}", !spawnInfo.allowedSpawnTypes().contains(event.getSpawnType()));
+			SCServerUtils.LOGGER.info("Entity spawns at {}", BlockPos.containing(event.getX(), event.getY(), event.getZ()));
+		}
+
+		if (isInSpawnProtection(level, BlockPos.containing(event.getX(), event.getY(), event.getZ()), verbose) && !spawnInfo.allowedSpawnTypes().contains(event.getSpawnType())) {
+			if (verbose)
+				SCServerUtils.LOGGER.info("Cancelling spawn");
+
 			event.setSpawnCancelled(true);
 			event.setCanceled(true);
 		}
+		else if (verbose)
+			SCServerUtils.LOGGER.info("Not cancelling spawn");
 	}
 
 	public static boolean isInSpawnProtection(ServerLevel level, BlockPos pos) {
+		return isInSpawnProtection(level, pos, false);
+	}
+
+	public static boolean isInSpawnProtection(ServerLevel level, BlockPos pos, boolean verbose) {
 		int radius, xOrigin, zOrigin;
+
+		if (verbose)
+			SCServerUtils.LOGGER.info("Spawn protection check in: {}", level.dimension());
 
 		if (level.dimension() == Level.NETHER) {
 			NetherSpawnProtection netherSpawnProtection = Configuration.instance.netherSpawnProtection;
 
-			if (!netherSpawnProtection.enabled().get())
+			if (!netherSpawnProtection.enabled().get()) {
+				if (verbose)
+					SCServerUtils.LOGGER.info("Spawn protection disabled, returning false");
+
 				return false;
+			}
 
 			radius = netherSpawnProtection.radius().get();
 			xOrigin = netherSpawnProtection.xOrigin().get();
@@ -142,19 +165,34 @@ public class SpawnProtectionHandler {
 			xOrigin = spawnPos.getX();
 			zOrigin = spawnPos.getZ();
 		}
-		else
+		else {
+			if (verbose)
+				SCServerUtils.LOGGER.info("Neither nether nor overworld, returning false");
+
 			return false;
+		}
 
 		int adjustedX = Mth.abs(pos.getX() - xOrigin);
 		int adjustedZ = Mth.abs(pos.getZ() - zOrigin);
+		int max = Math.max(adjustedX, adjustedZ);
 
-		return Math.max(adjustedX, adjustedZ) <= radius;
+		if (verbose) {
+			SCServerUtils.LOGGER.info("radius: {}", radius);
+			SCServerUtils.LOGGER.info("xOrigin: {}", xOrigin);
+			SCServerUtils.LOGGER.info("zOrigin: {}", zOrigin);
+			SCServerUtils.LOGGER.info("adjustedX: {}", adjustedX);
+			SCServerUtils.LOGGER.info("adjustedZ: {}", adjustedZ);
+			SCServerUtils.LOGGER.info("max: {}", max);
+			SCServerUtils.LOGGER.info("Returning max <= radius: {}", max <= radius);
+		}
+
+		return max <= radius;
 	}
 
 	private static void reloadResolvedConfigValues(ModConfigEvent.Reloading event) {
 		if (event.getConfig().getSpec() == Configuration.SPEC) {
 			effects = Configuration.instance.spawnProtectionEffects.resolve();
-			allowedSpawnTypes = Configuration.instance.noSpawnProtectionSpawns.resolve();
+			spawnInfo = Configuration.instance.noSpawnProtectionSpawns.resolve();
 		}
 	}
 }
