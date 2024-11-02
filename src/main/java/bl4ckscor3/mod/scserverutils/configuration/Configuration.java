@@ -90,7 +90,8 @@ public class Configuration {
 					enabled(builder),
 					builder.comment("The square radius in blocks that is under spawn protection.").defineInRange("radius", 32, 0, Integer.MAX_VALUE),
 					builder.comment("The X coordinate of the nether spawn's origin").defineInRange("x_origin", 0, Integer.MIN_VALUE, Integer.MAX_VALUE),
-					builder.comment("The Z coordinate of the nether spawn's origin").defineInRange("z_origin", 0, Integer.MIN_VALUE, Integer.MAX_VALUE));
+					builder.comment("The Z coordinate of the nether spawn's origin").defineInRange("z_origin", 0, Integer.MIN_VALUE, Integer.MAX_VALUE),
+					builder.comment("Tag that, when added to a player, makes that player bypass nether spawn protection").define("bypass_tag", "bypasses_nether_spawn_protection"));
 					//@formatter:on
 		});
 		pushPop(builder, "No snow in spawn protection", "Disables snow accumulation in spawn protection", () -> {
