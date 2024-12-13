@@ -36,6 +36,7 @@ public class Configuration {
 	public NoSpawnProtectionSnow noSpawnProtectionSnow;
 	public NoSpawnProtectionSpawns noSpawnProtectionSpawns;
 	public PhantomSpawns phantomSpawns;
+	public SpawnProtectionBlockBypass spawnProtectionBlockBypass;
 	public SpawnProtectionEffects spawnProtectionEffects;
 	public SpawnProtectionPvpPrevention spawnProtectionPvpPrevention;
 	public SuppressDestroyMismatchLog suppressDestroyMismatchLog;
@@ -115,6 +116,13 @@ public class Configuration {
 					builder.comment("The minimum amount of phantoms to spawn").defineInRange("min_spawns", 0, 0, Integer.MAX_VALUE),
 					builder.comment("The maximum amount of phantoms to spawn").defineInRange("max_spawns", 1, 0, Integer.MAX_VALUE),
 					builder.comment("Whether to disable phantoms spawning for players in spawn protection").define("disable_in_spawn_protection", true));
+					//@formatter:on
+		});
+		pushPop(builder, "Spawn protection block bypass", "Blocks that players will be able to rightclick in spawn protection", () -> {
+			spawnProtectionBlockBypass = new SpawnProtectionBlockBypass( //@formatter:off
+					enabled(builder),
+					builder.comment("Which blocks players should be able to rightclick while in spawn protection. One entry corresponds to one block, and is formatted like a registry name, visible with F3+H")
+						.defineList("blocks", List.of("minecraft:ender_chest", "minecraft:lectern", "securitycraft:reinforced_lectern"), () -> "", String.class::isInstance));
 					//@formatter:on
 		});
 		pushPop(builder, "Spawn protection effects", "Effects to give players in spawn protection", () -> {

@@ -10,6 +10,7 @@
     "DedicatedServerMixin",
 	"MinecraftServerAccessor",
     "MinecraftServerMixin",
+	"ServerGamePacketListenerImplMixin",
 	"ServerLevelMixin",
 	"ServerPlayerGameModeMixin",
     "TeamCommandMixin",
