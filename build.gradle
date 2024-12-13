@@ -2,14 +2,14 @@ plugins {
     id 'java-library'
     id 'eclipse'
     id 'idea'
-    id 'net.neoforged.gradle.userdev' version '7.0.+'
+    id 'net.neoforged.gradle.userdev' version '7.0.165'
 }
 
 version = '1.12.1'
 group = 'bl4ckscor3.mod.scserverutils'
 
 base {
-	archivesName = 'scserverutils-1.21.1'
+	archivesName = 'scserverutils-1.21.3'
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
@@ -41,8 +41,8 @@ repositories {
 }
 
 dependencies {
-    implementation 'net.neoforged:neoforge:21.1.47'
-    implementation "curse.maven:security-craft-64760:5779958"
+    implementation 'net.neoforged:neoforge:21.3.58'
+    implementation "curse.maven:security-craft-64760:5950158"
 }
 
 tasks.named('jar', Jar).configure {

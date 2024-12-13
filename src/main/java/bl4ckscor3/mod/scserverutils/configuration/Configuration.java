@@ -17,7 +17,7 @@ import bl4ckscor3.mod.scserverutils.commands.InvseeCommand;
 import bl4ckscor3.mod.scserverutils.commands.PlayerHeadCommand;
 import bl4ckscor3.mod.scserverutils.commands.RulesCommand;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.common.ModConfigSpec.BooleanValue;
 import net.neoforged.neoforge.common.ModConfigSpec.IntValue;
@@ -102,8 +102,8 @@ public class Configuration {
 					enabled(builder),
 					builder
 						.comment("Types of mob spawns that are allowed to spawn a mob within spawn protection. Allowed values:",
-								Arrays.stream(MobSpawnType.values()).map(Enum::name).toList().toString())
-						.defineList("allowed_types", List.of(MobSpawnType.COMMAND.name(), MobSpawnType.SPAWN_EGG.name()), () -> "", String.class::isInstance),
+								Arrays.stream(EntitySpawnReason.values()).map(Enum::name).toList().toString())
+						.defineList("allowed_types", List.of(EntitySpawnReason.COMMAND.name(), EntitySpawnReason.SPAWN_ITEM_USE.name()), () -> "", String.class::isInstance),
 					builder
 						.comment("Entity types for which verbose logging is enabled when they try to spawn")
 						.defineList("verbose_logging_for", List.of(), () -> "", String.class::isInstance));
