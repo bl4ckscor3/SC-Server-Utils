@@ -104,7 +104,17 @@ public class Configuration {
 					builder
 						.comment("Types of mob spawns that are allowed to spawn a mob within spawn protection. Allowed values:",
 								Arrays.stream(EntitySpawnReason.values()).map(Enum::name).toList().toString())
-						.defineList("allowed_types", List.of(EntitySpawnReason.COMMAND.name(), EntitySpawnReason.SPAWN_ITEM_USE.name()), () -> "", String.class::isInstance),
+						.defineList("allowed_reasons",
+								List.of(
+									EntitySpawnReason.COMMAND,
+									EntitySpawnReason.LOAD,
+									EntitySpawnReason.MOB_SUMMONED,
+									EntitySpawnReason.SPAWN_ITEM_USE)
+								.stream()
+								.map(Enum::name)
+								.toList(),
+								() -> "",
+								String.class::isInstance),
 					builder
 						.comment("Entity types for which verbose logging is enabled when they try to spawn")
 						.defineList("verbose_logging_for", List.of(), () -> "", String.class::isInstance));
