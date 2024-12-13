@@ -14,6 +14,7 @@ import bl4ckscor3.mod.scserverutils.mixin.MinecraftServerAccessor;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.protocol.common.ClientboundServerLinksPacket;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
@@ -77,7 +78,13 @@ public class SCServerUtils {
 	public static void onPlayerSpawnPhantoms(PlayerSpawnPhantomsEvent event) {
 		PhantomSpawns phantomSpawns = Configuration.instance.phantomSpawns;
 
-		if (phantomSpawns.enabled().get())
-			event.setPhantomsToSpawn(phantomSpawns.min().get() + event.getEntity().level().random.nextInt(phantomSpawns.max().get() + 1));
+		if (phantomSpawns.enabled().get()) {
+			Player player = event.getEntity();
+
+			if (phantomSpawns.disableInSpawnProtection().get() && SpawnProtectionHandler.isInSpawnProtection(player.level(), player.blockPosition()))
+				event.setPhantomsToSpawn(0);
+			else
+				event.setPhantomsToSpawn(phantomSpawns.min().get() + player.level().random.nextInt(phantomSpawns.max().get() + 1));
+		}
 	}
 }

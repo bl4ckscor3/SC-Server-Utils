@@ -134,11 +134,11 @@ public class SpawnProtectionHandler {
 			SCServerUtils.LOGGER.info("Not cancelling spawn");
 	}
 
-	public static boolean isInSpawnProtection(ServerLevel level, BlockPos pos) {
+	public static boolean isInSpawnProtection(Level level, BlockPos pos) {
 		return isInSpawnProtection(level, pos, false);
 	}
 
-	public static boolean isInSpawnProtection(ServerLevel level, BlockPos pos, boolean verbose) {
+	public static boolean isInSpawnProtection(Level level, BlockPos pos, boolean verbose) {
 		int radius, xOrigin, zOrigin;
 
 		if (verbose)

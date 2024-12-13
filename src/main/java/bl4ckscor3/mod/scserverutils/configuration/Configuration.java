@@ -113,7 +113,8 @@ public class Configuration {
 			phantomSpawns = new PhantomSpawns( //@formatter:off
 					enabled(builder),
 					builder.comment("The minimum amount of phantoms to spawn").defineInRange("min_spawns", 0, 0, Integer.MAX_VALUE),
-					builder.comment("The maximum amount of phantoms to spawn").defineInRange("max_spawns", 1, 0, Integer.MAX_VALUE));
+					builder.comment("The maximum amount of phantoms to spawn").defineInRange("max_spawns", 1, 0, Integer.MAX_VALUE),
+					builder.comment("Whether to disable phantoms spawning for players in spawn protection").define("disable_in_spawn_protection", true));
 					//@formatter:on
 		});
 		pushPop(builder, "Spawn protection effects", "Effects to give players in spawn protection", () -> {
