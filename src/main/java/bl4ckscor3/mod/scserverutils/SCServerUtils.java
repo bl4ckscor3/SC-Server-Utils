@@ -84,7 +84,7 @@ public class SCServerUtils {
 			if (phantomSpawns.disableInSpawnProtection().get() && SpawnProtectionHandler.isInSpawnProtection(player.level(), player.blockPosition()))
 				event.setPhantomsToSpawn(0);
 			else
-				event.setPhantomsToSpawn(phantomSpawns.min().get() + player.level().random.nextInt(phantomSpawns.max().get() + 1));
+				event.setPhantomsToSpawn(player.level().random.nextIntBetweenInclusive(phantomSpawns.min().get(), phantomSpawns.max().get()));
 		}
 	}
 }
