@@ -7,17 +7,21 @@ import java.util.function.Supplier;
 import bl4ckscor3.mod.scserverutils.configuration.Configuration;
 import bl4ckscor3.mod.scserverutils.configuration.NetherSpawnProtection;
 import bl4ckscor3.mod.scserverutils.configuration.NoSpawnProtectionSpawns;
+import bl4ckscor3.mod.scserverutils.configuration.SpawnProtectionRiftStabilizer;
+import net.geforcemods.securitycraft.blockentities.RiftStabilizerBlockEntity.TeleportationType;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.EntityTeleportEvent;
 import net.neoforged.neoforge.event.entity.EntityTravelToDimensionEvent;
 import net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
@@ -50,6 +54,9 @@ public class SpawnProtectionHandler {
 			spawnInfo = config.noSpawnProtectionSpawns.resolve();
 			NeoForge.EVENT_BUS.addListener(SpawnProtectionHandler::onFinalizeSpawn);
 		}
+
+		if (config.spawnProtectionRiftStabilizer.enabled().get())
+			NeoForge.EVENT_BUS.addListener(SpawnProtectionHandler::onEntityTeleport);
 	}
 
 	private static void onLivingIncomingDamage(LivingIncomingDamageEvent event) {
@@ -132,6 +139,23 @@ public class SpawnProtectionHandler {
 		}
 		else if (verbose)
 			SCServerUtils.LOGGER.info("Not cancelling spawn");
+	}
+
+	private static void onEntityTeleport(EntityTeleportEvent event) {
+		Entity entity = event.getEntity();
+		Level level = entity.level();
+
+		if (isInSpawnProtection(level, BlockPos.containing(event.getPrev())) || isInSpawnProtection(level, BlockPos.containing(event.getTarget()))) {
+			TeleportationType type = TeleportationType.getTypeFromEvent(event);
+			SpawnProtectionRiftStabilizer spawnProtectionRiftStabilizer = Configuration.instance.spawnProtectionRiftStabilizer;
+
+			if (spawnProtectionRiftStabilizer.disallowedTeleportationTypes().get().stream().anyMatch(type.name()::equals)) {
+				if (entity instanceof Player player)
+					player.displayClientMessage(Component.translatableWithFallback(spawnProtectionRiftStabilizer.langKey().get(), spawnProtectionRiftStabilizer.fallback().get()).withStyle(ChatFormatting.RED), true);
+
+				event.setCanceled(true);
+			}
+		}
 	}
 
 	public static boolean isInSpawnProtection(Level level, BlockPos pos) {

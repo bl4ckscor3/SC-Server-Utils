@@ -16,6 +16,7 @@ import bl4ckscor3.mod.scserverutils.commands.EnderchestCommand;
 import bl4ckscor3.mod.scserverutils.commands.InvseeCommand;
 import bl4ckscor3.mod.scserverutils.commands.PlayerHeadCommand;
 import bl4ckscor3.mod.scserverutils.commands.RulesCommand;
+import net.geforcemods.securitycraft.blockentities.RiftStabilizerBlockEntity.TeleportationType;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.neoforged.neoforge.common.ModConfigSpec;
@@ -39,6 +40,7 @@ public class Configuration {
 	public SpawnProtectionBlockBypass spawnProtectionBlockBypass;
 	public SpawnProtectionEffects spawnProtectionEffects;
 	public SpawnProtectionPvpPrevention spawnProtectionPvpPrevention;
+	public SpawnProtectionRiftStabilizer spawnProtectionRiftStabilizer;
 	public SuppressDestroyMismatchLog suppressDestroyMismatchLog;
 	public TeamPermissionLevel teamPermissionLevel;
 
@@ -149,6 +151,21 @@ public class Configuration {
 			spawnProtectionPvpPrevention = new SpawnProtectionPvpPrevention( //@formatter:off
 					enabled(builder),
 					builder.comment("Whether to also disable PvP in the nether spawn protection, which needs to be enabled for this setting to take effect").define("disable_in_nether", false));
+					//@formatter:on
+		});
+		pushPop(builder, "Spawn protection rift stabilizer", "Rift stabilizer functionality in spawn protection", () -> {
+			spawnProtectionRiftStabilizer = new SpawnProtectionRiftStabilizer( //@formatter:off
+					enabled(builder),
+					builder
+						.comment("Types of teleportations that are disallows to happen in spawn protection. Disallowed values:",
+								Arrays.stream(TeleportationType.values()).map(Enum::name).toList().toString())
+						.defineList("disallowed_teleportation_types", List.of(), () -> "", String.class::isInstance),
+					builder
+						.comment("The language key to use for the message sent when teleportation is being actively disallowed.")
+						.define("lang_key", "scserverutils.teleportation_disallowed"),
+					builder
+						.comment("The fallback text used in case the client has no translation for the given language key.")
+						.define("fallback", "You cannot teleport within spawn protection."));
 					//@formatter:on
 		});
 		pushPop(builder, "Suppress destroy mismatch log", "Removes the \"Mismatch in destroy block pos\" log message to reduce console spam", () -> {
