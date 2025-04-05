@@ -163,7 +163,7 @@ public class SpawnProtectionHandler {
 		if (isInSpawnProtection(level, BlockPos.containing(posToCheck))) {
 			TeleportationType type = TeleportationType.getTypeFromEvent(event);
 
-			return disallowedTeleportationTypes.get().stream().anyMatch(type.name()::equals);
+			return type != null && disallowedTeleportationTypes.get().stream().anyMatch(type.name()::equals);
 		}
 
 		return false;
