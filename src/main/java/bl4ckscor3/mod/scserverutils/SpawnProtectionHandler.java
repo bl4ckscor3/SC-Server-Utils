@@ -18,8 +18,10 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.config.ModConfigEvent;
+import net.neoforged.neoforge.common.ModConfigSpec.ConfigValue;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.EntityTeleportEvent;
 import net.neoforged.neoforge.event.entity.EntityTravelToDimensionEvent;
@@ -144,18 +146,27 @@ public class SpawnProtectionHandler {
 	private static void onEntityTeleport(EntityTeleportEvent event) {
 		Entity entity = event.getEntity();
 		Level level = entity.level();
+		SpawnProtectionRiftStabilizer spawnProtectionRiftStabilizer = Configuration.instance.spawnProtectionRiftStabilizer;
 
-		if (isInSpawnProtection(level, BlockPos.containing(event.getPrev())) || isInSpawnProtection(level, BlockPos.containing(event.getTarget()))) {
-			TeleportationType type = TeleportationType.getTypeFromEvent(event);
-			SpawnProtectionRiftStabilizer spawnProtectionRiftStabilizer = Configuration.instance.spawnProtectionRiftStabilizer;
+		//@formatter:off
+		if (disallowTeleport(event, level, event.getPrev(), spawnProtectionRiftStabilizer.disallowedTeleportationTypesFromSpawn())
+				|| disallowTeleport(event, level, event.getTarget(), spawnProtectionRiftStabilizer.disallowedTeleportationTypesToSpawn())) {
+			//@formatter:on
+			if (entity instanceof Player player)
+				player.displayClientMessage(Component.translatableWithFallback(spawnProtectionRiftStabilizer.langKey().get(), spawnProtectionRiftStabilizer.fallback().get()).withStyle(ChatFormatting.RED), true);
 
-			if (spawnProtectionRiftStabilizer.disallowedTeleportationTypes().get().stream().anyMatch(type.name()::equals)) {
-				if (entity instanceof Player player)
-					player.displayClientMessage(Component.translatableWithFallback(spawnProtectionRiftStabilizer.langKey().get(), spawnProtectionRiftStabilizer.fallback().get()).withStyle(ChatFormatting.RED), true);
-
-				event.setCanceled(true);
-			}
+			event.setCanceled(true);
 		}
+	}
+
+	private static boolean disallowTeleport(EntityTeleportEvent event, Level level, Vec3 posToCheck, ConfigValue<List<? extends String>> disallowedTeleportationTypes) {
+		if (isInSpawnProtection(level, BlockPos.containing(posToCheck))) {
+			TeleportationType type = TeleportationType.getTypeFromEvent(event);
+
+			return disallowedTeleportationTypes.get().stream().anyMatch(type.name()::equals);
+		}
+
+		return false;
 	}
 
 	public static boolean isInSpawnProtection(Level level, BlockPos pos) {

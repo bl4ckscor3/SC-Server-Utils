@@ -157,9 +157,13 @@ public class Configuration {
 			spawnProtectionRiftStabilizer = new SpawnProtectionRiftStabilizer( //@formatter:off
 					enabled(builder),
 					builder
-						.comment("Types of teleportations that are disallows to happen in spawn protection. Disallowed values:",
+						.comment("Types of teleportations that are disallowed to happen when trying to teleport from within spawn protection. Disallowed values:",
 								Arrays.stream(TeleportationType.values()).map(Enum::name).toList().toString())
-						.defineList("disallowed_teleportation_types", List.of(), () -> "", String.class::isInstance),
+						.defineList("disallowed_teleportation_types_from_spawn", List.of(), () -> "", String.class::isInstance),
+					builder
+						.comment("Types of teleportations that are disallowed to happen when trying to teleport to spawn protection. Disallowed values:",
+								Arrays.stream(TeleportationType.values()).map(Enum::name).toList().toString())
+						.defineList("disallowed_teleportation_types_to_spawn", List.of(), () -> "", String.class::isInstance),
 					builder
 						.comment("The language key to use for the message sent when teleportation is being actively disallowed.")
 						.define("lang_key", "scserverutils.teleportation_disallowed"),
