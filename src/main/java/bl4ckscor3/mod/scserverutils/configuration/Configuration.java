@@ -165,6 +165,9 @@ public class Configuration {
 								Arrays.stream(TeleportationType.values()).map(Enum::name).toList().toString())
 						.defineList("disallowed_teleportation_types_to_spawn", List.of(), () -> "", String.class::isInstance),
 					builder
+						.comment("What minimum permission level is needed to bypass anything this config section disallows.")
+						.defineInRange("bypass_permission_level", 1, 0, 4),
+					builder
 						.comment("The language key to use for the message sent when teleportation is being actively disallowed.")
 						.define("lang_key", "scserverutils.teleportation_disallowed"),
 					builder
@@ -176,12 +179,13 @@ public class Configuration {
 			suppressDestroyMismatchLog = new SuppressDestroyMismatchLog( //@formatter:off
 					enabled(builder),
 					builder.comment("Whether to only disable this message when the destroy position is within spawn protection.").define("only_in_spawn_protection", true));
+			//@formatter:on
 		});
 		pushPop(builder, "Team command permission level", "Allows changing the permission level for the /team command", () -> {
 			teamPermissionLevel = new TeamPermissionLevel( //@formatter:off
 					enabled(builder),
 					permissionLevel(builder, "team", 1));
-					//@formatter:on
+			//@formatter:on
 		});
 	}
 

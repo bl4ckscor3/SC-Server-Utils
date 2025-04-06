@@ -152,8 +152,12 @@ public class SpawnProtectionHandler {
 		if (disallowTeleport(event, level, event.getPrev(), spawnProtectionRiftStabilizer.disallowedTeleportationTypesFromSpawn())
 				|| disallowTeleport(event, level, event.getTarget(), spawnProtectionRiftStabilizer.disallowedTeleportationTypesToSpawn())) {
 			//@formatter:on
-			if (entity instanceof Player player)
+			if (entity instanceof Player player) {
+				if (player.hasPermissions(spawnProtectionRiftStabilizer.bypassPermissionLevel().get()))
+					return;
+
 				player.displayClientMessage(Component.translatableWithFallback(spawnProtectionRiftStabilizer.langKey().get(), spawnProtectionRiftStabilizer.fallback().get()).withStyle(ChatFormatting.RED), true);
+			}
 
 			event.setCanceled(true);
 		}
