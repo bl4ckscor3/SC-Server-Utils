@@ -203,7 +203,7 @@ public class Configuration {
 	}
 
 	private IntValue permissionLevel(ModConfigSpec.Builder builder, String commandName, int defaultPermissionLevel) {
-		return builder.comment("The minimum permission level needed for the /" + commandName + " command").defineInRange("permission_level", defaultPermissionLevel, 0, 5);
+		return builder.comment("The minimum permission level needed for the /" + commandName + " command").defineInRange("permission_level", defaultPermissionLevel, 0, 4);
 	}
 
 	private void addCommandConfig(ModConfigSpec.Builder builder, String commandName, int defaultPermissionLevel, Supplier<BiConsumer<CommandDispatcher<CommandSourceStack>, Integer>> registrar) {
