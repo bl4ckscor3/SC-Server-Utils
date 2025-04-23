@@ -43,6 +43,7 @@ public class Configuration {
 	public SpawnProtectionRiftStabilizer spawnProtectionRiftStabilizer;
 	public SuppressDestroyMismatchLog suppressDestroyMismatchLog;
 	public TeamPermissionLevel teamPermissionLevel;
+	public VerboseDisplayEntityLogging verboseDisplayEntityLogging;
 
 	static {
 		Pair<Configuration, ModConfigSpec> pair = new ModConfigSpec.Builder().configure(Configuration::new);
@@ -187,6 +188,7 @@ public class Configuration {
 					permissionLevel(builder, "team", 1));
 			//@formatter:on
 		});
+		pushPop(builder, "Verbose display entities", "Adds a position when logging errors for display entities.", () -> verboseDisplayEntityLogging = new VerboseDisplayEntityLogging(enabled(builder)));
 	}
 
 	private void pushPop(ModConfigSpec.Builder builder, String categoryName, String categoryComment, Runnable categorySetup) {

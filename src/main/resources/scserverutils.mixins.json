@@ -8,6 +8,7 @@
     "CommonHooksMixin",
     "DamageSourceMixin",
     "DedicatedServerMixin",
+	"DisplayMixin",
 	"MinecraftServerAccessor",
     "MinecraftServerMixin",
 	"ServerGamePacketListenerImplMixin",
