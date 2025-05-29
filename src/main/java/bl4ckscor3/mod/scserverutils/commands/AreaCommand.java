@@ -111,7 +111,7 @@ public class AreaCommand {
 			for (BlockInfo blockInfo : blocks) {
 				BlockPos pos = blockInfo.pos();
 
-				level.setBlock(pos, blockInfo.state(), 2);
+				level.setBlock(pos, blockInfo.state(), 2 | 816);
 
 				if (blockInfo.blockEntityTag().isPresent())
 					blockEntities.add(blockInfo);
@@ -126,11 +126,7 @@ public class AreaCommand {
 					be.setChanged();
 				}
 
-				level.setBlock(pos, blockInfo.state(), 2);
-			}
-
-			for (final BlockInfo blockInfo : reverseBlocks) {
-				level.updateNeighborsAt(blockInfo.pos(), blockInfo.state().getBlock());
+				level.setBlock(pos, blockInfo.state(), 2 | 816);
 			}
 
 			GlobalPos origin = area.origin();
