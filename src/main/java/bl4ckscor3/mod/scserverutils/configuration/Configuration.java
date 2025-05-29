@@ -11,6 +11,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import com.mojang.brigadier.CommandDispatcher;
 
 import bl4ckscor3.mod.scserverutils.SCServerUtils;
+import bl4ckscor3.mod.scserverutils.commands.AreaCommand;
 import bl4ckscor3.mod.scserverutils.commands.DeathLogCommand;
 import bl4ckscor3.mod.scserverutils.commands.EnderchestCommand;
 import bl4ckscor3.mod.scserverutils.commands.InvseeCommand;
@@ -67,6 +68,7 @@ public class Configuration {
 					//@formatter:on
 		});
 		pushPop(builder, "Commands", "Configure commands of this mod", () -> {
+			addCommandConfig(builder, "area", 2, () -> AreaCommand::register);
 			addCommandConfig(builder, "deathlog", 2, () -> DeathLogCommand::register);
 			addCommandConfig(builder, "enderchest", 2, () -> EnderchestCommand::register);
 			addCommandConfig(builder, "invsee", 2, () -> InvseeCommand::register);
