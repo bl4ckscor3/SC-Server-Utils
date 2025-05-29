@@ -4,11 +4,13 @@
   "compatibilityLevel": "JAVA_21",
   "refmap": "scserverutils.refmap.json",
   "mixins": [
+	"AbstractMinecartMixin",
     "CommonHooksMixin",
     "DamageSourceMixin",
     "DedicatedServerMixin",
 	"MinecraftServerAccessor",
     "MinecraftServerMixin",
+	"PlayerRespawnLogicMixin",
 	"ServerGamePacketListenerImplMixin",
 	"ServerLevelMixin",
 	"ServerPlayerGameModeMixin",

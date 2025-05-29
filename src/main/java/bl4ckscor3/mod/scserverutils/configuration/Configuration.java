@@ -37,6 +37,7 @@ public class Configuration {
 	public NoSpawnProtectionSnow noSpawnProtectionSnow;
 	public NoSpawnProtectionSpawns noSpawnProtectionSpawns;
 	public PhantomSpawns phantomSpawns;
+	public SpawnLocationY spawnLocationY;
 	public SpawnProtectionBlockBypass spawnProtectionBlockBypass;
 	public SpawnProtectionEffects spawnProtectionEffects;
 	public SpawnProtectionPvpPrevention spawnProtectionPvpPrevention;
@@ -127,6 +128,9 @@ public class Configuration {
 					builder.comment("The maximum amount of phantoms to spawn").defineInRange("max_spawns", 1, 0, Integer.MAX_VALUE),
 					builder.comment("Whether to disable phantoms spawning for players in spawn protection").define("disable_in_spawn_protection", true));
 					//@formatter:on
+		});
+		pushPop(builder, "Spawn location y", "Respects the y position of the spawn location", () -> {
+			spawnLocationY = new SpawnLocationY(enabled(builder));
 		});
 		pushPop(builder, "Spawn protection block bypass", "Blocks that players will be able to rightclick in spawn protection", () -> {
 			spawnProtectionBlockBypass = new SpawnProtectionBlockBypass( //@formatter:off
