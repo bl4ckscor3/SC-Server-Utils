@@ -10,12 +10,12 @@ import bl4ckscor3.mod.scserverutils.configuration.SpawnProtectionBlockBypass;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.Entity;
 
 @Mixin(ServerGamePacketListenerImpl.class)
 public class ServerGamePacketListenerImplMixin {
-	@Redirect(method = "handleUseItemOn", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;mayInteract(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/core/BlockPos;)Z"))
-	private boolean scserverutils$allowInteractionInSpawnProtection(ServerLevel level, Player player, BlockPos pos) {
+	@Redirect(method = "handleUseItemOn", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;mayInteract(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/BlockPos;)Z"))
+	private boolean scserverutils$allowInteractionInSpawnProtection(ServerLevel level, Entity entity, BlockPos pos) {
 		SpawnProtectionBlockBypass spawnProtectionBlockBypass = Configuration.instance.spawnProtectionBlockBypass;
 
 		if (spawnProtectionBlockBypass.enabled().get() && SpawnProtectionHandler.isInSpawnProtection(level, pos)) {
@@ -25,6 +25,6 @@ public class ServerGamePacketListenerImplMixin {
 				return true;
 		}
 
-		return level.mayInteract(player, pos);
+		return level.mayInteract(entity, pos);
 	}
 }

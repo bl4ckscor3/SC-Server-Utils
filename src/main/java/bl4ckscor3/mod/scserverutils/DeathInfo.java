@@ -45,10 +45,11 @@ public record DeathInfo(String uuid, Cause cause, GlobalPos position, ListTag in
 		Cause cause = Cause.of(source);
 		GlobalPos pos = GlobalPos.of(player.level().dimension(), player.blockPosition());
 		ListTag inventory = player.getInventory().save(new ListTag());
-		Optional<BlockPos> respawnPosition = Optional.ofNullable(player.getRespawnPosition());
+		Optional<BlockPos> respawnPosition = Optional.ofNullable(player.getRespawnConfig().pos());
 
 		return new DeathInfo(uuid, cause, pos, inventory, respawnPosition);
 	}
+
 	public static record Cause(ResourceLocation type, Optional<ResourceLocation> directEntity, Optional<ResourceLocation> causingEntity) {
 
 		//@formatter:off
