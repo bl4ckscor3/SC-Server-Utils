@@ -7,6 +7,7 @@ public record SpawnProtection(
 	ModConfigSpec.BooleanValue spawnLocationY,
 	BlockBypass blockBypass,
 	Effects effects,
+	Messages messages,
 	MobSpawning mobSpawning,
 	Nether nether,
 	PvpPrevention pvpPrevention,

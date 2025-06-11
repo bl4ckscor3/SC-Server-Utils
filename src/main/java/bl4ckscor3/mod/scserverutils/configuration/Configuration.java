@@ -19,6 +19,7 @@ import bl4ckscor3.mod.scserverutils.commands.PlayerHeadCommand;
 import bl4ckscor3.mod.scserverutils.commands.RulesCommand;
 import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.BlockBypass;
 import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.Effects;
+import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.Messages;
 import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.MobSpawning;
 import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.Nether;
 import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.PvpPrevention;
@@ -100,6 +101,12 @@ public class Configuration {
 								"Example: The entry \"minecraft:slowness|20|1\" defines slowness 1 for 1 second (20 ticks = 1 second).")
 							.defineList("effects", List.of("minecraft:regeneration|-1|3", "minecraft:speed|-1|3"), () -> "", String.class::isInstance),
 						builder.comment("Whether to add the effects in the nether as well").define("in_nether", false))
+				),
+				pushPop(builder, "Messages", "Messages relating to spawn protection", () ->
+					new Messages(
+						builder.comment("Message sent when entering spawn protection").define("enter", "{translate:\"scserverutils.enter_spawn_protection\",fallback:\"PvP is no longer active.\",with:[],type:\"translatable\",color:\"green\"}"),
+						builder.comment("Message sent when leaving spawn protection").define("leave", "{translate:\"scserverutils.leave_spawn_protection\",fallback:\"PvP is now on!\",with:[],type:\"translatable\",color:\"red\"}")
+					)
 				),
 				pushPop(builder, "Mob spawning", "Disables mob spawns in spawn protection", () ->
 					new MobSpawning(
