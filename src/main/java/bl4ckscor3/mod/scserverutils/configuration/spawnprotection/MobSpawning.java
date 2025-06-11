@@ -1,4 +1,4 @@
-package bl4ckscor3.mod.scserverutils.configuration;
+package bl4ckscor3.mod.scserverutils.configuration.spawnprotection;
 
 import java.util.List;
 import java.util.Objects;
@@ -10,7 +10,7 @@ import net.minecraft.world.entity.EntityType;
 import net.neoforged.neoforge.common.ModConfigSpec.BooleanValue;
 import net.neoforged.neoforge.common.ModConfigSpec.ConfigValue;
 
-public record NoSpawnProtectionSpawns(BooleanValue enabled, ConfigValue<List<? extends String>> allowedSpawnTypes, ConfigValue<List<? extends String>> verboseLoggingFor) {
+public record MobSpawning(BooleanValue enabled, ConfigValue<List<? extends String>> allowedSpawnTypes, ConfigValue<List<? extends String>> verboseLoggingFor) {
 	public Info resolve() {
 		//@formatter:off
 		return new Info(

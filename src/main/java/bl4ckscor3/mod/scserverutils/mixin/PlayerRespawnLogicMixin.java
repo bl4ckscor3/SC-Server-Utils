@@ -14,7 +14,7 @@ import net.minecraft.server.level.ServerLevel;
 public class PlayerRespawnLogicMixin {
 	@ModifyReturnValue(method = "getOverworldRespawnPos", at = @At(value = "RETURN", ordinal = 2))
 	private static BlockPos scserverutils$respectY(BlockPos original, ServerLevel level, int x, int z) {
-		if (Configuration.instance.spawnLocationY.enabled().get()) {
+		if (Configuration.instance.spawnProtection.spawnLocationY().get()) {
 			BlockPos spawnPos = level.getSharedSpawnPos();
 
 			if (spawnPos.getX() == x && spawnPos.getZ() == z)

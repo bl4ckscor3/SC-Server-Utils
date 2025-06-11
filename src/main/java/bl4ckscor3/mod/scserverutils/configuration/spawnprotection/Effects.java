@@ -1,4 +1,4 @@
-package bl4ckscor3.mod.scserverutils.configuration;
+package bl4ckscor3.mod.scserverutils.configuration.spawnprotection;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +14,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.neoforged.neoforge.common.ModConfigSpec.BooleanValue;
 import net.neoforged.neoforge.common.ModConfigSpec.ConfigValue;
 
-public record SpawnProtectionEffects(BooleanValue enabled, ConfigValue<List<? extends String>> effects, BooleanValue inNether) {
+public record Effects(BooleanValue enabled, ConfigValue<List<? extends String>> effects, BooleanValue inNether) {
 
 	private static final Logger LOGGER = LogUtils.getLogger();
 	public List<Supplier<MobEffectInstance>> resolve() {

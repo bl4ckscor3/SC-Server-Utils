@@ -5,9 +5,10 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import bl4ckscor3.mod.scserverutils.configuration.Configuration;
-import bl4ckscor3.mod.scserverutils.configuration.NetherSpawnProtection;
-import bl4ckscor3.mod.scserverutils.configuration.NoSpawnProtectionSpawns;
-import bl4ckscor3.mod.scserverutils.configuration.SpawnProtectionRiftStabilizer;
+import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.MobSpawning;
+import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.Nether;
+import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.RiftStabilizer;
+import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.SpawnProtection;
 import net.geforcemods.securitycraft.blockentities.RiftStabilizerBlockEntity.TeleportationType;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -32,12 +33,12 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 public class SpawnProtectionHandler {
 	public static final String IN_SPAWN_PROTECTION_TAG = "in_spawn_protection";
 	private static List<Supplier<MobEffectInstance>> effects = new ArrayList<>();
-	private static NoSpawnProtectionSpawns.Info spawnInfo = new NoSpawnProtectionSpawns.Info(List.of(), List.of());
+	private static MobSpawning.Info spawnInfo = new MobSpawning.Info(List.of(), List.of());
 
 	public static void addListeners(IEventBus modEventBus) {
-		Configuration config = Configuration.instance;
-		boolean pvpPreventionEnabled = config.spawnProtectionPvpPrevention.enabled().get();
-		boolean effectsEnabled = config.spawnProtectionEffects.enabled().get();
+		SpawnProtection spawnProtection = Configuration.instance.spawnProtection;
+		boolean pvpPreventionEnabled = spawnProtection.pvpPrevention().enabled().get();
+		boolean effectsEnabled = spawnProtection.effects().enabled().get();
 
 		if (pvpPreventionEnabled || effectsEnabled) {
 			NeoForge.EVENT_BUS.addListener(SpawnProtectionHandler::onPlayerTickPost);
@@ -48,22 +49,22 @@ public class SpawnProtectionHandler {
 			NeoForge.EVENT_BUS.addListener(SpawnProtectionHandler::onLivingIncomingDamage);
 
 		if (effectsEnabled) {
-			effects = config.spawnProtectionEffects.resolve();
+			effects = spawnProtection.effects().resolve();
 			modEventBus.addListener(SpawnProtectionHandler::reloadResolvedConfigValues);
 		}
 
-		if (config.noSpawnProtectionSpawns.enabled().get()) {
-			spawnInfo = config.noSpawnProtectionSpawns.resolve();
+		if (spawnProtection.mobSpawning().enabled().get()) {
+			spawnInfo = spawnProtection.mobSpawning().resolve();
 			NeoForge.EVENT_BUS.addListener(SpawnProtectionHandler::onFinalizeSpawn);
 		}
 
-		if (config.spawnProtectionRiftStabilizer.enabled().get())
+		if (spawnProtection.riftStabilizer().enabled().get())
 			NeoForge.EVENT_BUS.addListener(SpawnProtectionHandler::onEntityTeleport);
 	}
 
 	private static void onLivingIncomingDamage(LivingIncomingDamageEvent event) {
 		if (event.getEntity() instanceof Player target && target.level() instanceof ServerLevel level) {
-			if (level.dimension().equals(Level.NETHER) && !Configuration.instance.spawnProtectionPvpPrevention.inNether().get())
+			if (level.dimension().equals(Level.NETHER) && !Configuration.instance.spawnProtection.pvpPrevention().inNether().get())
 				return;
 
 			if (event.getSource().getEntity() instanceof Player attacker)
@@ -76,6 +77,7 @@ public class SpawnProtectionHandler {
 
 		if (player.level() instanceof ServerLevel level) {
 			boolean wasInSpawnProtectedArea = player.getTags().contains(IN_SPAWN_PROTECTION_TAG);
+			SpawnProtection spawnProtection = Configuration.instance.spawnProtection;
 
 			if (wasInSpawnProtectedArea != isInSpawnProtection(level, player.blockPosition())) {
 				boolean isNether = level.dimension().equals(Level.NETHER);
@@ -83,19 +85,19 @@ public class SpawnProtectionHandler {
 				if (wasInSpawnProtectedArea) {
 					player.removeTag(IN_SPAWN_PROTECTION_TAG);
 
-					if (!isNether || Configuration.instance.spawnProtectionPvpPrevention.inNether().get())
+					if (!isNether || spawnProtection.pvpPrevention().inNether().get())
 						player.displayClientMessage(Component.translatable("scserverutils.pvp_on").withStyle(ChatFormatting.RED), true);
 
-					if (!isNether || Configuration.instance.spawnProtectionEffects.inNether().get())
+					if (!isNether || spawnProtection.effects().inNether().get())
 						effects.forEach(effect -> player.removeEffect(effect.get().getEffect()));
 				}
 				else {
 					player.addTag(IN_SPAWN_PROTECTION_TAG);
 
-					if (!isNether || Configuration.instance.spawnProtectionPvpPrevention.inNether().get())
+					if (!isNether || spawnProtection.pvpPrevention().inNether().get())
 						player.displayClientMessage(Component.translatable("scserverutils.pvp_off").withStyle(ChatFormatting.GREEN), true);
 
-					if (!isNether || Configuration.instance.spawnProtectionEffects.inNether().get())
+					if (!isNether || spawnProtection.effects().inNether().get())
 						effects.forEach(effect -> player.addEffect(effect.get()));
 				}
 			}
@@ -105,15 +107,16 @@ public class SpawnProtectionHandler {
 	private static void onEntityTravelToDimension(EntityTravelToDimensionEvent event) {
 		if (event.getEntity() instanceof Player player && player.getTags().contains(IN_SPAWN_PROTECTION_TAG)) {
 			boolean isNether = event.getDimension().equals(Level.NETHER);
+			SpawnProtection spawnProtection = Configuration.instance.spawnProtection;
 
-			if (!Configuration.instance.spawnProtectionPvpPrevention.inNether().get()) {
+			if (!spawnProtection.pvpPrevention().inNether().get()) {
 				if (isNether)
 					player.displayClientMessage(Component.translatable("scserverutils.pvp_on").withStyle(ChatFormatting.RED), true);
 				else
 					player.displayClientMessage(Component.translatable("scserverutils.pvp_off").withStyle(ChatFormatting.GREEN), true);
 			}
 
-			if (!Configuration.instance.spawnProtectionEffects.inNether().get()) {
+			if (!spawnProtection.effects().inNether().get()) {
 				if (isNether)
 					effects.forEach(effect -> player.removeEffect(effect.get().getEffect()));
 				else
@@ -146,12 +149,10 @@ public class SpawnProtectionHandler {
 	private static void onEntityTeleport(EntityTeleportEvent event) {
 		Entity entity = event.getEntity();
 		Level level = entity.level();
-		SpawnProtectionRiftStabilizer spawnProtectionRiftStabilizer = Configuration.instance.spawnProtectionRiftStabilizer;
+		RiftStabilizer spawnProtectionRiftStabilizer = Configuration.instance.spawnProtection.riftStabilizer();
 
-		//@formatter:off
 		if (disallowTeleport(event, level, event.getPrev(), spawnProtectionRiftStabilizer.disallowedTeleportationTypesFromSpawn())
-				|| disallowTeleport(event, level, event.getTarget(), spawnProtectionRiftStabilizer.disallowedTeleportationTypesToSpawn())) {
-			//@formatter:on
+			|| disallowTeleport(event, level, event.getTarget(), spawnProtectionRiftStabilizer.disallowedTeleportationTypesToSpawn())) {
 			if (entity instanceof Player player) {
 				if (player.hasPermissions(spawnProtectionRiftStabilizer.bypassPermissionLevel().get()))
 					return;
@@ -184,7 +185,7 @@ public class SpawnProtectionHandler {
 			SCServerUtils.LOGGER.info("Spawn protection check in: {}", level.dimension());
 
 		if (level.dimension() == Level.NETHER) {
-			NetherSpawnProtection netherSpawnProtection = Configuration.instance.netherSpawnProtection;
+			Nether netherSpawnProtection = Configuration.instance.spawnProtection.nether();
 
 			if (!netherSpawnProtection.enabled().get()) {
 				if (verbose)
@@ -230,8 +231,9 @@ public class SpawnProtectionHandler {
 
 	private static void reloadResolvedConfigValues(ModConfigEvent.Reloading event) {
 		if (event.getConfig().getSpec() == Configuration.SPEC) {
-			effects = Configuration.instance.spawnProtectionEffects.resolve();
-			spawnInfo = Configuration.instance.noSpawnProtectionSpawns.resolve();
+			SpawnProtection spawnProtection = Configuration.instance.spawnProtection;
+			effects = spawnProtection.effects().resolve();
+			spawnInfo = spawnProtection.mobSpawning().resolve();
 		}
 	}
 }

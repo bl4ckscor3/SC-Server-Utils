@@ -14,7 +14,7 @@ import net.minecraft.server.level.ServerLevel;
 public class ServerLevelMixin {
 	@Inject(method = "tickPrecipitation", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;getBlockState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/state/BlockState;"), cancellable = true)
 	private void scserverutils$disableSnowInSpawnProtection(BlockPos pos, CallbackInfo ci) {
-		if (Configuration.instance.noSpawnProtectionSnow.enabled().get() && SpawnProtectionHandler.isInSpawnProtection((ServerLevel) (Object) this, pos))
+		if (Configuration.instance.spawnProtection.noSnow().get() && SpawnProtectionHandler.isInSpawnProtection((ServerLevel) (Object) this, pos))
 			ci.cancel();
 	}
 }

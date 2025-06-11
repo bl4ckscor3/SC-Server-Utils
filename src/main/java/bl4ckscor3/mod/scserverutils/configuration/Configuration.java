@@ -17,6 +17,13 @@ import bl4ckscor3.mod.scserverutils.commands.EnderchestCommand;
 import bl4ckscor3.mod.scserverutils.commands.InvseeCommand;
 import bl4ckscor3.mod.scserverutils.commands.PlayerHeadCommand;
 import bl4ckscor3.mod.scserverutils.commands.RulesCommand;
+import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.BlockBypass;
+import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.Effects;
+import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.MobSpawning;
+import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.Nether;
+import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.PvpPrevention;
+import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.RiftStabilizer;
+import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.SpawnProtection;
 import net.geforcemods.securitycraft.blockentities.RiftStabilizerBlockEntity.TeleportationType;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -33,15 +40,8 @@ public class Configuration {
 	public CustomServerLinks customServerLinks;
 	public DamageSourceLanguageFallback damageSourceLanguageFallback;
 	public DeathLog deathLog;
-	public NetherSpawnProtection netherSpawnProtection;
-	public NoSpawnProtectionSnow noSpawnProtectionSnow;
-	public NoSpawnProtectionSpawns noSpawnProtectionSpawns;
 	public PhantomSpawns phantomSpawns;
-	public SpawnLocationY spawnLocationY;
-	public SpawnProtectionBlockBypass spawnProtectionBlockBypass;
-	public SpawnProtectionEffects spawnProtectionEffects;
-	public SpawnProtectionPvpPrevention spawnProtectionPvpPrevention;
-	public SpawnProtectionRiftStabilizer spawnProtectionRiftStabilizer;
+	public SpawnProtection spawnProtection;
 	public SuppressDestroyMismatchLog suppressDestroyMismatchLog;
 	public TeamPermissionLevel teamPermissionLevel;
 
@@ -53,16 +53,13 @@ public class Configuration {
 	}
 
 	Configuration(ModConfigSpec.Builder builder) {
-		pushPop(builder, "Advancement-activated allowlists", "Enables allowlists to allow players who have a specific advancement by adding an advancement to its list", () -> {
-			advancementAllowlists = new AdvancementAllowlists(enabled(builder));
-		});
-		pushPop(builder, "Autosave interval", "Changes the interval at which the game automatically saves everything", () -> {
-			autosaveInterval = new AutosaveInterval( //@formatter:off
-					enabled(builder),
-					builder.comment("The interval in seconds").defineInRange("interval", 60, 5, Integer.MAX_VALUE),
-					builder.comment("Removes the \"Gathered mod list to write to world save world\" log message").define("remove_neoforge_log_message", true));
-					//@formatter:on
-		});
+		advancementAllowlists = pushPop(builder, "Advancement-activated allowlists", "Enables allowlists to allow players who have a specific advancement by adding an advancement to its list", () -> new AdvancementAllowlists(enabled(builder)));
+		autosaveInterval = pushPop(builder, "Autosave interval", "Changes the interval at which the game automatically saves everything", () ->
+			new AutosaveInterval(
+				enabled(builder),
+				builder.comment("The interval in seconds").defineInRange("interval", 60, 5, Integer.MAX_VALUE),
+				builder.comment("Removes the \"Gathered mod list to write to world save world\" log message").define("remove_neoforge_log_message", true))
+		);
 		pushPop(builder, "Commands", "Configure commands of this mod", () -> {
 			addCommandConfig(builder, "area", 2, () -> AreaCommand::register);
 			addCommandConfig(builder, "deathlog", 2, () -> DeathLogCommand::register);
@@ -70,134 +67,126 @@ public class Configuration {
 			addCommandConfig(builder, "invsee", 2, () -> InvseeCommand::register);
 			addCommandConfig(builder, "playerhead", 1, () -> PlayerHeadCommand::register);
 			addCommandConfig(builder, "rules", 0, () -> RulesCommand::register);
+			return null;
 		});
-		pushPop(builder, "Custom server links", "Server links to send to a connecting player", () -> {
-			customServerLinks = new CustomServerLinks( //@formatter:off
-					enabled(builder),
-					builder.comment("Each entry is a triple of link|translation_key|fallback")
-					.defineList("server_links", List.of(), () -> "", String.class::isInstance));
-					//@formatter:on
-		});
-		pushPop(builder, "Damage source language fallback", "Adds a fallback to the \"/trigger kill_self\" death message so people without the resource pack see the correct message", () -> {
-			damageSourceLanguageFallback = new DamageSourceLanguageFallback(enabled(builder));
-		});
-		pushPop(builder, "Death logging", "Logs all players' deaths as they happen, containing complete inventory info etc.", () -> {
-			deathLog = new DeathLog( //@formatter:off
-					enabled(builder),
-					builder.comment("The path where death logs are saved, relative to the game directory.").define("save_path", SCServerUtils.MODID + "/death_logs"));
-					//@formatter:on
-		});
-		pushPop(builder, "Nether spawn protection", "Adds spawn protection to the nether", () -> {
-			netherSpawnProtection = new NetherSpawnProtection( //@formatter:off
-					enabled(builder),
-					builder.comment("The square radius in blocks that is under spawn protection.").defineInRange("radius", 32, 0, Integer.MAX_VALUE),
-					builder.comment("The X coordinate of the nether spawn's origin").defineInRange("x_origin", 0, Integer.MIN_VALUE, Integer.MAX_VALUE),
-					builder.comment("The Z coordinate of the nether spawn's origin").defineInRange("z_origin", 0, Integer.MIN_VALUE, Integer.MAX_VALUE),
-					builder.comment("Tag that, when added to a player, makes that player bypass nether spawn protection").define("bypass_tag", "bypasses_nether_spawn_protection"));
-					//@formatter:on
-		});
-		pushPop(builder, "No snow in spawn protection", "Disables snow accumulation in spawn protection", () -> {
-			noSpawnProtectionSnow = new NoSpawnProtectionSnow(enabled(builder));
-		});
-		pushPop(builder, "No mobs in spawn protection", "Disables mob spawns in spawn protection", () -> {
-			noSpawnProtectionSpawns = new NoSpawnProtectionSpawns( //@formatter:off
-					enabled(builder),
-					builder
-						.comment("Types of mob spawns that are allowed to spawn a mob within spawn protection. Allowed values:",
+		customServerLinks = pushPop(builder, "Custom server links", "Server links to send to a connecting player", () ->
+			new CustomServerLinks(
+				enabled(builder),
+				builder.comment("Each entry is a triple of link|translation_key|fallback")
+					.defineList("server_links", List.of(), () -> "", String.class::isInstance))
+		);
+		damageSourceLanguageFallback = pushPop(builder, "Damage source language fallback", "Adds a fallback to the \"/trigger kill_self\" death message so people without the resource pack see the correct message", () -> new DamageSourceLanguageFallback(enabled(builder)));
+		deathLog = pushPop(builder, "Death logging", "Logs all players' deaths as they happen, containing complete inventory info etc.", () ->
+			new DeathLog(
+				enabled(builder),
+				builder.comment("The path where death logs are saved, relative to the game directory.").define("save_path", SCServerUtils.MODID + "/death_logs"))
+		);
+		spawnProtection = pushPop(builder, "Spawn protection", "Assorted settings regarding spawn protection", () ->
+			new SpawnProtection(
+				builder.comment("Disables snow accumulation in spawn protection").define("no_snow", true),
+				builder.comment("Enables respecting the y position of the spawn location").define("respect_spawn_y", true),
+				pushPop(builder, "Block bypass", "Blocks that players will be able to rightclick in spawn protection", () ->
+					new BlockBypass(
+						enabled(builder),
+						builder
+							.comment("Which blocks players should be able to rightclick while in spawn protection. One entry corresponds to one block, and is formatted like a registry name, visible with F3+H")
+							.defineList("blocks", List.of("minecraft:ender_chest", "minecraft:lectern", "securitycraft:reinforced_lectern"), () -> "", String.class::isInstance))
+				),
+				pushPop(builder, "Effects", "Effects to give players in spawn protection", () ->
+					new Effects(
+						enabled(builder),
+						builder.comment("Which effects players should have while in spawn protection. One entry corresponds to one effect, and is formatted like this:",
+								"effect_namespace:effect_path|duration|amplifier",
+								"Example: The entry \"minecraft:slowness|20|1\" defines slowness 1 for 1 second (20 ticks = 1 second).")
+							.defineList("effects", List.of("minecraft:regeneration|-1|3", "minecraft:speed|-1|3"), () -> "", String.class::isInstance),
+						builder.comment("Whether to add the effects in the nether as well").define("in_nether", false))
+				),
+				pushPop(builder, "Mob spawning", "Disables mob spawns in spawn protection", () ->
+					new MobSpawning(
+						enabled(builder),
+						builder
+							.comment("Types of mob spawns that are allowed to spawn a mob within spawn protection. Allowed values:",
 								Arrays.stream(EntitySpawnReason.values()).map(Enum::name).toList().toString())
-						.defineList("allowed_reasons",
+							.defineList("allowed_reasons",
 								List.of(
-									EntitySpawnReason.COMMAND,
-									EntitySpawnReason.LOAD,
-									EntitySpawnReason.MOB_SUMMONED,
-									EntitySpawnReason.SPAWN_ITEM_USE)
-								.stream()
-								.map(Enum::name)
-								.toList(),
+										EntitySpawnReason.COMMAND,
+										EntitySpawnReason.LOAD,
+										EntitySpawnReason.MOB_SUMMONED,
+										EntitySpawnReason.SPAWN_ITEM_USE)
+									.stream()
+									.map(Enum::name)
+									.toList(),
 								() -> "",
 								String.class::isInstance),
-					builder
-						.comment("Entity types for which verbose logging is enabled when they try to spawn")
-						.defineList("verbose_logging_for", List.of(), () -> "", String.class::isInstance));
-					//@formatter:on
-		});
-		pushPop(builder, "Phantom spawns", "Makes it possible to change how many phantoms spawn when the game wants to spawn them.", () -> {
-			phantomSpawns = new PhantomSpawns( //@formatter:off
-					enabled(builder),
-					builder.comment("The minimum amount of phantoms to spawn").defineInRange("min_spawns", 0, 0, Integer.MAX_VALUE),
-					builder.comment("The maximum amount of phantoms to spawn").defineInRange("max_spawns", 1, 0, Integer.MAX_VALUE),
-					builder.comment("Whether to disable phantoms spawning for players in spawn protection").define("disable_in_spawn_protection", true));
-					//@formatter:on
-		});
-		pushPop(builder, "Spawn location y", "Respects the y position of the spawn location", () -> {
-			spawnLocationY = new SpawnLocationY(enabled(builder));
-		});
-		pushPop(builder, "Spawn protection block bypass", "Blocks that players will be able to rightclick in spawn protection", () -> {
-			spawnProtectionBlockBypass = new SpawnProtectionBlockBypass( //@formatter:off
-					enabled(builder),
-					builder.comment("Which blocks players should be able to rightclick while in spawn protection. One entry corresponds to one block, and is formatted like a registry name, visible with F3+H")
-						.defineList("blocks", List.of("minecraft:ender_chest", "minecraft:lectern", "securitycraft:reinforced_lectern"), () -> "", String.class::isInstance));
-					//@formatter:on
-		});
-		pushPop(builder, "Spawn protection effects", "Effects to give players in spawn protection", () -> {
-			spawnProtectionEffects = new SpawnProtectionEffects( //@formatter:off
-					enabled(builder),
-					builder.comment("Which effects players should have while in spawn protection. One entry corresponds to one effect, and is formatted like this:",
-						"effect_namespace:effect_path|duration|amplifier",
-						"Example: The entry \"minecraft:slowness|20|1\" defines slowness 1 for 1 second (20 ticks = 1 second).")
-						.defineList("effects", List.of("minecraft:regeneration|-1|3", "minecraft:speed|-1|3"), () -> "", String.class::isInstance),
-					builder.comment("Whether to add the effects in the nether as well").define("in_nether", false));
-					//@formatter:on
-		});
-		pushPop(builder, "Spawn protection PvP prevention", "Disables pvp in spawn protection", () -> {
-			spawnProtectionPvpPrevention = new SpawnProtectionPvpPrevention( //@formatter:off
-					enabled(builder),
-					builder.comment("Whether to also disable PvP in the nether spawn protection, which needs to be enabled for this setting to take effect").define("disable_in_nether", false));
-					//@formatter:on
-		});
-		pushPop(builder, "Spawn protection rift stabilizer", "Rift stabilizer functionality in spawn protection", () -> {
-			spawnProtectionRiftStabilizer = new SpawnProtectionRiftStabilizer( //@formatter:off
-					enabled(builder),
-					builder
-						.comment("Types of teleportations that are disallowed to happen when trying to teleport from within spawn protection. Disallowed values:",
+						builder
+							.comment("Entity types for which verbose logging is enabled when they try to spawn")
+							.defineList("verbose_logging_for", List.of(), () -> "", String.class::isInstance))
+				),
+				pushPop(builder, "Nether", "Adds spawn protection to the nether", () ->
+					new Nether(
+						enabled(builder),
+						builder.comment("The square radius in blocks that is under spawn protection.").defineInRange("radius", 32, 0, Integer.MAX_VALUE),
+						builder.comment("The X coordinate of the nether spawn's origin").defineInRange("x_origin", 0, Integer.MIN_VALUE, Integer.MAX_VALUE),
+						builder.comment("The Z coordinate of the nether spawn's origin").defineInRange("z_origin", 0, Integer.MIN_VALUE, Integer.MAX_VALUE),
+						builder.comment("Tag that, when added to a player, makes that player bypass nether spawn protection").define("bypass_tag", "bypasses_nether_spawn_protection"))
+				),
+				pushPop(builder, "PvP prevention", "Disables pvp in spawn protection", () ->
+					new PvpPrevention(
+						enabled(builder),
+						builder.comment("Whether to also disable PvP in the nether spawn protection, which needs to be enabled for this setting to take effect").define("disable_in_nether", false))
+				),
+				pushPop(builder, "Rift stabilizer", "Rift stabilizer functionality in spawn protection", () ->
+					new RiftStabilizer(
+						enabled(builder),
+						builder
+							.comment("Types of teleportations that are disallowed to happen when trying to teleport from within spawn protection. Disallowed values:",
 								Arrays.stream(TeleportationType.values()).map(Enum::name).toList().toString())
-						.defineList("disallowed_teleportation_types_from_spawn", List.of(), () -> "", String.class::isInstance),
-					builder
-						.comment("Types of teleportations that are disallowed to happen when trying to teleport to spawn protection. Disallowed values:",
+							.defineList("disallowed_teleportation_types_from_spawn", List.of(), () -> "", String.class::isInstance),
+						builder
+							.comment("Types of teleportations that are disallowed to happen when trying to teleport to spawn protection. Disallowed values:",
 								Arrays.stream(TeleportationType.values()).map(Enum::name).toList().toString())
-						.defineList("disallowed_teleportation_types_to_spawn", List.of(), () -> "", String.class::isInstance),
-					builder
-						.comment("What minimum permission level is needed to bypass anything this config section disallows.")
-						.defineInRange("bypass_permission_level", 1, 0, 4),
-					builder
-						.comment("The language key to use for the message sent when teleportation is being actively disallowed.")
-						.define("lang_key", "scserverutils.teleportation_disallowed"),
-					builder
-						.comment("The fallback text used in case the client has no translation for the given language key.")
-						.define("fallback", "You cannot teleport within spawn protection."));
-					//@formatter:on
-		});
-		pushPop(builder, "Suppress destroy mismatch log", "Removes the \"Mismatch in destroy block pos\" log message to reduce console spam", () -> {
-			suppressDestroyMismatchLog = new SuppressDestroyMismatchLog( //@formatter:off
-					enabled(builder),
-					builder.comment("Whether to only disable this message when the destroy position is within spawn protection.").define("only_in_spawn_protection", true));
-			//@formatter:on
-		});
-		pushPop(builder, "Team command permission level", "Allows changing the permission level for the /team command", () -> {
-			teamPermissionLevel = new TeamPermissionLevel( //@formatter:off
-					enabled(builder),
-					permissionLevel(builder, "team", 1));
-			//@formatter:on
-		});
+							.defineList("disallowed_teleportation_types_to_spawn", List.of(), () -> "", String.class::isInstance),
+						builder
+							.comment("What minimum permission level is needed to bypass anything this config section disallows.")
+							.defineInRange("bypass_permission_level", 1, 0, 4),
+						builder
+							.comment("The language key to use for the message sent when teleportation is being actively disallowed.")
+							.define("lang_key", "scserverutils.teleportation_disallowed"),
+						builder
+							.comment("The fallback text used in case the client has no translation for the given language key.")
+							.define("fallback", "You cannot teleport within spawn protection."))
+				)
+			)
+		);
+		phantomSpawns = pushPop(builder, "Phantom spawns", "Makes it possible to change how many phantoms spawn when the game wants to spawn them.", () ->
+			new PhantomSpawns(
+				enabled(builder),
+				builder.comment("The minimum amount of phantoms to spawn").defineInRange("min_spawns", 0, 0, Integer.MAX_VALUE),
+				builder.comment("The maximum amount of phantoms to spawn").defineInRange("max_spawns", 1, 0, Integer.MAX_VALUE),
+				builder.comment("Whether to disable phantoms spawning for players in spawn protection").define("disable_in_spawn_protection", true))
+		);
+		suppressDestroyMismatchLog = pushPop(builder, "Suppress destroy mismatch log", "Removes the \"Mismatch in destroy block pos\" log message to reduce console spam", () ->
+			new SuppressDestroyMismatchLog(
+				enabled(builder),
+				builder.comment("Whether to only disable this message when the destroy position is within spawn protection.").define("only_in_spawn_protection", true))
+		);
+		teamPermissionLevel = pushPop(builder, "Team command permission level", "Allows changing the permission level for the /team command", () ->
+			new TeamPermissionLevel(
+				enabled(builder),
+				permissionLevel(builder, "team", 1))
+		);
 	}
 
-	private void pushPop(ModConfigSpec.Builder builder, String categoryName, String categoryComment, Runnable categorySetup) {
+	private <T> T pushPop(ModConfigSpec.Builder builder, String categoryName, String categoryComment, Supplier<T> categorySetup) {
 		if (categoryComment != null)
 			builder.comment(categoryComment);
 
+		T t;
+
 		builder.push(categoryName);
-		categorySetup.run();
+		t = categorySetup.get();
 		builder.pop();
+		return t;
 	}
 
 	private BooleanValue enabled(ModConfigSpec.Builder builder) {
@@ -214,12 +203,11 @@ public class Configuration {
 
 	private void addCommandConfig(ModConfigSpec.Builder builder, String commandName, int defaultPermissionLevel, Supplier<BiConsumer<CommandDispatcher<CommandSourceStack>, Integer>> registrar) {
 		pushPop(builder, commandName, null, () -> {
-			//@formatter:off
 			commands.add(new CommandConfig(
-					enabled(builder, "command"),
-					permissionLevel(builder, commandName, defaultPermissionLevel),
-					registrar));
-			//@formatter:on
+				enabled(builder, "command"),
+				permissionLevel(builder, commandName, defaultPermissionLevel),
+				registrar));
+			return null;
 		});
 	}
 }

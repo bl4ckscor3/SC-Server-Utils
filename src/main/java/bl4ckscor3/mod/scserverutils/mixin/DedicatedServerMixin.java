@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import bl4ckscor3.mod.scserverutils.SpawnProtectionHandler;
 import bl4ckscor3.mod.scserverutils.configuration.Configuration;
-import bl4ckscor3.mod.scserverutils.configuration.NetherSpawnProtection;
+import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.Nether;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.dedicated.DedicatedPlayerList;
 import net.minecraft.server.dedicated.DedicatedServer;
@@ -24,7 +24,7 @@ public abstract class DedicatedServerMixin {
 	@Inject(method = "isUnderSpawnProtection", at = @At(value = "RETURN", ordinal = 0), cancellable = true)
 	private void scserverutils$protectNether(ServerLevel level, BlockPos pos, Player player, CallbackInfoReturnable<Boolean> cir) {
 		if (level.dimension() == Level.NETHER) {
-			NetherSpawnProtection netherSpawnProtection = Configuration.instance.netherSpawnProtection;
+			Nether netherSpawnProtection = Configuration.instance.spawnProtection.nether();
 
 			if (!netherSpawnProtection.enabled().get() || getPlayerList().getOps().isEmpty() || getPlayerList().isOp(player.getGameProfile()))
 				return;
