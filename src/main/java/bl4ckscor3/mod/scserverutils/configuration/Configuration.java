@@ -17,6 +17,7 @@ import bl4ckscor3.mod.scserverutils.commands.EnderchestCommand;
 import bl4ckscor3.mod.scserverutils.commands.InvseeCommand;
 import bl4ckscor3.mod.scserverutils.commands.PlayerHeadCommand;
 import bl4ckscor3.mod.scserverutils.commands.RulesCommand;
+import bl4ckscor3.mod.scserverutils.commands.SecretSignConversionCommand;
 import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.BlockBypass;
 import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.Effects;
 import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.Messages;
@@ -68,6 +69,7 @@ public class Configuration {
 			addCommandConfig(builder, "invsee", 2, () -> InvseeCommand::register);
 			addCommandConfig(builder, "playerhead", 1, () -> PlayerHeadCommand::register);
 			addCommandConfig(builder, "rules", 0, () -> RulesCommand::register);
+			addCommandConfig(builder, "secretsign", 2, () -> SecretSignConversionCommand::register);
 			return null;
 		});
 		customServerLinks = pushPop(builder, "Custom server links", "Server links to send to a connecting player", () ->
