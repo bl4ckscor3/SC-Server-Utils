@@ -10,7 +10,6 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 
 import net.geforcemods.securitycraft.SCContent;
-import net.geforcemods.securitycraft.commands.LowercasedEnumArgument;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
@@ -27,7 +26,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
-import net.neoforged.neoforge.common.util.TriPredicate;
 
 public class SecretSignConversionCommand {
 	private static final SimpleCommandExceptionType ERROR_FILL_FAILED = new SimpleCommandExceptionType(Component.translatableWithFallback("commands.securitycraft.convert.fill.failed", "There are no convertible blocks in the given area"));
@@ -87,14 +85,17 @@ public class SecretSignConversionCommand {
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher, int permissionLevel) {
 		dispatcher.register(Commands.literal("secretsign")
 			.requires(ctx -> ctx.hasPermission(permissionLevel))
-			.then(Commands.argument("mode", LowercasedEnumArgument.enumArgument(ConversionMode.class))
+			.then(Commands.literal("secret")
 				.then(Commands.argument("from", BlockPosArgument.blockPos())
 					.then(Commands.argument("to", BlockPosArgument.blockPos())
-						.executes(SecretSignConversionCommand::fill)))));
+						.executes(ctx -> SecretSignConversionCommand.fill(ctx, SIGN_MAP)))))
+			.then(Commands.literal("unsecret")
+				.then(Commands.argument("from", BlockPosArgument.blockPos())
+					.then(Commands.argument("to", BlockPosArgument.blockPos())
+						.executes(ctx -> SecretSignConversionCommand.fill(ctx, SIGN_MAP.inverse()))))));
 	}
 
-	private static int fill(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
-		ConversionMode mode = ctx.getArgument("mode", ConversionMode.class);
+	private static int fill(CommandContext<CommandSourceStack> ctx, BiMap<Block, Block> signMap) throws CommandSyntaxException {
 		BoundingBox area = BoundingBox.fromCorners(BlockPosArgument.getLoadedBlockPos(ctx, "from"), BlockPosArgument.getLoadedBlockPos(ctx, "to"));
 		CommandSourceStack source = ctx.getSource();
 		ServerLevel level = source.getLevel();
@@ -109,7 +110,7 @@ public class SecretSignConversionCommand {
 			for (BlockPos pos : BlockPos.betweenClosed(area.minX(), area.minY(), area.minZ(), area.maxX(), area.maxY(), area.maxZ())) {
 				BlockState state = level.getBlockState(pos);
 
-				if (mode.convert(state, level, pos))
+				if (convert(state, level, pos, signMap))
 					blocksModified++;
 			}
 
@@ -124,49 +125,34 @@ public class SecretSignConversionCommand {
 		}
 	}
 
-	private enum ConversionMode {
-		SECRET((state, level, pos) -> convert(state, level, pos, SIGN_MAP)),
-		UNSECRET((state, level, pos) -> convert(state, level, pos, SIGN_MAP.inverse()));
+	private static boolean convert(BlockState state, Level level, BlockPos pos, BiMap<Block, Block> signMap) {
+		Block block = state.getBlock();
 
-		private final TriPredicate<BlockState, Level, BlockPos> converter;
+		if (signMap.containsKey(block)) {
+			BlockEntity be = level.getBlockEntity(pos);
+			CompoundTag tag = be.saveWithFullMetadata(level.registryAccess());
 
-		ConversionMode(TriPredicate<BlockState, Level, BlockPos> converter) {
-			this.converter = converter;
+			level.setBlockAndUpdate(pos, copyProperties(state, signMap.get(block)));
+			be = level.getBlockEntity(pos);
+
+			if (be != null)
+				be.loadWithComponents(tag, level.registryAccess());
+
+			return true;
 		}
 
-		public boolean convert(BlockState state, Level level, BlockPos pos) {
-			return converter.test(state, level, pos);
+		return false;
+	}
+
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	private static BlockState copyProperties(BlockState oldState, Block newBlock) {
+		BlockState defaultBlockState = newBlock.defaultBlockState();
+
+		for (Property property : oldState.getProperties()) {
+			if (defaultBlockState.hasProperty(property))
+				defaultBlockState = defaultBlockState.setValue(property, oldState.getValue(property));
 		}
 
-		private static boolean convert(BlockState state, Level level, BlockPos pos, BiMap<Block, Block> signMap) {
-			Block block = state.getBlock();
-
-			if (signMap.containsKey(block)) {
-				BlockEntity be = level.getBlockEntity(pos);
-				CompoundTag tag = be.saveWithFullMetadata(level.registryAccess());
-
-				level.setBlockAndUpdate(pos, copyProperties(state, signMap.get(block)));
-				be = level.getBlockEntity(pos);
-
-				if (be != null)
-					be.loadWithComponents(tag, level.registryAccess());
-
-				return true;
-			}
-
-			return false;
-		}
-
-		@SuppressWarnings({"rawtypes", "unchecked"})
-		private static BlockState copyProperties(BlockState oldState, Block newBlock) {
-			BlockState defaultBlockState = newBlock.defaultBlockState();
-
-			for (Property property : oldState.getProperties()) {
-				if (defaultBlockState.hasProperty(property))
-					defaultBlockState = defaultBlockState.setValue(property, oldState.getValue(property));
-			}
-
-			return defaultBlockState;
-		}
+		return defaultBlockState;
 	}
 }
