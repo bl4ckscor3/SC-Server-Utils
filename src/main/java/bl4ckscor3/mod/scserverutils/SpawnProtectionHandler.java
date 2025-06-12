@@ -13,7 +13,6 @@ import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.Nether;
 import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.RiftStabilizer;
 import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.SpawnProtection;
 import net.geforcemods.securitycraft.blockentities.RiftStabilizerBlockEntity.TeleportationType;
-import net.minecraft.ChatFormatting;
 import net.minecraft.commands.arguments.ComponentArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.NbtOps;
@@ -88,33 +87,20 @@ public class SpawnProtectionHandler {
 
 			if (wasInSpawnProtectedArea != isInSpawnProtection(level, player.blockPosition())) {
 				boolean isNether = level.dimension().equals(Level.NETHER);
-				CommandArgumentParser<Component> parser = ComponentArgument.TAG_PARSER.withCodec(level.registryAccess().createSerializationContext(NbtOps.INSTANCE), ComponentArgument.TAG_PARSER, ComponentSerialization.CODEC, ComponentArgument.ERROR_INVALID_COMPONENT);
 
 				if (wasInSpawnProtectedArea) {
-					try {
-						Component message = parser.parseForCommands(new StringReader(spawnProtection.messages().leave().get()));
+					Component message = parseComponent(level, spawnProtection.messages().leave().get());
 
-						player.displayClientMessage(message, true);
-					}
-					catch (CommandSyntaxException e) {
-						throw new RuntimeException(e);
-					}
-
+					player.displayClientMessage(message, true);
 					player.removeTag(IN_SPAWN_PROTECTION_TAG);
 
 					if (!isNether || spawnProtection.effects().inNether().get())
 						effects.forEach(effect -> player.removeEffect(effect.get().getEffect()));
 				}
 				else {
-					try {
-						Component message = parser.parseForCommands(new StringReader(spawnProtection.messages().enter().get()));
+					Component message = parseComponent(level, spawnProtection.messages().enter().get());
 
-						player.displayClientMessage(message, true);
-					}
-					catch (CommandSyntaxException e) {
-						throw new RuntimeException(e);
-					}
-
+					player.displayClientMessage(message, true);
 					player.addTag(IN_SPAWN_PROTECTION_TAG);
 
 					if (!isNether || spawnProtection.effects().inNether().get())
@@ -170,7 +156,9 @@ public class SpawnProtectionHandler {
 				if (player.hasPermissions(spawnProtectionRiftStabilizer.bypassPermissionLevel().get()))
 					return;
 
-				player.displayClientMessage(Component.translatableWithFallback(spawnProtectionRiftStabilizer.langKey().get(), spawnProtectionRiftStabilizer.fallback().get()).withStyle(ChatFormatting.RED), true);
+				Component message = parseComponent(level, spawnProtectionRiftStabilizer.message().get());
+
+				player.displayClientMessage(message, true);
 			}
 
 			event.setCanceled(true);
@@ -247,6 +235,17 @@ public class SpawnProtectionHandler {
 			SpawnProtection spawnProtection = Configuration.instance.spawnProtection;
 			effects = spawnProtection.effects().resolve();
 			spawnInfo = spawnProtection.mobSpawning().resolve();
+		}
+	}
+
+	private static Component parseComponent(Level level, String message) {
+		CommandArgumentParser<Component> parser = ComponentArgument.TAG_PARSER.withCodec(level.registryAccess().createSerializationContext(NbtOps.INSTANCE), ComponentArgument.TAG_PARSER, ComponentSerialization.CODEC, ComponentArgument.ERROR_INVALID_COMPONENT);
+
+		try {
+			return parser.parseForCommands(new StringReader(message));
+		}
+		catch (CommandSyntaxException e) {
+			throw new RuntimeException(e);
 		}
 	}
 }

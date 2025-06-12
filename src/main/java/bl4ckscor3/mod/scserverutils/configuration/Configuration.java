@@ -159,11 +159,8 @@ public class Configuration {
 							.comment("What minimum permission level is needed to bypass anything this config section disallows.")
 							.defineInRange("bypass_permission_level", 1, 0, 4),
 						builder
-							.comment("The language key to use for the message sent when teleportation is being actively disallowed.")
-							.define("lang_key", "scserverutils.teleportation_disallowed"),
-						builder
-							.comment("The fallback text used in case the client has no translation for the given language key.")
-							.define("fallback", "You cannot teleport within spawn protection."))
+							.comment("The message sent when teleportation is being actively disallowed.")
+							.define("message", "{translate:\"scserverutils.teleportation_disallowed\",fallback:\"You cannot teleport within spawn protection.\",with:[],type:\"translatable\",color:\"red\"}"))
 				)
 			)
 		);
