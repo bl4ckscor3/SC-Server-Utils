@@ -6,18 +6,12 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
+import bl4ckscor3.mod.scserverutils.commands.*;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.mojang.brigadier.CommandDispatcher;
 
 import bl4ckscor3.mod.scserverutils.SCServerUtils;
-import bl4ckscor3.mod.scserverutils.commands.AreaCommand;
-import bl4ckscor3.mod.scserverutils.commands.DeathLogCommand;
-import bl4ckscor3.mod.scserverutils.commands.EnderchestCommand;
-import bl4ckscor3.mod.scserverutils.commands.InvseeCommand;
-import bl4ckscor3.mod.scserverutils.commands.PlayerHeadCommand;
-import bl4ckscor3.mod.scserverutils.commands.RulesCommand;
-import bl4ckscor3.mod.scserverutils.commands.SecretSignConversionCommand;
 import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.BlockBypass;
 import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.Effects;
 import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.Messages;
@@ -70,6 +64,8 @@ public class Configuration {
 			addCommandConfig(builder, "playerhead", 1, () -> PlayerHeadCommand::register);
 			addCommandConfig(builder, "rules", 0, () -> RulesCommand::register);
 			addCommandConfig(builder, "secretsign", 2, () -> SecretSignConversionCommand::register);
+			addCommandConfig(builder, "mute", 2, () -> MuteCommand::register);
+			addCommandConfig(builder, "unmute", 2, () -> UnmuteCommand::register);
 			return null;
 		});
 		customServerLinks = pushPop(builder, "Custom server links", "Server links to send to a connecting player", () ->

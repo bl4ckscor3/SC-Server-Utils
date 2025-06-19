@@ -40,6 +40,9 @@ public class SCServerUtils {
 			NeoForge.EVENT_BUS.addListener(DeathLogger::onLivingDeath);
 
 		SpawnProtectionHandler.addListeners(modEventBus);
+
+		// Register the chat event to prevent muted players to write in chat
+		NeoForge.EVENT_BUS.addListener(ChatMuteHandler::onPlayerChat);
 	}
 
 	@SubscribeEvent
