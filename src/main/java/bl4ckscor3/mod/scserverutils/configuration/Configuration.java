@@ -70,10 +70,10 @@ public class Configuration {
 			addCommandConfig(builder, "deathlog", 2, () -> DeathLogCommand::register);
 			addCommandConfig(builder, "enderchest", 2, () -> EnderchestCommand::register);
 			addCommandConfig(builder, "invsee", 2, () -> InvseeCommand::register);
+			addCommandConfig(builder, "mute", 2, () -> MuteCommand::register);
 			addCommandConfig(builder, "playerhead", 1, () -> PlayerHeadCommand::register);
 			addCommandConfig(builder, "rules", 0, () -> RulesCommand::register);
 			addCommandConfig(builder, "secretsign", 2, () -> SecretSignConversionCommand::register);
-			addCommandConfig(builder, "mute", 2, () -> MuteCommand::register);
 			return null;
 		});
 		customServerLinks = pushPop(builder, "Custom server links", "Server links to send to a connecting player", () ->

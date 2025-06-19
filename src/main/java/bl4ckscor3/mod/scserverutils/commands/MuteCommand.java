@@ -21,8 +21,7 @@ public class MuteCommand {
         dispatcher.register(Commands.literal("mute")
                 .requires(commandSource -> commandSource.hasPermission(permissionLevel))
                 .then(Commands.argument("player", EntityArgument.player())
-                        .executes(ctx -> {
-
+                        .then(Commands.argument("reason", StringArgumentType.greedyString()).executes(ctx -> {
                             // code run by the command
                             ServerPlayer playerToMute = EntityArgument.getPlayer(ctx, "player");
                             if (playerToMute.getTags().contains("muted")) {
@@ -33,14 +32,11 @@ public class MuteCommand {
                             playerToMute.addTag("muted");
                             playerToMute.sendSystemMessage(Component.literal("§cYou were muted my an operator. You can't send messages in chat anymore, until your punishment is revoked."));
                             ctx.getSource().sendSuccess(() -> Component.literal("&a" + playerToMute.getName().toString() + " was successfully muted."), true);
-
-                            return 1;
-                        }).then(Commands.argument("reason", StringArgumentType.greedyString()).executes(ctx -> {
-                            ServerPlayer playerToMute = EntityArgument.getPlayer(ctx, "player");
                             String reason = StringArgumentType.getString(ctx, "reason");
                             playerToMute.sendSystemMessage(Component.literal("§cReason: " + reason + "."));
                             return 1;
-                        }))));
+                        }
+                ))));
 
         dispatcher.register(Commands.literal("unmute")
                 .requires(source -> source.hasPermission(permissionLevel))
