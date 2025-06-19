@@ -37,7 +37,7 @@ public class MuteCommand {
                             return 1;
                         }).then(Commands.argument("reason", StringArgumentType.greedyString()).executes(ctx -> {
                             ServerPlayer playerToMute = EntityArgument.getPlayer(ctx, "player");
-                            String reason = StringArgumentType.getString(ctx, "raison");
+                            String reason = StringArgumentType.getString(ctx, "reason");
                             playerToMute.sendSystemMessage(Component.literal("§cReason: " + reason + "."));
                             return 1;
                         }))));
