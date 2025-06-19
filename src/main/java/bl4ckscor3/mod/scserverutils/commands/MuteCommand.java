@@ -41,5 +41,27 @@ public class MuteCommand {
                             playerToMute.sendSystemMessage(Component.literal("§cReason: " + reason + "."));
                             return 1;
                         }))));
+
+        dispatcher.register(Commands.literal("unmute")
+                .requires(source -> source.hasPermission(permissionLevel))
+                .then(Commands.argument("player", EntityArgument.player())
+                        .executes(ctx -> {
+
+                            // code run by the command
+                            ServerPlayer playerToUnmute = EntityArgument.getPlayer(ctx, "player");
+
+                            if (!playerToUnmute.getTags().contains("muted")) {
+                                // the player isn't muted
+                                ctx.getSource().sendFailure(Component.literal("§cThis player is not muted."));
+                                return 1;
+                            }
+
+                            playerToUnmute.removeTag("muted");
+                            playerToUnmute.sendSystemMessage(Component.literal("§cYou were unmuted my an operator. You can now send messages in chat. Don't break the rules anymore!"));
+
+                            ctx.getSource().sendSuccess(() -> Component.literal("&a" + playerToUnmute.getName().toString() + " was successfully unmuted."), true);
+                            return 1;
+                        })
+                ));
     }
 }

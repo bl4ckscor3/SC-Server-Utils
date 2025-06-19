@@ -1,5 +1,7 @@
 package bl4ckscor3.mod.scserverutils;
 
+import net.minecraft.network.chat.Component;
+import net.neoforged.neoforge.event.ServerChatEvent;
 import org.slf4j.Logger;
 
 import com.mojang.brigadier.CommandDispatcher;
@@ -40,9 +42,6 @@ public class SCServerUtils {
 			NeoForge.EVENT_BUS.addListener(DeathLogger::onLivingDeath);
 
 		SpawnProtectionHandler.addListeners(modEventBus);
-
-		// Register the chat event to prevent muted players to write in chat
-		NeoForge.EVENT_BUS.addListener(ChatMuteHandler::onPlayerChat);
 	}
 
 	@SubscribeEvent
@@ -88,6 +87,20 @@ public class SCServerUtils {
 				event.setPhantomsToSpawn(0);
 			else
 				event.setPhantomsToSpawn(player.level().random.nextIntBetweenInclusive(phantomSpawns.min().get(), phantomSpawns.max().get()));
+		}
+	}
+
+	@SubscribeEvent
+	public static void onServerChat(ServerChatEvent event) {
+		ServerPlayer player = event.getPlayer();
+
+		if (player.getTags().contains("muted")) {
+
+			player.sendSystemMessage(Component.literal("§cYou are currently muted, you can't send messages in chat."));
+			event.setCanceled(true);
+		} else if (player.getTags().contains("suspended")) {
+			player.sendSystemMessage(Component.literal("§cYou are currently suspended, you can't send messages in chat."));
+			event.setCanceled(true);
 		}
 	}
 }
