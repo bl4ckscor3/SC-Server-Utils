@@ -2,6 +2,7 @@ package bl4ckscor3.mod.scserverutils.commands;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -34,6 +35,11 @@ public class MuteCommand {
                             ctx.getSource().sendSuccess(() -> Component.literal("&a" + playerToMute.getName().toString() + " was successfully muted."), true);
 
                             return 1;
-                        })));
+                        }).then(Commands.argument("reason", StringArgumentType.greedyString()).executes(ctx -> {
+                            ServerPlayer playerToMute = EntityArgument.getPlayer(ctx, "player");
+                            String reason = StringArgumentType.getString(ctx, "raison");
+                            playerToMute.sendSystemMessage(Component.literal("§cReason: " + reason + "."));
+                            return 1;
+                        }))));
     }
 }
