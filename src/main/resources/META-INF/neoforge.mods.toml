@@ -14,9 +14,6 @@ authors="bl4ckscor3"
 [[mixins]]
 	config="scserverutils.mixins.json"
 
-[[mixins]]
-	config="scserverutils.hidden.mixins.json"
-
 [[dependencies.scserverutils]]
 	modId="neoforge"
 	type="required"

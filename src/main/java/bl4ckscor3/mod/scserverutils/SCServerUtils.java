@@ -132,7 +132,7 @@ public class SCServerUtils {
 	}
 
 	@SubscribeEvent
-	public void onServerStarted(ServerStartedEvent event) {
+	public static void onServerStarted(ServerStartedEvent event) {
 		ServerLevel overworld = event.getServer().overworld();
 		Path worldPath = overworld.getServer().getWorldPath(LevelResource.ROOT); 
 		playerDataManager = new PlayerDataManager(worldPath);
@@ -143,14 +143,14 @@ public class SCServerUtils {
 	}
 
 	@SubscribeEvent
-	public void onServerStopping(ServerStoppingEvent event) {
+	public static void onServerStopping(ServerStoppingEvent event) {
 		if (playerDataManager != null) {
 			playerDataManager.save();
 		}
 	}
 
 	@SubscribeEvent
-	public void onWorldSave(LevelEvent.Save event) {
+	public static void onWorldSave(LevelEvent.Save event) {
 		if (event.getLevel() instanceof ServerLevel && ((ServerLevel) event.getLevel()).dimension() == Level.OVERWORLD) {
 			if (playerDataManager != null) {
 				playerDataManager.save();
