@@ -134,7 +134,7 @@ public class SCServerUtils {
 	@SubscribeEvent
 	public void onServerStarted(ServerStartedEvent event) {
 		ServerLevel overworld = event.getServer().overworld();
-		Path worldPath = overworld.getServer().getWorldPath(LevelResource.ROOT); // Récupère le chemin du monde
+		Path worldPath = overworld.getServer().getWorldPath(LevelResource.ROOT); 
 		playerDataManager = new PlayerDataManager(worldPath);
 		for (PlayerMuteData playerData: playerDataManager.getEntries()) {
 			mutedPlayersUUID.add(playerData.uuid);
