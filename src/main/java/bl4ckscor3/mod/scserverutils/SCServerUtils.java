@@ -1,17 +1,21 @@
 package bl4ckscor3.mod.scserverutils;
 
+import bl4ckscor3.mod.scserverutils.configuration.*;
+import bl4ckscor3.mod.scserverutils.mute.PlayerDataManager;
+import bl4ckscor3.mod.scserverutils.mute.PlayerMuteData;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.LevelResource;
 import net.neoforged.neoforge.event.ServerChatEvent;
+import net.neoforged.neoforge.event.level.LevelEvent;
+import net.neoforged.neoforge.event.server.ServerStartedEvent;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import org.slf4j.Logger;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.logging.LogUtils;
 
-import bl4ckscor3.mod.scserverutils.configuration.AutosaveInterval;
-import bl4ckscor3.mod.scserverutils.configuration.CommandConfig;
-import bl4ckscor3.mod.scserverutils.configuration.Configuration;
-import bl4ckscor3.mod.scserverutils.configuration.CustomServerLinks;
-import bl4ckscor3.mod.scserverutils.configuration.PhantomSpawns;
 import bl4ckscor3.mod.scserverutils.mixin.MinecraftServerAccessor;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.protocol.common.ClientboundServerLinksPacket;
@@ -29,11 +33,17 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedInEven
 import net.neoforged.neoforge.event.entity.player.PlayerSpawnPhantomsEvent;
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+
 @Mod(SCServerUtils.MODID)
 @EventBusSubscriber
 public class SCServerUtils {
 	public static final String MODID = "scserverutils";
 	public static final Logger LOGGER = LogUtils.getLogger();
+	public static PlayerDataManager playerDataManager;
+	public static List<String> mutedPlayersUUID = new ArrayList<>();
 
 	public SCServerUtils(IEventBus modEventBus, ModContainer modContainer) {
 		modContainer.registerConfig(Type.STARTUP, Configuration.SPEC, "scserverutils-common.toml");
@@ -93,14 +103,43 @@ public class SCServerUtils {
 	@SubscribeEvent
 	public static void onServerChat(ServerChatEvent event) {
 		ServerPlayer player = event.getPlayer();
-
-		if (player.getTags().contains("muted")) {
-
-			player.sendSystemMessage(Component.literal("§cYou are currently muted, you can't send messages in chat."));
-			event.setCanceled(true);
-		} else if (player.getTags().contains("suspended")) {
+		if (player.getTags().contains("suspended")) {
 			player.sendSystemMessage(Component.literal("§cYou are currently suspended, you can't send messages in chat."));
 			event.setCanceled(true);
+			return;
+		}
+
+		if (mutedPlayersUUID.contains(player.getStringUUID())) {
+			//send message (how does this system works with config ?)
+			event.setCanceled(true);
+			return;
+		}
+	}
+
+	@SubscribeEvent
+	public void onServerStarted(ServerStartedEvent event) {
+		ServerLevel overworld = event.getServer().overworld();
+		Path worldPath = overworld.getServer().getWorldPath(LevelResource.ROOT); // Récupère le chemin du monde
+		playerDataManager = new PlayerDataManager(worldPath);
+		for (PlayerMuteData playerData: playerDataManager.getEntries()) {
+			mutedPlayersUUID.add(playerData.uuid);
+		}
+
+	}
+
+	@SubscribeEvent
+	public void onServerStopping(ServerStoppingEvent event) {
+		if (playerDataManager != null) {
+			playerDataManager.save();
+		}
+	}
+
+	@SubscribeEvent
+	public void onWorldSave(LevelEvent.Save event) {
+		if (event.getLevel() instanceof ServerLevel && ((ServerLevel) event.getLevel()).dimension() == Level.OVERWORLD) {
+			if (playerDataManager != null) {
+				playerDataManager.save();
+			}
 		}
 	}
 }

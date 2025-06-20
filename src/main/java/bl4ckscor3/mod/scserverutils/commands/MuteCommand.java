@@ -1,5 +1,7 @@
 package bl4ckscor3.mod.scserverutils.commands;
 
+import bl4ckscor3.mod.scserverutils.SCServerUtils;
+import bl4ckscor3.mod.scserverutils.mute.PlayerMuteData;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -24,16 +26,15 @@ public class MuteCommand {
                         .then(Commands.argument("reason", StringArgumentType.greedyString()).executes(ctx -> {
                             // code run by the command
                             ServerPlayer playerToMute = EntityArgument.getPlayer(ctx, "player");
-                            if (playerToMute.getTags().contains("muted")) {
-                                // player already muted
-                                ctx.getSource().sendFailure(Component.literal("§cThis player is already muted. Use /unmute to remove the punishment."));
+                            if (SCServerUtils.mutedPlayersUUID.contains(playerToMute.getStringUUID())) {
+                                // send failed message
                                 return 1;
                             }
-                            playerToMute.addTag("muted");
-                            playerToMute.sendSystemMessage(Component.literal("§cYou were muted my an operator. You can't send messages in chat anymore, until your punishment is revoked."));
-                            ctx.getSource().sendSuccess(() -> Component.literal("&a" + playerToMute.getName().toString() + " was successfully muted."), true);
                             String reason = StringArgumentType.getString(ctx, "reason");
-                            playerToMute.sendSystemMessage(Component.literal("§cReason: " + reason + "."));
+                            SCServerUtils.playerDataManager.addEntry(new PlayerMuteData(playerToMute.getName().toString(), playerToMute.getStringUUID(), reason));
+
+                            // send message to player
+                            // send success message
                             return 1;
                         }
                 ))));
@@ -46,16 +47,13 @@ public class MuteCommand {
                             // code run by the command
                             ServerPlayer playerToUnmute = EntityArgument.getPlayer(ctx, "player");
 
-                            if (!playerToUnmute.getTags().contains("muted")) {
-                                // the player isn't muted
-                                ctx.getSource().sendFailure(Component.literal("§cThis player is not muted."));
+                            if (!SCServerUtils.mutedPlayersUUID.contains(playerToUnmute.getStringUUID())) {
+                                // send failure message
                                 return 1;
                             }
-
-                            playerToUnmute.removeTag("muted");
-                            playerToUnmute.sendSystemMessage(Component.literal("§cYou were unmuted my an operator. You can now send messages in chat. Don't break the rules anymore!"));
-
-                            ctx.getSource().sendSuccess(() -> Component.literal("&a" + playerToUnmute.getName().toString() + " was successfully unmuted."), true);
+                            SCServerUtils.playerDataManager.removeEntry(SCServerUtils.playerDataManager.getPlayerDataByUUID(playerToUnmute.getStringUUID()));
+                            // send message
+                            // send success message
                             return 1;
                         })
                 ));
