@@ -30,7 +30,7 @@ import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.PvpPrevention;
 import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.RiftStabilizer;
 import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.SpawnProtection;
 import net.geforcemods.securitycraft.blockentities.RiftStabilizerBlockEntity.TeleportationType;
-import bl4ckscor3.mod.scsercerutils.configuration.MuteMessages;
+import bl4ckscor3.mod.scserverutils.configuration.MuteMessages;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.neoforged.neoforge.common.ModConfigSpec;
@@ -46,6 +46,7 @@ public class Configuration {
 	public CustomServerLinks customServerLinks;
 	public DamageSourceLanguageFallback damageSourceLanguageFallback;
 	public DeathLog deathLog;
+	public MuteMessages muteMessages;
 	public PhantomSpawns phantomSpawns;
 	public SpawnProtection spawnProtection;
 	public SuppressDestroyMismatchLog suppressDestroyMismatchLog;
@@ -89,6 +90,18 @@ public class Configuration {
 				enabled(builder),
 				builder.comment("The path where death logs are saved, relative to the game directory.").define("save_path", SCServerUtils.MODID + "/death_logs"))
 		);
+		muteMessages = pushPop(builder, "Mute Messages", "Messages relating to the mute system", () ->
+						new MuteMessages(
+								builder.comment("Message sent when cancelling a muted player's message").define("cancelledMessageMute", "{translate:\"scserverutils.mute.message_cancelled\",fallback:\"You can't send messages while muted.\",with:[],type:\"translatable\",color:\"red\"}"),
+								builder.comment("Message sent when cancelling a suspended player's message").define("cancelledMessageSuspend", "{translate:\"scserverutils.mute.message_cancelled_suspended\",fallback:\"You can't send messages while suspended.\",with:[],type:\"translatable\",color:\"red\"}"),
+								builder.comment("Message sent when a mute starts").define("muteStarts", "{translate:\"scserverutils.mute.mute_starts\",fallback:\"You were muted my an operator, for the following reason: %1$s. You can't send messages in chat anymore, until your punishment is revoked.\",with:[],type:\"translatable\",color:\"red\"}"),
+								builder.comment("Message sent when a mute ends").define("muteEnds", "{translate:\"scserverutils.mute.mute_ends\",fallback:\"You were unmuted my an operator. You can now send messages in chat. Don't break the rules anymore!\",with:[],type:\"translatable\",color:\"green\"}"),
+								builder.comment("Message sent when trying to mute a muted player").define("muteFailedAlreadyMuted", "{translate:\"scserverutils.mute.failed.already_muted\",fallback:\"This player is already muted.\",with:[],type:\"translatable\",color:\"red\"}"),
+								builder.comment("Message sent when a player is successfully muted").define("muteSuccess", "{translate:\"scserverutils.mute.success\",fallback:\"%1$s was successfully muted.\",with:[],type:\"translatable\",color:\"green\"}"),
+								builder.comment("Message sent when a player is successfully muted").define("unmuteFailedNotMuted", "{translate:\"scserverutils.unmute.failed.not_muted\",fallback:\"This player is not muted.\",with:[],type:\"translatable\",color:\"red\"}"),
+								builder.comment("Message sent when a player is successfully muted").define("unmuteSuccess", "{translate:\"scserverutils.unmute.success\",fallback:\"%1$s was successfully unmuted.\",with:[],type:\"translatable\",color:\"green\"}")
+								)
+				);
 		spawnProtection = pushPop(builder, "Spawn protection", "Assorted settings regarding spawn protection", () ->
 			new SpawnProtection(
 				builder.comment("Disables snow accumulation in spawn protection").define("no_snow", true),
@@ -113,13 +126,6 @@ public class Configuration {
 					new Messages(
 						builder.comment("Message sent when entering spawn protection").define("enter", "{translate:\"scserverutils.enter_spawn_protection\",fallback:\"PvP is no longer active.\",with:[],type:\"translatable\",color:\"green\"}"),
 						builder.comment("Message sent when leaving spawn protection").define("leave", "{translate:\"scserverutils.leave_spawn_protection\",fallback:\"PvP is now on!\",with:[],type:\"translatable\",color:\"red\"}")
-					)
-				),
-    pushPop(builder, "Messages", "Messages relating to mute system", () ->
-					new Messages(
-						builder.comment("Message sent when cancelling a muted player's message").define("cancelledMessageMute", "{translate:\"scserverutils.mute.message_cancelled\",fallback:\"You can't send messages while muted.\",with:[],type:\"translatable\",color:\"red\"}"),
-						builder.comment("Message sent when cancelling a suspended player's message").define("cancelledMessageSuspend", "{translate:\"scserverutils.mute.message_cancelled_suspended\",fallback:\"You can't send messages while suspended.\",with:[],type:\"translatable\",color:\"red\"}")
-						//todo: 6 more
 					)
 				),
 				pushPop(builder, "Mob spawning", "Disables mob spawns in spawn protection", () ->
