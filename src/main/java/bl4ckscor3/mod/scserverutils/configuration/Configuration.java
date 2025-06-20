@@ -30,6 +30,7 @@ import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.PvpPrevention;
 import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.RiftStabilizer;
 import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.SpawnProtection;
 import net.geforcemods.securitycraft.blockentities.RiftStabilizerBlockEntity.TeleportationType;
+import bl4ckscor3.mod.scsercerutils.configuration.MuteMessages;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.neoforged.neoforge.common.ModConfigSpec;
@@ -112,6 +113,13 @@ public class Configuration {
 					new Messages(
 						builder.comment("Message sent when entering spawn protection").define("enter", "{translate:\"scserverutils.enter_spawn_protection\",fallback:\"PvP is no longer active.\",with:[],type:\"translatable\",color:\"green\"}"),
 						builder.comment("Message sent when leaving spawn protection").define("leave", "{translate:\"scserverutils.leave_spawn_protection\",fallback:\"PvP is now on!\",with:[],type:\"translatable\",color:\"red\"}")
+					)
+				),
+    pushPop(builder, "Messages", "Messages relating to mute system", () ->
+					new Messages(
+						builder.comment("Message sent when cancelling a muted player's message").define("cancelledMessageMute", "{translate:\"scserverutils.mute.message_cancelled\",fallback:\"You can't send messages while muted.\",with:[],type:\"translatable\",color:\"red\"}"),
+						builder.comment("Message sent when cancelling a suspended player's message").define("cancelledMessageSuspend", "{translate:\"scserverutils.mute.message_cancelled_suspended\",fallback:\"You can't send messages while suspended.\",with:[],type:\"translatable\",color:\"red\"}")
+						//todo: 6 more
 					)
 				),
 				pushPop(builder, "Mob spawning", "Disables mob spawns in spawn protection", () ->
