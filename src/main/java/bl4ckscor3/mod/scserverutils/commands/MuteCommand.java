@@ -37,7 +37,7 @@ public class MuteCommand {
                             Component messageComponent = Component.translatable("scserverutils.mute.mute_starts", reason);
                             playerToMute.sendSystemMessage(messageComponent);
 
-                            Component messageToOperator = Component.translatable("scserverutils.mute.success", playerToMute);
+                            Component messageToOperator = Component.translatable("scserverutils.mute.success", playerToMute.getName().toString());
                             ctx.getSource().sendSuccess(() -> messageToOperator, true);
                             return 1;
                         }
@@ -63,7 +63,7 @@ public class MuteCommand {
                             Component messageComponent = SCServerUtils.parseComponent(playerToUnmute.level(), muteMessages.muteEnds().get());
                             playerToUnmute.sendSystemMessage(messageComponent);
 
-                            Component messageToOperator = Component.translatable("scserverutils.unmute.success", playerToUnmute);
+                            Component messageToOperator = Component.translatable("scserverutils.unmute.success", playerToUnmute.getName().toString());
                             ctx.getSource().sendSuccess(() -> messageToOperator, true);
                             return 1;
                         })

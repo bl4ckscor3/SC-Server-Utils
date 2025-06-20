@@ -88,7 +88,6 @@ public class PlayerDataManager {
 
     public void save() {
         try {
-            Files.createDirectories(dataFile.getParent());
             try (Writer writer = Files.newBufferedWriter(dataFile)) {
                 GSON.toJson(entries, writer);
             }
