@@ -46,7 +46,7 @@ public class Configuration {
 	public CustomServerLinks customServerLinks;
 	public DamageSourceLanguageFallback damageSourceLanguageFallback;
 	public DeathLog deathLog;
-	public static MuteMessages muteMessages;
+	public MuteMessages muteMessages;
 	public PhantomSpawns phantomSpawns;
 	public SpawnProtection spawnProtection;
 	public SuppressDestroyMismatchLog suppressDestroyMismatchLog;

@@ -36,6 +36,8 @@ import net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
+import static bl4ckscor3.mod.scserverutils.SCServerUtils.parseComponent;
+
 public class SpawnProtectionHandler {
 	public static final String IN_SPAWN_PROTECTION_TAG = "in_spawn_protection";
 	private static List<Supplier<MobEffectInstance>> effects = new ArrayList<>();
@@ -238,14 +240,5 @@ public class SpawnProtectionHandler {
 		}
 	}
 
-	private static Component parseComponent(Level level, String message) {
-		CommandArgumentParser<Component> parser = ComponentArgument.TAG_PARSER.withCodec(level.registryAccess().createSerializationContext(NbtOps.INSTANCE), ComponentArgument.TAG_PARSER, ComponentSerialization.CODEC, ComponentArgument.ERROR_INVALID_COMPONENT);
 
-		try {
-			return parser.parseForCommands(new StringReader(message));
-		}
-		catch (CommandSyntaxException e) {
-			throw new RuntimeException(e);
-		}
-	}
 }

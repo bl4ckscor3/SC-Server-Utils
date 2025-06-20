@@ -1,10 +1,21 @@
 package bl4ckscor3.mod.scserverutils;
 
-import bl4ckscor3.mod.scserverutils.configuration.*;
+import bl4ckscor3.mod.scserverutils.configuration.Configuration;
+import bl4ckscor3.mod.scserverutils.configuration.AutosaveInterval;
+import bl4ckscor3.mod.scserverutils.configuration.CommandConfig;
+import bl4ckscor3.mod.scserverutils.configuration.CustomServerLinks;
+import bl4ckscor3.mod.scserverutils.configuration.PhantomSpawns;
+import bl4ckscor3.mod.scserverutils.configuration.MuteMessages;
 import bl4ckscor3.mod.scserverutils.mute.PlayerDataManager;
 import bl4ckscor3.mod.scserverutils.mute.PlayerMuteData;
+import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.minecraft.commands.arguments.ComponentArgument;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.parsing.packrat.commands.CommandArgumentParser;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.LevelResource;
 import net.neoforged.neoforge.event.ServerChatEvent;
@@ -104,15 +115,17 @@ public class SCServerUtils {
 	public static void onServerChat(ServerChatEvent event) {
 		ServerPlayer player = event.getPlayer();
 		if (player.getTags().contains("suspended")) {
-			// send message
+			MuteMessages muteMessages = Configuration.instance.muteMessages;
+			Component messageComponent = parseComponent(player.level(), muteMessages.cancelledMessageSuspend().get());
+			player.sendSystemMessage(messageComponent);
 			event.setCanceled(true);
 			return;
 		}
 
 		if (mutedPlayersUUID.contains(player.getStringUUID())) {
-			// send message (how does this system works with config ?)
-			// Note: the following line is an attempt and IS NOT correct.
-			player.sendSystemMessage(Component.Serializer.fromJson(Configuration.muteMessages.cancelledMessageMute().get()));
+			MuteMessages muteMessages = Configuration.instance.muteMessages;
+			Component messageComponent = parseComponent(player.level(), muteMessages.cancelledMessageMute().get());
+			player.sendSystemMessage(messageComponent);
 			event.setCanceled(true);
 			return;
 		}
@@ -142,6 +155,17 @@ public class SCServerUtils {
 			if (playerDataManager != null) {
 				playerDataManager.save();
 			}
+		}
+	}
+
+	public static Component parseComponent(Level level, String message) {
+		CommandArgumentParser<Component> parser = ComponentArgument.TAG_PARSER.withCodec(level.registryAccess().createSerializationContext(NbtOps.INSTANCE), ComponentArgument.TAG_PARSER, ComponentSerialization.CODEC, ComponentArgument.ERROR_INVALID_COMPONENT);
+
+		try {
+			return parser.parseForCommands(new StringReader(message));
+		}
+		catch (CommandSyntaxException e) {
+			throw new RuntimeException(e);
 		}
 	}
 }
