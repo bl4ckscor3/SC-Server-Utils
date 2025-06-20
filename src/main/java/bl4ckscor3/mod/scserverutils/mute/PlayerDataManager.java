@@ -11,6 +11,7 @@ import java.io.Writer;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class PlayerDataManager {
     private final Path dataFile;
 
     public PlayerDataManager(Path worldPath) {
-        this.dataFile = worldPath.resolve("data").resolve("SC-Server-Utils").resolve(FILE_NAME);
+        this.dataFile = worldPath.resolve(FILE_NAME);
         load(false);
     }
 
@@ -59,7 +60,7 @@ public class PlayerDataManager {
             } else {
                 fileNotFound = true;
                 try {
-                    Files.createFile(dataFile);
+                    Files.writeString(dataFile, "[]", StandardOpenOption.CREATE_NEW);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }

@@ -134,8 +134,8 @@ public class SCServerUtils {
 	@SubscribeEvent
 	public static void onServerStarted(ServerStartedEvent event) {
 		ServerLevel overworld = event.getServer().overworld();
-		Path worldPath = overworld.getServer().getWorldPath(LevelResource.ROOT); 
-		playerDataManager = new PlayerDataManager(worldPath);
+		Path serverPath = event.getServer().getServerDirectory();
+		playerDataManager = new PlayerDataManager(serverPath);
 		for (PlayerMuteData playerData: playerDataManager.getEntries()) {
 			mutedPlayersUUID.add(playerData.uuid);
 		}
