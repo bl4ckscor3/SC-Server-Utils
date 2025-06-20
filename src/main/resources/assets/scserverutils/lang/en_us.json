@@ -2,5 +2,13 @@
 	"death.attack.trigger_kill": "%1$s found themselves in a dreadful situation and took the easy way out.",
 	"scserverutils.leave_spawn_protection": "PvP is now on!",
 	"scserverutils.enter_spawn_protection": "PvP is no longer active.",
-	"scserverutils.teleportation_disallowed": "You cannot teleport within spawn protection."
+	"scserverutils.teleportation_disallowed": "You cannot teleport within spawn protection.",
+	"scserverutils.mute.message_cancelled": "You are currently muted, you can't send messages in chat.",
+	"scserverutils.mute.message_cancelled_suspended": "You are currently suspended, you can't send messages in chat.",
+	"scserverutils.mute.mute_starts": "You were muted my an operator, for the following reason: %1$s. You can't send messages in chat anymore, until your punishment is revoked.",
+	"scserverutils.mute.mute_ends": "You were unmuted my an operator. You can now send messages in chat. Don't break the rules anymore!",
+	"scserverutils.mute.failed.already_muted": "This player is already muted. Use /unmute to remove the punishment.",
+	"scserverutils.mute.success": "%1$s was successfully muted.",
+	"scserverutils.unmute.failed.not_muted": "This player is not muted.",
+	"scserverutils.unmute.success": "%1$s was successfully unmuted."
 }
