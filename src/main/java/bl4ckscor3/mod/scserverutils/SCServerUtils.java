@@ -104,13 +104,15 @@ public class SCServerUtils {
 	public static void onServerChat(ServerChatEvent event) {
 		ServerPlayer player = event.getPlayer();
 		if (player.getTags().contains("suspended")) {
-			player.sendSystemMessage(Component.literal("§cYou are currently suspended, you can't send messages in chat."));
+			// send message
 			event.setCanceled(true);
 			return;
 		}
 
 		if (mutedPlayersUUID.contains(player.getStringUUID())) {
-			//send message (how does this system works with config ?)
+			// send message (how does this system works with config ?)
+			// Note: the following line is an attempt and IS NOT correct.
+			player.sendSystemMessage(Component.Serializer.fromJson(Configuration.muteMessages.cancelledMessageMute().get()));
 			event.setCanceled(true);
 			return;
 		}
