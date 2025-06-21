@@ -41,7 +41,7 @@ public class MuteCommand {
                             Component messageComponent = SCServerUtils.parseComponent(playerToMute.level(), String.format(muteMessages.muteStarts().get(), reason));
                             playerToMute.sendSystemMessage(messageComponent);
 
-                            Component messageToOperator = SCServerUtils.parseComponent(ctx.getSource().getLevel(), String.format(muteMessages.muteSuccess().get(), playerToMute.getName()));
+                            Component messageToOperator = SCServerUtils.parseComponent(ctx.getSource().getLevel(), String.format(muteMessages.muteSuccess().get(), playerToMute.getName().getString()));
                             ctx.getSource().sendSuccess(() -> messageToOperator, true);
                             return 1;
                         }
@@ -72,7 +72,7 @@ public class MuteCommand {
                                 Component messageComponent = SCServerUtils.parseComponent(playerToUnmute.level(), muteMessages.muteEnds().get());
                                 playerToUnmute.sendSystemMessage(messageComponent);
 
-                                Component messageToOperator = SCServerUtils.parseComponent(ctx.getSource().getLevel(), String.format(muteMessages.unmuteSuccess().get(), playerToUnmute.getName()));
+                                Component messageToOperator = SCServerUtils.parseComponent(ctx.getSource().getLevel(), String.format(muteMessages.unmuteSuccess().get(), playerToUnmute.getName().getString()));
                                 ctx.getSource().sendSuccess(() -> messageToOperator, true);
                                 return 1;
                             } else {
