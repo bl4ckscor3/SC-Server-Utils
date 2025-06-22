@@ -14,7 +14,10 @@ import net.minecraft.commands.arguments.ComponentArgument;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.players.ServerOpList;
+import net.minecraft.server.players.ServerOpListEntry;
 import net.minecraft.util.parsing.packrat.commands.CommandArgumentParser;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.LevelResource;
@@ -48,6 +51,7 @@ import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Mod(SCServerUtils.MODID)
 @EventBusSubscriber
@@ -119,6 +123,7 @@ public class SCServerUtils {
 			MuteMessages muteMessages = Configuration.instance.muteMessages;
 			Component messageComponent = parseComponent(player.level(), muteMessages.cancelledMessageSuspend().get());
 			player.sendSystemMessage(messageComponent);
+			logCancelledMessage(player, event.getRawText());
 			event.setCanceled(true);
 			return;
 		}
@@ -127,22 +132,34 @@ public class SCServerUtils {
 			MuteMessages muteMessages = Configuration.instance.muteMessages;
 			Component messageComponent = parseComponent(player.level(), muteMessages.cancelledMessageMute().get());
 			player.sendSystemMessage(messageComponent);
+			logCancelledMessage(player, event.getRawText());
 			event.setCanceled(true);
 			return;
 		}
 	}
 
-	private void logCancelledMessage(ServerPlayer player, String message) {
+	public static void logCancelledMessage(ServerPlayer player, String message) {
 		final String logMessage = "[CANCELLED] <" + player.getDisplayName() + "> " + message;
 		LOGGER.info(logMessage);
 
-		List<ServerPlayer> onlinePlayers = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers();
-		List<ServerPlayer> operators = ServerLifecycleHooks.getCurrentServer().getPlayerList().getOps();
-		for (ServerPlayer p: onlinePlayers) {
-			if (operators.contains(p)) {
-				p.sendSystemMessage(Component.literal(logMessage));
-			}
+		for (ServerPlayer p: getOnlineOperators()) {
+			p.sendSystemMessage(Component.literal(logMessage));
 		}
+	}
+
+	public static List<ServerPlayer> getOnlineOperators() {
+		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+
+		List<ServerPlayer> onlinePlayers = server.getPlayerList().getPlayers();
+
+		ServerOpList opList = server.getPlayerList().getOps();
+
+		return onlinePlayers.stream()
+				.filter(player -> {
+					ServerOpListEntry entry = opList.get(player.getGameProfile());
+					return entry != null && entry.getLevel() >= 1; // niveau OP ≥ 1
+				})
+				.collect(Collectors.toList());
 	}
 
 	@SubscribeEvent
