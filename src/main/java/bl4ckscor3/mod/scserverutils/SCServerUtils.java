@@ -22,6 +22,7 @@ import net.neoforged.neoforge.event.ServerChatEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.slf4j.Logger;
 
 import com.mojang.brigadier.CommandDispatcher;
@@ -128,6 +129,19 @@ public class SCServerUtils {
 			player.sendSystemMessage(messageComponent);
 			event.setCanceled(true);
 			return;
+		}
+	}
+
+	private void logCancelledMessage(ServerPlayer player, String message) {
+		final String logMessage = "[CANCELLED] <" + player.getDisplayName() + "> " + message;
+		LOGGER.info(logMessage);
+
+		List<ServerPlayer> onlinePlayers = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers();
+		List<ServerPlayer> operators = ServerLifecycleHooks.getCurrentServer().getPlayerList().getOps();
+		for (ServerPlayer p: onlinePlayers) {
+			if (operators.contains(p)) {
+				p.sendSystemMessage(Component.literal(logMessage));
+			}
 		}
 	}
 
