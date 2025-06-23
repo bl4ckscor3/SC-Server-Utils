@@ -21,6 +21,7 @@ import net.minecraft.server.players.ServerOpListEntry;
 import net.minecraft.util.parsing.packrat.commands.CommandArgumentParser;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.LevelResource;
+import net.neoforged.neoforge.event.CommandEvent;
 import net.neoforged.neoforge.event.ServerChatEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
@@ -137,8 +138,8 @@ public class SCServerUtils {
 			return;
 		}
 	}
-
-	public static void logCancelledMessage(ServerPlayer player, String message) {
+	
+	private static void logCancelledMessage(ServerPlayer player, String message) {
 		final String logMessage = "[CANCELLED] <" + player.getDisplayName() + "> " + message;
 		LOGGER.info(logMessage);
 
@@ -147,7 +148,7 @@ public class SCServerUtils {
 		}
 	}
 
-	public static List<ServerPlayer> getOnlineOperators() {
+	private static List<ServerPlayer> getOnlineOperators() {
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 
 		List<ServerPlayer> onlinePlayers = server.getPlayerList().getPlayers();
