@@ -5,36 +5,19 @@ import bl4ckscor3.mod.scserverutils.configuration.AutosaveInterval;
 import bl4ckscor3.mod.scserverutils.configuration.CommandConfig;
 import bl4ckscor3.mod.scserverutils.configuration.CustomServerLinks;
 import bl4ckscor3.mod.scserverutils.configuration.PhantomSpawns;
-import bl4ckscor3.mod.scserverutils.configuration.MuteMessages;
+import bl4ckscor3.mod.scserverutils.mute.MuteEventsHandler;
 import bl4ckscor3.mod.scserverutils.mute.PlayerDataManager;
-import bl4ckscor3.mod.scserverutils.mute.PlayerMuteData;
 import com.mojang.brigadier.StringReader;
-import com.mojang.brigadier.context.CommandContextBuilder;
-import com.mojang.brigadier.context.ParsedArgument;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.arguments.ComponentArgument;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.commands.MsgCommand;
-import net.minecraft.server.commands.TeamMsgCommand;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.players.ServerOpList;
 import net.minecraft.server.players.ServerOpListEntry;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.parsing.packrat.commands.CommandArgumentParser;
-import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.SignBlock;
-import net.minecraft.world.level.block.WallSignBlock;
-import net.neoforged.neoforge.event.CommandEvent;
-import net.neoforged.neoforge.event.ServerChatEvent;
-import net.neoforged.neoforge.event.level.BlockEvent;
-import net.neoforged.neoforge.event.level.LevelEvent;
-import net.neoforged.neoforge.event.server.ServerStartedEvent;
-import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.slf4j.Logger;
 
@@ -58,10 +41,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedInEven
 import net.neoforged.neoforge.event.entity.player.PlayerSpawnPhantomsEvent;
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -75,6 +55,8 @@ public class SCServerUtils {
 
 	public SCServerUtils(IEventBus modEventBus, ModContainer modContainer) {
 		modContainer.registerConfig(Type.STARTUP, Configuration.SPEC, "scserverutils-common.toml");
+
+		NeoForge.EVENT_BUS.register(MuteEventsHandler.class);
 
 		if (Configuration.instance.deathLog.enabled().get())
 			NeoForge.EVENT_BUS.addListener(DeathLogger::onLivingDeath);
@@ -128,98 +110,7 @@ public class SCServerUtils {
 		}
 	}
 
-	@SubscribeEvent
-	public static void onServerChat(ServerChatEvent event) {
-		ServerPlayer player = event.getPlayer();
-		if (player.getTags().contains("suspended")) {
-			MuteMessages muteMessages = Configuration.instance.muteMessages;
-			Component messageComponent = parseComponent(player.level(), muteMessages.cancelledMessageSuspend().get());
-			player.sendSystemMessage(messageComponent);
-			logCancelledMessage(player, event.getRawText());
-			event.setCanceled(true);
-			return;
-		}
-
-		if (mutedPlayersUUID.contains(player.getStringUUID())) {
-			MuteMessages muteMessages = Configuration.instance.muteMessages;
-			Component messageComponent = parseComponent(player.level(), muteMessages.cancelledMessageMute().get());
-			player.sendSystemMessage(messageComponent);
-			logCancelledMessage(player, event.getRawText());
-			event.setCanceled(true);
-		}
-	}
-
-	@SubscribeEvent
-	public static void onCommandEvent(CommandEvent event) {
-
-		String fullCmd = event.getParseResults().getReader().getString();
-		String[] args = fullCmd.split(" ");
-
-		if (args.length > 0) {
-			String cmd = args[0].replace("/", "");
-
-			if (cmd.equalsIgnoreCase("msg") || cmd.equalsIgnoreCase("tell") || cmd.equalsIgnoreCase("w")) {
-                try {
-                    ServerPlayer sender = event.getParseResults().getContext().getSource().getPlayerOrException();
-					if (mutedPlayersUUID.contains(sender.getStringUUID())) {
-						for (ServerPlayer op: getOnlineOperators()) {
-							if (op.getDisplayName().toString().equalsIgnoreCase(args[1])) {
-								op.sendSystemMessage(Component.literal("Note: The following message was sent by a muted player. Since you have operator permission, the message wasn't cancelled."));
-								return;
-							}
-						}
-						logCancelledMessage(sender, String.join(" ", Arrays.copyOfRange(args, 2, args.length)));
-						event.setCanceled(true);
-						MuteMessages muteMessages = Configuration.instance.muteMessages;
-						Component messageComponent = parseComponent(sender.level(), muteMessages.cancelledMessageMute().get());
-						sender.sendSystemMessage(messageComponent);
-
-					} else if (sender.getTags().contains("suspended")) {
-						for (ServerPlayer op: getOnlineOperators()) {
-							if (op.getDisplayName().toString().equalsIgnoreCase(args[1])) {
-								op.sendSystemMessage(Component.literal("Note: The following message was sent by a suspended player. Since you have operator permission, the message wasn't cancelled."));
-								return;
-							}
-						}
-						logCancelledMessage(sender, String.join(" ", Arrays.copyOfRange(args, 2, args.length)));
-						event.setCanceled(true);
-						MuteMessages muteMessages = Configuration.instance.muteMessages;
-						Component messageComponent = parseComponent(sender.level(), muteMessages.cancelledMessageSuspend().get());
-						sender.sendSystemMessage(messageComponent);
-					}
-                } catch (CommandSyntaxException ignored) {}
-
-            } else if (cmd.equalsIgnoreCase("teammsg") || cmd.equalsIgnoreCase(("say"))) {
-				try {
-					ServerPlayer sender = event.getParseResults().getContext().getSource().getPlayerOrException();
-					if (mutedPlayersUUID.contains(sender.getStringUUID())) {
-						logCancelledMessage(sender, String.join(" ", Arrays.copyOfRange(args, 2, args.length)));
-						event.setCanceled(true);
-						MuteMessages muteMessages = Configuration.instance.muteMessages;
-						Component messageComponent = parseComponent(sender.level(), muteMessages.cancelledMessageMute().get());
-						sender.sendSystemMessage(messageComponent);
-					} else if (sender.getTags().contains("suspended")) {
-						logCancelledMessage(sender, String.join(" ", Arrays.copyOfRange(args, 2, args.length)));
-						event.setCanceled(true);
-						MuteMessages muteMessages = Configuration.instance.muteMessages;
-						Component messageComponent = parseComponent(sender.level(), muteMessages.cancelledMessageSuspend().get());
-						sender.sendSystemMessage(messageComponent);
-					}
-				} catch (CommandSyntaxException ignored) {}
-			}
-		}
-	}
-
-	private static void logCancelledMessage(ServerPlayer player, String message) {
-		final String logMessage = "[CANCELLED] <" + player.getDisplayName() + "> " + message;
-		LOGGER.info(logMessage);
-
-		for (ServerPlayer p: getOnlineOperators()) {
-			p.sendSystemMessage(Component.literal(logMessage));
-		}
-	}
-
-	private static List<ServerPlayer> getOnlineOperators() {
+	public static List<ServerPlayer> getOnlineOperators() {
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 
 		List<ServerPlayer> onlinePlayers = server.getPlayerList().getPlayers();
@@ -234,43 +125,12 @@ public class SCServerUtils {
 				.collect(Collectors.toList());
 	}
 
-	@SubscribeEvent
-	public static void onServerStarted(ServerStartedEvent event) {
-		Path serverPath = event.getServer().getServerDirectory();
-		playerDataManager = new PlayerDataManager(serverPath);
-		for (PlayerMuteData playerData: playerDataManager.getEntries()) {
-			mutedPlayersUUID.add(playerData.uuid);
-		}
+	public static void logCancelledMessage(ServerPlayer player, String message) {
+		final String logMessage = "[CANCELLED] <" + player.getDisplayName() + "> " + message;
+		LOGGER.info(logMessage);
 
-	}
-
-	@SubscribeEvent
-	public static void onServerStopping(ServerStoppingEvent event) {
-		if (playerDataManager != null) {
-			playerDataManager.save();
-		}
-	}
-
-	@SubscribeEvent
-	public static void onWorldSave(LevelEvent.Save event) {
-		if (event.getLevel() instanceof ServerLevel && ((ServerLevel) event.getLevel()).dimension() == Level.OVERWORLD) {
-			if (playerDataManager != null) {
-				playerDataManager.save();
-			}
-		}
-	}
-
-	@SubscribeEvent
-	public static void onBlockPlace(BlockEvent.EntityPlaceEvent event) {
-		if (event.getEntity() instanceof ServerPlayer) {
-			ServerPlayer p = (ServerPlayer) event.getEntity();
-
-			if ((event.getPlacedBlock().getBlock() instanceof SignBlock) || (event.getPlacedBlock().getBlock() instanceof WallSignBlock))
-				if (p.getTags().contains("suspended") || mutedPlayersUUID.contains(p.getStringUUID())) {
-					event.setCanceled(true);
-					event.getLevel().playSound(p, event.getPos(), SoundEvents.VILLAGER_NO, SoundSource.BLOCKS, 1.0F, 1.0F);
-					logCancelledMessage(p, "[BLOCK] The placement of a sign by this muted/suspended player was canceled.");
-				}
+		for (ServerPlayer p: getOnlineOperators()) {
+			p.sendSystemMessage(Component.literal(logMessage));
 		}
 	}
 
