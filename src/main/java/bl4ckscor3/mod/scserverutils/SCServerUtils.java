@@ -22,11 +22,16 @@ import net.minecraft.server.commands.TeamMsgCommand;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.players.ServerOpList;
 import net.minecraft.server.players.ServerOpListEntry;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.parsing.packrat.commands.CommandArgumentParser;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.SignBlock;
+import net.minecraft.world.level.block.WallSignBlock;
 import net.neoforged.neoforge.event.CommandEvent;
 import net.neoforged.neoforge.event.ServerChatEvent;
+import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
@@ -252,6 +257,20 @@ public class SCServerUtils {
 			if (playerDataManager != null) {
 				playerDataManager.save();
 			}
+		}
+	}
+
+	@SubscribeEvent
+	public static void onBlockPlace(BlockEvent.EntityPlaceEvent event) {
+		if (event.getEntity() instanceof ServerPlayer) {
+			ServerPlayer p = (ServerPlayer) event.getEntity();
+
+			if ((event.getPlacedBlock().getBlock() instanceof SignBlock) || (event.getPlacedBlock().getBlock() instanceof WallSignBlock))
+				if (p.getTags().contains("suspended") || mutedPlayersUUID.contains(p.getStringUUID())) {
+					event.setCanceled(true);
+					event.getLevel().playSound(p, event.getPos(), SoundEvents.VILLAGER_NO, SoundSource.BLOCKS, 1.0F, 1.0F);
+					logCancelledMessage(p, "[BLOCK] The placement of a sign by this muted/suspended player was canceled.");
+				}
 		}
 	}
 
