@@ -62,7 +62,7 @@ public class MuteEventsHandler {
                     ServerPlayer sender = event.getParseResults().getContext().getSource().getPlayerOrException();
                     if (SCServerUtils.mutedPlayersUUID.contains(sender.getStringUUID())) {
                         for (ServerPlayer op: getOnlineOperators()) {
-                            if (op.getDisplayName().getString().equalsIgnoreCase(args[1])) {
+                            if (op.getName().getString().equalsIgnoreCase(args[1])) {
                                 op.sendSystemMessage(Component.literal("Note: The following message was sent by a muted player. Since you have operator permission, the message wasn't cancelled."));
                                 event.setCanceled(false);
                                 return;
@@ -93,13 +93,13 @@ public class MuteEventsHandler {
                 try {
                     ServerPlayer sender = event.getParseResults().getContext().getSource().getPlayerOrException();
                     if (mutedPlayersUUID.contains(sender.getStringUUID())) {
-                        logCancelledMessage(sender, String.join(" ", Arrays.copyOfRange(args, 2, args.length)));
+                        logCancelledMessage(sender, String.join(" ", Arrays.copyOfRange(args, 1, args.length)));
                         event.setCanceled(true);
                         MuteMessages muteMessages = Configuration.instance.muteMessages;
                         Component messageComponent = parseComponent(sender.level(), muteMessages.cancelledMessageMute().get());
                         sender.sendSystemMessage(messageComponent);
                     } else if (sender.getTags().contains("suspended")) {
-                        logCancelledMessage(sender, String.join(" ", Arrays.copyOfRange(args, 2, args.length)));
+                        logCancelledMessage(sender, String.join(" ", Arrays.copyOfRange(args, 1, args.length)));
                         event.setCanceled(true);
                         MuteMessages muteMessages = Configuration.instance.muteMessages;
                         Component messageComponent = parseComponent(sender.level(), muteMessages.cancelledMessageSuspend().get());
