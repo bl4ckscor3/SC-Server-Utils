@@ -62,8 +62,9 @@ public class MuteEventsHandler {
                     ServerPlayer sender = event.getParseResults().getContext().getSource().getPlayerOrException();
                     if (SCServerUtils.mutedPlayersUUID.contains(sender.getStringUUID())) {
                         for (ServerPlayer op: getOnlineOperators()) {
-                            if (op.getDisplayName().toString().equalsIgnoreCase(args[1])) {
+                            if (op.getDisplayName().getString().equalsIgnoreCase(args[1])) {
                                 op.sendSystemMessage(Component.literal("Note: The following message was sent by a muted player. Since you have operator permission, the message wasn't cancelled."));
+                                event.setCanceled(false);
                                 return;
                             }
                         }
@@ -75,7 +76,7 @@ public class MuteEventsHandler {
 
                     } else if (sender.getTags().contains("suspended")) {
                         for (ServerPlayer op: getOnlineOperators()) {
-                            if (op.getDisplayName().toString().equalsIgnoreCase(args[1])) {
+                            if (op.getDisplayName().getString().equalsIgnoreCase(args[1])) {
                                 op.sendSystemMessage(Component.literal("Note: The following message was sent by a suspended player. Since you have operator permission, the message wasn't cancelled."));
                                 return;
                             }

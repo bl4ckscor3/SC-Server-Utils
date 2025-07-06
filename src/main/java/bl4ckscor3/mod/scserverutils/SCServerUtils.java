@@ -126,7 +126,7 @@ public class SCServerUtils {
 	}
 
 	public static void logCancelledMessage(ServerPlayer player, String message) {
-		final String logMessage = "[CANCELLED] <" + player.getDisplayName() + "> " + message;
+		final String logMessage = "[CANCELLED] <" + player.getDisplayName().getString() + "> " + message;
 		LOGGER.info(logMessage);
 
 		for (ServerPlayer p: getOnlineOperators()) {
