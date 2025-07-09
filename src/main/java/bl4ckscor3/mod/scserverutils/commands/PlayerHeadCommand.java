@@ -29,7 +29,7 @@ public class PlayerHeadCommand {
 
 							head.set(DataComponents.PROFILE, new ResolvableProfile(Optional.of(ctx.getArgument("player", String.class)), Optional.empty(), new PropertyMap()));
 							player.addItem(head);
-							ctx.getSource().sendSuccess(() -> Component.litteral(ctx.getArgument("player", String.class) + "'s head given successfully.")
+
 							return 1;
 						})));
 	}
