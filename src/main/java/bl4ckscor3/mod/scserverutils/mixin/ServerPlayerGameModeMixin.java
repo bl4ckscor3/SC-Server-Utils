@@ -1,7 +1,6 @@
 package bl4ckscor3.mod.scserverutils.mixin;
 
 import org.slf4j.Logger;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,7 +17,6 @@ import net.minecraft.server.level.ServerPlayerGameMode;
 @Mixin(ServerPlayerGameMode.class)
 public class ServerPlayerGameModeMixin {
 	@Shadow
-	@Final
 	protected ServerLevel level;
 	@Shadow
 	private BlockPos destroyPos;

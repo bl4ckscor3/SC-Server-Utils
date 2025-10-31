@@ -40,6 +40,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -47,6 +48,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.ValueInput;
 import net.neoforged.fml.loading.FMLPaths;
 
 public class AreaCommand {
@@ -122,8 +125,11 @@ public class AreaCommand {
 				BlockEntity be = level.getBlockEntity(pos);
 
 				if (be != null) {
-					be.loadWithComponents(blockInfo.blockEntityTag().get(), level.registryAccess());
-					be.setChanged();
+					try (final ProblemReporter.ScopedCollector scopedCollector = new ProblemReporter.ScopedCollector(SCServerUtils.LOGGER)) {
+						final ValueInput valueInput = TagValueInput.create(scopedCollector.forChild(be.problemPath()), level.registryAccess(), blockInfo.blockEntityTag().get());
+						be.loadWithComponents(valueInput);
+						be.setChanged();
+					}
 				}
 
 				level.setBlock(pos, blockInfo.state(), 2 | 816);

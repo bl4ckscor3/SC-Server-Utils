@@ -10,7 +10,7 @@ import net.minecraft.server.commands.TeamCommand;
 
 @Mixin(TeamCommand.class)
 public class TeamCommandMixin {
-	@ModifyConstant(method = "lambda$register$0", constant = @Constant(intValue = 2))
+	@ModifyConstant(method = "register", constant = @Constant(intValue = 2))
 	private static int scserverutils$relaxTeamCommandPermission(int previousPermissionLevel) {
 		TeamPermissionLevel teamPermissionLevel = Configuration.instance.teamPermissionLevel;
 

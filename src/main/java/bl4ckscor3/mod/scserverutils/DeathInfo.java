@@ -44,10 +44,9 @@ public record DeathInfo(String uuid, Cause cause, GlobalPos position, ListTag in
 		String uuid = player.getStringUUID();
 		Cause cause = Cause.of(source);
 		GlobalPos pos = GlobalPos.of(player.level().dimension(), player.blockPosition());
-		ListTag inventory = player.getInventory().save(new ListTag());
 		Optional<BlockPos> respawnPosition = Optional.ofNullable(player.getRespawnConfig().pos());
 
-		return new DeathInfo(uuid, cause, pos, inventory, respawnPosition);
+		return new DeathInfo(uuid, cause, pos, DeathLogger.saveInventory(player.getInventory()), respawnPosition);
 	}
 
 	public static record Cause(ResourceLocation type, Optional<ResourceLocation> directEntity, Optional<ResourceLocation> causingEntity) {

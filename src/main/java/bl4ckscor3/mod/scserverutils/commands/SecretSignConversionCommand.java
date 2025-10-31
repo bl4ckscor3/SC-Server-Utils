@@ -9,6 +9,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 
+import bl4ckscor3.mod.scserverutils.SCServerUtils;
 import net.geforcemods.securitycraft.SCContent;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -18,6 +19,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.commands.FillCommand;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -26,6 +28,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.ValueInput;
 
 public class SecretSignConversionCommand {
 	private static final SimpleCommandExceptionType ERROR_FILL_FAILED = new SimpleCommandExceptionType(Component.translatableWithFallback("commands.securitycraft.convert.fill.failed", "There are no convertible blocks in the given area"));
@@ -135,8 +139,12 @@ public class SecretSignConversionCommand {
 			level.setBlockAndUpdate(pos, copyProperties(state, signMap.get(block)));
 			be = level.getBlockEntity(pos);
 
-			if (be != null)
-				be.loadWithComponents(tag, level.registryAccess());
+			if (be != null) {
+				try (final ProblemReporter.ScopedCollector scopedCollector = new ProblemReporter.ScopedCollector(SCServerUtils.LOGGER)) {
+					final ValueInput valueInput = TagValueInput.create(scopedCollector.forChild(be.problemPath()), level.registryAccess(), tag);
+					be.loadWithComponents(valueInput);
+				}
+			}
 
 			return true;
 		}

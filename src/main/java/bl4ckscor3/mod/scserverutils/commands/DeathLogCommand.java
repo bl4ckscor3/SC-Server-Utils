@@ -13,6 +13,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
+import com.mojang.datafixers.util.Pair;
 
 import bl4ckscor3.mod.scserverutils.DeathInfo;
 import bl4ckscor3.mod.scserverutils.DeathInfo.Cause;
@@ -123,8 +124,8 @@ public class DeathLogCommand {
 			CompoundTag death = DeathLogger.getDeath(relativeLogLocation);
 			Player player = EntityArgument.getPlayer(ctx, "player");
 
-			SCServerUtils.LOGGER.info("Old inventory: {}", player.getInventory().save(new ListTag()));
-			player.getInventory().load(death.getListOrEmpty("inventory"));
+			SCServerUtils.LOGGER.info("Old inventory: {}", DeathLogger.saveInventory(player.getInventory()));
+			DeathLogger.loadInventory(death.getListOrEmpty("inventory"), player.getInventory());
 			ctx.getSource().sendSuccess(() -> Component.translatable("Replaced the inventory of %s with the inventory of death %s", ChatFormatting.GRAY + player.getName().getString(), ChatFormatting.GRAY + relativeLogLocation), true);
 		}
 		catch (IOException e) {
@@ -172,11 +173,11 @@ public class DeathLogCommand {
 			//offhand
 			if (slot >= 150)
 				slot = slot - 150 + 40; //150 is the offset the slot gets saved at, and there are 36 inventory + 4 armor slots before the offhand slot
-			//armor
+				//armor
 			else if (slot >= 100)
 				slot = slot - 100 + 36; //100 is the offset the slots get saved at, and there are 36 inventory slots before the armor slots
 
-			stacks[slot] = ItemStack.parse(lookupProvider, entry).orElse(ItemStack.EMPTY);
+			stacks[slot] = ItemStack.CODEC.decode(NbtOps.INSTANCE, entry).mapOrElse(Pair::getFirst, e -> ItemStack.EMPTY);
 		}
 
 		return new SimpleContainer(stacks);
