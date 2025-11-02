@@ -1,23 +1,24 @@
 {
-  "required": true,
-  "package": "bl4ckscor3.mod.scserverutils.mixin",
-  "compatibilityLevel": "JAVA_21",
-  "refmap": "scserverutils.refmap.json",
-  "mixins": [
-    "CommonHooksMixin",
-    "DamageSourceMixin",
-    "DedicatedServerMixin",
-	"MinecraftServerAccessor",
-    "MinecraftServerMixin",
-	"PlayerRespawnLogicMixin",
-	"ServerGamePacketListenerImplMixin",
-	"ServerLevelMixin",
-	"ServerPlayerGameModeMixin",
-    "TeamCommandMixin",
-	"sc.IModuleInventoryMixin"
-  ],
-  "injectors": {
-    "defaultRequire": 1
-  },
-  "minVersion": "0.8"
+	"required": true,
+	"package": "bl4ckscor3.mod.scserverutils.mixin",
+	"compatibilityLevel": "JAVA_21",
+	"refmap": "scserverutils.refmap.json",
+	"mixins": [
+		"CommonHooksMixin",
+		"DamageSourceMixin",
+		"DedicatedServerMixin",
+		"MinecraftServerAccessor",
+		"MinecraftServerMixin",
+		"PlayerRespawnLogicMixin",
+		"ServerGamePacketListenerImplMixin",
+		"ServerLevelMixin",
+		"ServerPlayerGameModeMixin",
+		"TeamCommandMixin",
+		"sc.IModuleInventoryMixin",
+		"sdlink.ServerEventsMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"minVersion": "0.8"
 }

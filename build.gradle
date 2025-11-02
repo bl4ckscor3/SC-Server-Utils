@@ -53,6 +53,9 @@ repositories {
 
 dependencies {
     implementation "curse.maven:security-craft-64760:7148577"
+
+    implementation "curse.maven:craterlib-867099:6662981"
+    implementation "curse.maven:simple-discord-link-bot-forge-fabric-spigot-541320:6979135"
 }
 
 tasks.named('jar', Jar).configure {

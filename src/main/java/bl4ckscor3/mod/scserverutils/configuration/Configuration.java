@@ -43,6 +43,7 @@ public class Configuration {
 	public DamageSourceLanguageFallback damageSourceLanguageFallback;
 	public DeathLog deathLog;
 	public PhantomSpawns phantomSpawns;
+	public SDLink sdLink;
 	public SpawnProtection spawnProtection;
 	public SuppressDestroyMismatchLog suppressDestroyMismatchLog;
 	public TeamPermissionLevel teamPermissionLevel;
@@ -83,6 +84,11 @@ public class Configuration {
 			new DeathLog(
 				enabled(builder),
 				builder.comment("The path where death logs are saved, relative to the game directory.").define("save_path", SCServerUtils.MODID + "/death_logs"))
+		);
+		sdLink = pushPop(builder, "Simple Discord Link", "Additional settings for Simple Discord Link", () ->
+			new SDLink(
+				builder.comment("Whether to log commands sent by the server or command blocks.").define("log_server_commands", false)
+			)
 		);
 		spawnProtection = pushPop(builder, "Spawn protection", "Assorted settings regarding spawn protection", () ->
 			new SpawnProtection(
