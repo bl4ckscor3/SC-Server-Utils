@@ -8,8 +8,8 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import bl4ckscor3.mod.scserverutils.configuration.Configuration;
+import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.Dimension;
 import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.MobSpawning;
-import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.Nether;
 import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.RiftStabilizer;
 import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.SpawnProtection;
 import net.geforcemods.securitycraft.blockentities.RiftStabilizerBlockEntity.TeleportationType;
@@ -185,19 +185,24 @@ public class SpawnProtectionHandler {
 		if (verbose)
 			SCServerUtils.LOGGER.info("Spawn protection check in: {}", level.dimension());
 
-		if (level.dimension() == Level.NETHER) {
-			Nether netherSpawnProtection = Configuration.instance.spawnProtection.nether();
+		Dimension dimensionSpawnProtection = null;
 
-			if (!netherSpawnProtection.enabled().get()) {
+		if (level.dimension() == Level.NETHER)
+			dimensionSpawnProtection = Configuration.instance.spawnProtection.nether();
+		else if (level.dimension() == Level.END)
+			dimensionSpawnProtection = Configuration.instance.spawnProtection.end();
+
+		if (dimensionSpawnProtection != null) {
+			if (!dimensionSpawnProtection.enabled().get()) {
 				if (verbose)
 					SCServerUtils.LOGGER.info("Spawn protection disabled, returning false");
 
 				return false;
 			}
 
-			radius = netherSpawnProtection.radius().get();
-			xOrigin = netherSpawnProtection.xOrigin().get();
-			zOrigin = netherSpawnProtection.zOrigin().get();
+			radius = dimensionSpawnProtection.radius().get();
+			xOrigin = dimensionSpawnProtection.xOrigin().get();
+			zOrigin = dimensionSpawnProtection.zOrigin().get();
 		}
 		else if (level.dimension() == Level.OVERWORLD) {
 			BlockPos spawnPos = level.getSharedSpawnPos();
@@ -208,7 +213,7 @@ public class SpawnProtectionHandler {
 		}
 		else {
 			if (verbose)
-				SCServerUtils.LOGGER.info("Neither nether nor overworld, returning false");
+				SCServerUtils.LOGGER.info("No known dimension with spawn protection, returning false");
 
 			return false;
 		}

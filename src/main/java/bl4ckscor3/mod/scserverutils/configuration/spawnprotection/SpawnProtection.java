@@ -9,7 +9,8 @@ public record SpawnProtection(
 	Effects effects,
 	Messages messages,
 	MobSpawning mobSpawning,
-	Nether nether,
+	Dimension nether,
+	Dimension end,
 	PvpPrevention pvpPrevention,
 	RiftStabilizer riftStabilizer
 ) {}

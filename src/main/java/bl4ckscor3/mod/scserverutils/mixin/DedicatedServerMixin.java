@@ -2,13 +2,14 @@ package bl4ckscor3.mod.scserverutils.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import bl4ckscor3.mod.scserverutils.SpawnProtectionHandler;
 import bl4ckscor3.mod.scserverutils.configuration.Configuration;
-import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.Nether;
+import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.Dimension;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.dedicated.DedicatedPlayerList;
 import net.minecraft.server.dedicated.DedicatedServer;
@@ -22,14 +23,18 @@ public abstract class DedicatedServerMixin {
 	public abstract DedicatedPlayerList getPlayerList();
 
 	@Inject(method = "isUnderSpawnProtection", at = @At(value = "RETURN", ordinal = 0), cancellable = true)
-	private void scserverutils$protectNether(ServerLevel level, BlockPos pos, Player player, CallbackInfoReturnable<Boolean> cir) {
-		if (level.dimension() == Level.NETHER) {
-			Nether netherSpawnProtection = Configuration.instance.spawnProtection.nether();
+	private void scserverutils$protectDimensions(ServerLevel level, BlockPos pos, Player player, CallbackInfoReturnable<Boolean> cir) {
+		if (level.dimension() == Level.NETHER)
+			scserverutils$protectSpecificDimension(Configuration.instance.spawnProtection.nether(), level, pos, player, cir);
+		else if (level.dimension() == Level.END)
+			scserverutils$protectSpecificDimension(Configuration.instance.spawnProtection.end(), level, pos, player, cir);
+	}
 
-			if (!netherSpawnProtection.enabled().get() || getPlayerList().getOps().isEmpty() || getPlayerList().isOp(player.getGameProfile()))
-				return;
+	@Unique
+	private void scserverutils$protectSpecificDimension(Dimension dimensionConfig, ServerLevel level, BlockPos pos, Player player, CallbackInfoReturnable<Boolean> cir) {
+		if (!dimensionConfig.enabled().get() || getPlayerList().getOps().isEmpty() || getPlayerList().isOp(player.getGameProfile()))
+			return;
 
-			cir.setReturnValue(!player.getTags().contains(netherSpawnProtection.bypassTag().get()) && SpawnProtectionHandler.isInSpawnProtection(level, pos));
-		}
+		cir.setReturnValue(!player.getTags().contains(dimensionConfig.bypassTag().get()) && SpawnProtectionHandler.isInSpawnProtection(level, pos));
 	}
 }

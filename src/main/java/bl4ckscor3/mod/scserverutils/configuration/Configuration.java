@@ -19,10 +19,10 @@ import bl4ckscor3.mod.scserverutils.commands.PlayerHeadCommand;
 import bl4ckscor3.mod.scserverutils.commands.RulesCommand;
 import bl4ckscor3.mod.scserverutils.commands.SecretSignConversionCommand;
 import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.BlockBypass;
+import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.Dimension;
 import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.Effects;
 import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.Messages;
 import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.MobSpawning;
-import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.Nether;
 import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.PvpPrevention;
 import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.RiftStabilizer;
 import bl4ckscor3.mod.scserverutils.configuration.spawnprotection.SpawnProtection;
@@ -137,14 +137,8 @@ public class Configuration {
 							.comment("Entity types for which verbose logging is enabled when they try to spawn")
 							.defineList("verbose_logging_for", List.of(), () -> "", String.class::isInstance))
 				),
-				pushPop(builder, "Nether", "Adds spawn protection to the nether", () ->
-					new Nether(
-						enabled(builder),
-						builder.comment("The square radius in blocks that is under spawn protection.").defineInRange("radius", 32, 0, Integer.MAX_VALUE),
-						builder.comment("The X coordinate of the nether spawn's origin").defineInRange("x_origin", 0, Integer.MIN_VALUE, Integer.MAX_VALUE),
-						builder.comment("The Z coordinate of the nether spawn's origin").defineInRange("z_origin", 0, Integer.MIN_VALUE, Integer.MAX_VALUE),
-						builder.comment("Tag that, when added to a player, makes that player bypass nether spawn protection").define("bypass_tag", "bypasses_nether_spawn_protection"))
-				),
+				addSpawnProtectionConfig(builder, "nether", "Nether"),
+				addSpawnProtectionConfig(builder, "end", "End"),
 				pushPop(builder, "PvP prevention", "Disables pvp in spawn protection", () ->
 					new PvpPrevention(
 						enabled(builder),
@@ -221,5 +215,17 @@ public class Configuration {
 				registrar));
 			return null;
 		});
+	}
+
+	private Dimension addSpawnProtectionConfig(ModConfigSpec.Builder builder, String dimensionName, String upperCasedDimensionName) {
+		return pushPop(builder, upperCasedDimensionName, "Adds spawn protection to the " + dimensionName, () ->
+			new Dimension(
+				enabled(builder),
+				builder.comment("The square radius in blocks that is under spawn protection.").defineInRange("radius", 32, 0, Integer.MAX_VALUE),
+				builder.comment("The X coordinate of the nether spawn's origin").defineInRange("x_origin", 0, Integer.MIN_VALUE, Integer.MAX_VALUE),
+				builder.comment("The Z coordinate of the nether spawn's origin").defineInRange("z_origin", 0, Integer.MIN_VALUE, Integer.MAX_VALUE),
+				builder.comment("Tag that, when added to a player, makes that player bypass " + dimensionName + " spawn protection").define("bypass_tag", "bypasses_" + dimensionName + "_spawn_protection")
+			)
+		);
 	}
 }
