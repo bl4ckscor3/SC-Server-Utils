@@ -10,23 +10,29 @@ import net.minecraft.world.entity.EntityType;
 import net.neoforged.neoforge.common.ModConfigSpec.BooleanValue;
 import net.neoforged.neoforge.common.ModConfigSpec.ConfigValue;
 
-public record MobSpawning(BooleanValue enabled, ConfigValue<List<? extends String>> allowedSpawnTypes, ConfigValue<List<? extends String>> verboseLoggingFor) {
+@SuppressWarnings("rawtypes")
+public record MobSpawning(BooleanValue enabled, ConfigValue<List<? extends String>> allowedSpawnTypes, ConfigValue<List<? extends String>> allowedEntityTypes, ConfigValue<List<? extends String>> verboseLoggingFor) {
 	public Info resolve() {
 		//@formatter:off
 		return new Info(
-				allowedSpawnTypes.get()
-					.stream()
-					.map(EntitySpawnReason::valueOf)
-					.toList(),
-				verboseLoggingFor.get()
-					.stream()
-					.map(ResourceLocation::parse)
-					.map(BuiltInRegistries.ENTITY_TYPE::get)
-					.filter(Optional::isPresent)
-					.map(EntityType.class::cast)
-					.toList());
+			allowedSpawnTypes.get()
+				.stream()
+				.map(EntitySpawnReason::valueOf)
+				.toList(),
+			getEntityTypeList(allowedEntityTypes),
+			getEntityTypeList(verboseLoggingFor)
+		);
 	}
 
-	@SuppressWarnings("rawtypes")
-	public record Info(List<EntitySpawnReason> allowedSpawnTypes, List<EntityType> verboseLoggingFor) {}
+	private static List<EntityType> getEntityTypeList(ConfigValue<List<? extends String>> configValue) {
+		return configValue.get()
+			.stream()
+			.map(ResourceLocation::parse)
+			.map(BuiltInRegistries.ENTITY_TYPE::get)
+			.filter(Optional::isPresent)
+			.map(EntityType.class::cast)
+			.toList();
+	}
+
+	public record Info(List<EntitySpawnReason> allowedSpawnTypes, List<EntityType> allowedEntityTypes, List<EntityType> verboseLoggingFor) {}
 }

@@ -134,6 +134,9 @@ public class Configuration {
 								() -> "",
 								String.class::isInstance),
 						builder
+							.comment("Entity types that are allowed to spawn within spawn protection")
+							.defineList("allowed_entity_types", List.of(), () -> "", String.class::isInstance),
+						builder
 							.comment("Entity types for which verbose logging is enabled when they try to spawn")
 							.defineList("verbose_logging_for", List.of(), () -> "", String.class::isInstance))
 				),

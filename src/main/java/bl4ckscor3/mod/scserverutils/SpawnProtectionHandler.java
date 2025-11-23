@@ -23,6 +23,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.parsing.packrat.commands.CommandArgumentParser;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -39,7 +41,7 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 public class SpawnProtectionHandler {
 	public static final String IN_SPAWN_PROTECTION_TAG = "in_spawn_protection";
 	private static List<Supplier<MobEffectInstance>> effects = new ArrayList<>();
-	private static MobSpawning.Info spawnInfo = new MobSpawning.Info(List.of(), List.of());
+	private static MobSpawning.Info spawnInfo = new MobSpawning.Info(List.of(), List.of(), List.of());
 
 	public static void addListeners(IEventBus modEventBus) {
 		SpawnProtection spawnProtection = Configuration.instance.spawnProtection;
@@ -126,22 +128,33 @@ public class SpawnProtectionHandler {
 
 	private static void onFinalizeSpawn(FinalizeSpawnEvent event) {
 		ServerLevel level = event.getLevel().getLevel();
-		boolean verbose = spawnInfo.verboseLoggingFor().contains(event.getEntity().getType());
+		Mob entity = event.getEntity();
+		EntityType<?> entityType = entity.getType();
+		boolean allowedSpawnType = spawnInfo.allowedSpawnTypes().contains(event.getSpawnType());
+		boolean allowedEntityType = spawnInfo.allowedEntityTypes().contains(entityType);
+		boolean verbose = spawnInfo.verboseLoggingFor().contains(entityType);
+		BlockPos spawnAt = BlockPos.containing(event.getX(), event.getY(), event.getZ());
 
 		if (verbose) {
 			SCServerUtils.LOGGER.info("Spawn type: {}", event.getSpawnType());
-			SCServerUtils.LOGGER.info("Is spawn type disallowed: {}", !spawnInfo.allowedSpawnTypes().contains(event.getSpawnType()));
-			SCServerUtils.LOGGER.info("Entity spawns at {}", BlockPos.containing(event.getX(), event.getY(), event.getZ()));
+			SCServerUtils.LOGGER.info("Is spawn type allowed: {}", allowedSpawnType);
+			SCServerUtils.LOGGER.info("Entity to spawn: {}", entity);
+			SCServerUtils.LOGGER.info("Entity spawns at {}", spawnAt);
+			SCServerUtils.LOGGER.info("Is entity type allowed: {}", allowedEntityType);
 		}
 
-		if (isInSpawnProtection(level, BlockPos.containing(event.getX(), event.getY(), event.getZ()), verbose) && !spawnInfo.allowedSpawnTypes().contains(event.getSpawnType())) {
-			if (verbose)
-				SCServerUtils.LOGGER.info("Cancelling spawn");
+		if (isInSpawnProtection(level, spawnAt, verbose)) {
+			if (!allowedSpawnType && !allowedEntityType) {
+				if (verbose)
+					SCServerUtils.LOGGER.info("Cancelling spawn");
 
-			event.setSpawnCancelled(true);
-			event.setCanceled(true);
+				event.setSpawnCancelled(true);
+				event.setCanceled(true);
+				return;
+			}
 		}
-		else if (verbose)
+
+		if (verbose)
 			SCServerUtils.LOGGER.info("Not cancelling spawn");
 	}
 
