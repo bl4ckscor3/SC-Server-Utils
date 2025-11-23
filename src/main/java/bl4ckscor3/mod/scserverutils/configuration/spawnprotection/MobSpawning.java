@@ -1,7 +1,7 @@
 package bl4ckscor3.mod.scserverutils.configuration.spawnprotection;
 
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -22,7 +22,7 @@ public record MobSpawning(BooleanValue enabled, ConfigValue<List<? extends Strin
 					.stream()
 					.map(ResourceLocation::parse)
 					.map(BuiltInRegistries.ENTITY_TYPE::get)
-					.filter(Objects::nonNull)
+					.filter(Optional::isPresent)
 					.map(EntityType.class::cast)
 					.toList());
 	}
