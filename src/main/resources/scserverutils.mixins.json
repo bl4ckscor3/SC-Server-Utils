@@ -7,6 +7,7 @@
 		"CommonHooksMixin",
 		"DamageSourceMixin",
 		"DedicatedServerMixin",
+		"EntityMixin",
 		"MinecraftServerAccessor",
 		"MinecraftServerMixin",
 		"PlayerRespawnLogicMixin",

@@ -94,6 +94,8 @@ public class Configuration {
 			new SpawnProtection(
 				builder.comment("Disables snow accumulation in spawn protection").define("no_snow", true),
 				builder.comment("Enables respecting the y position of the spawn location").define("respect_spawn_y", true),
+				builder.comment("Entity types that ignore if  \"respect_spawn_y\" is set to true")
+					.defineList("ignored_entity_types", List.of(), () -> "", String.class::isInstance),
 				pushPop(builder, "Block bypass", "Blocks that players will be able to rightclick in spawn protection", () ->
 					new BlockBypass(
 						enabled(builder),

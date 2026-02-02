@@ -1,10 +1,13 @@
 package bl4ckscor3.mod.scserverutils.configuration.spawnprotection;
 
+import java.util.List;
+
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 public record SpawnProtection(
 	ModConfigSpec.BooleanValue noSnow,
 	ModConfigSpec.BooleanValue spawnLocationY,
+	ModConfigSpec.ConfigValue<List<? extends String>> ignoredEntityTypes,
 	BlockBypass blockBypass,
 	Effects effects,
 	Messages messages,
