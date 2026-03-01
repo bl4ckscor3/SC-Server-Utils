@@ -32,7 +32,7 @@ public abstract class DedicatedServerMixin {
 
 	@Unique
 	private void scserverutils$protectSpecificDimension(Dimension dimensionConfig, ServerLevel level, BlockPos pos, Player player, CallbackInfoReturnable<Boolean> cir) {
-		if (!dimensionConfig.enabled().get() || getPlayerList().getOps().isEmpty() || getPlayerList().isOp(player.getGameProfile()))
+		if (!dimensionConfig.enabled().get() || getPlayerList().getOps().isEmpty() || getPlayerList().isOp(player.nameAndId()))
 			return;
 
 		cir.setReturnValue(!player.getTags().contains(dimensionConfig.bypassTag().get()) && SpawnProtectionHandler.isInSpawnProtection(level, pos));

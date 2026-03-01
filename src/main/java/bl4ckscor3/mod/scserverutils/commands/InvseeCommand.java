@@ -2,7 +2,6 @@ package bl4ckscor3.mod.scserverutils.commands;
 
 import java.util.Collection;
 
-import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
 
 import net.minecraft.commands.CommandSourceStack;
@@ -10,6 +9,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.GameProfileArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.NameAndId;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -30,12 +30,12 @@ public class InvseeCommand {
 							//@formatter:on
 							CommandSourceStack cmdSource = ctx.getSource();
 							ServerPlayer source = cmdSource.getPlayerOrException();
-							Collection<GameProfile> profiles = GameProfileArgument.getGameProfiles(ctx, "player");
+							Collection<NameAndId> profiles = GameProfileArgument.getGameProfiles(ctx, "player");
 
 							if (!profiles.isEmpty()) {
-								GameProfile targetProfile = profiles.iterator().next();
-								ServerPlayer target = source.getServer().getPlayerList().getPlayer(targetProfile.getId());
-								String targetName = targetProfile.getName();
+								NameAndId targetProfile = profiles.iterator().next();
+								ServerPlayer target = source.level().getServer().getPlayerList().getPlayer(targetProfile.id());
+								String targetName = targetProfile.name();
 
 								targetName += targetName.endsWith("s") ? "'" : "'s";
 

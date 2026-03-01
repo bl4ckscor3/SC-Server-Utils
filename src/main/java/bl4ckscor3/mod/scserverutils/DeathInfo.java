@@ -15,6 +15,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.level.storage.LevelData;
 
 public record DeathInfo(String uuid, Cause cause, GlobalPos position, ListTag inventory, Optional<BlockPos> respawnPosition) {
 
@@ -44,7 +45,7 @@ public record DeathInfo(String uuid, Cause cause, GlobalPos position, ListTag in
 		String uuid = player.getStringUUID();
 		Cause cause = Cause.of(source);
 		GlobalPos pos = GlobalPos.of(player.level().dimension(), player.blockPosition());
-		Optional<BlockPos> respawnPosition = Optional.ofNullable(player.getRespawnConfig().pos());
+		Optional<BlockPos> respawnPosition = Optional.ofNullable(player.getRespawnConfig()).map(ServerPlayer.RespawnConfig::respawnData).map(LevelData.RespawnData::pos);
 
 		return new DeathInfo(uuid, cause, pos, DeathLogger.saveInventory(player.getInventory()), respawnPosition);
 	}

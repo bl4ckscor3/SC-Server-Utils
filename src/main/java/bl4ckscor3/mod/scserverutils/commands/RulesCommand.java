@@ -23,7 +23,7 @@ public class RulesCommand {
 				.executes(ctx -> {
 					//@formatter:on
 					ServerPlayer player = ctx.getSource().getPlayerOrException();
-					Scoreboard scoreboard = player.getScoreboard();
+					Scoreboard scoreboard = player.level().getScoreboard();
 
 					scoreboard.getOrCreatePlayerScore(player, scoreboard.getObjective("rules")).increment();
 					return 0;

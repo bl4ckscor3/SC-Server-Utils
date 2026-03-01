@@ -18,6 +18,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.parsing.packrat.commands.CommandArgumentParser;
@@ -218,9 +219,13 @@ public class SpawnProtectionHandler {
 			zOrigin = dimensionSpawnProtection.zOrigin().get();
 		}
 		else if (level.dimension() == Level.OVERWORLD) {
-			BlockPos spawnPos = level.getSharedSpawnPos();
+			BlockPos spawnPos = level.getRespawnData().pos();
 
-			radius = level.getServer().getSpawnProtectionRadius();
+			if (level.getServer() instanceof DedicatedServer server)
+				radius = server.spawnProtectionRadius();
+			else
+				radius = 0;
+
 			xOrigin = spawnPos.getX();
 			zOrigin = spawnPos.getZ();
 		}

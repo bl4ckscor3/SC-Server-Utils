@@ -54,7 +54,7 @@ public class DeathLogger {
 	}
 
 	public static Path playerPath(Player player) {
-		return DEATH_LOGS.resolve(player.getGameProfile().getName());
+		return DEATH_LOGS.resolve(player.getGameProfile().name());
 	}
 
 	public static ListTag saveInventory(Inventory inventory) {

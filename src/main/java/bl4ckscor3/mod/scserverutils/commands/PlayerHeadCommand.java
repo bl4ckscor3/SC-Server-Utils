@@ -1,8 +1,5 @@
 package bl4ckscor3.mod.scserverutils.commands;
 
-import java.util.Optional;
-
-import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 
@@ -27,7 +24,7 @@ public class PlayerHeadCommand {
 							ServerPlayer player = ctx.getSource().getPlayerOrException();
 							ItemStack head = new ItemStack(Items.PLAYER_HEAD);
 
-							head.set(DataComponents.PROFILE, new ResolvableProfile(Optional.of(ctx.getArgument("player", String.class)), Optional.empty(), new PropertyMap()));
+							head.set(DataComponents.PROFILE, ResolvableProfile.createUnresolved(ctx.getArgument("player", String.class)));
 							player.addItem(head);
 							return 1;
 						})));

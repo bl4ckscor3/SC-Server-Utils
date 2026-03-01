@@ -23,7 +23,7 @@ public abstract class EntityMixin {
 		SpawnProtection spawnProtection = Configuration.instance.spawnProtection;
 
 		if (spawnProtection.spawnLocationY().get() && !spawnProtection.ignoredEntityTypes().get().contains(getType().builtInRegistryHolder().getKey().location().toString())) {
-			BlockPos spawnPos = level.getSharedSpawnPos();
+			BlockPos spawnPos = level.getRespawnData().pos();
 
 			if (spawnPos.getX() == pos.getX() && spawnPos.getZ() == pos.getZ())
 				cir.setReturnValue(spawnPos.above().immutable());

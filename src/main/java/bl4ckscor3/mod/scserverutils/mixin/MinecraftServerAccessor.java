@@ -8,5 +8,5 @@ import net.minecraft.server.MinecraftServer;
 @Mixin(MinecraftServer.class)
 public interface MinecraftServerAccessor {
 	@Accessor
-	public void setTicksUntilAutosave(int ticksUntilAutosave);
+	void setTicksUntilAutosave(int ticksUntilAutosave);
 }
