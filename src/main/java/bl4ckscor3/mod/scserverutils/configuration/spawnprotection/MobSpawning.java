@@ -11,7 +11,7 @@ import net.neoforged.neoforge.common.ModConfigSpec.BooleanValue;
 import net.neoforged.neoforge.common.ModConfigSpec.ConfigValue;
 
 @SuppressWarnings("rawtypes")
-public record MobSpawning(BooleanValue enabled, ConfigValue<List<? extends String>> allowedSpawnTypes, ConfigValue<List<? extends String>> allowedEntityTypes, ConfigValue<List<? extends String>> verboseLoggingFor) {
+public record MobSpawning(BooleanValue enabled, ConfigValue<? extends String> bypassTag, ConfigValue<List<? extends String>> allowedSpawnTypes, ConfigValue<List<? extends String>> allowedEntityTypes, ConfigValue<List<? extends String>> verboseLoggingFor) {
 	public Info resolve() {
 		//@formatter:off
 		return new Info(
@@ -19,6 +19,7 @@ public record MobSpawning(BooleanValue enabled, ConfigValue<List<? extends Strin
 				.stream()
 				.map(EntitySpawnReason::valueOf)
 				.toList(),
+			bypassTag.get(),
 			getEntityTypeList(allowedEntityTypes),
 			getEntityTypeList(verboseLoggingFor)
 		);
@@ -34,5 +35,5 @@ public record MobSpawning(BooleanValue enabled, ConfigValue<List<? extends Strin
 			.toList();
 	}
 
-	public record Info(List<EntitySpawnReason> allowedSpawnTypes, List<EntityType> allowedEntityTypes, List<EntityType> verboseLoggingFor) {}
+	public record Info(List<EntitySpawnReason> allowedSpawnTypes, String bypassTag, List<EntityType> allowedEntityTypes, List<EntityType> verboseLoggingFor) {}
 }

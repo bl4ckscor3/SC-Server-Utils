@@ -122,6 +122,9 @@ public class Configuration {
 					new MobSpawning(
 						enabled(builder),
 						builder
+							.comment("Entities that have this tag will be allowed to spawn even if they would otherwise be disallowed")
+							.define("bypass_tag", () -> "bypasses_spawn_protection", String.class::isInstance),
+						builder
 							.comment("Types of mob spawns that are allowed to spawn a mob within spawn protection. Allowed values:",
 								Arrays.stream(EntitySpawnReason.values()).map(Enum::name).toList().toString())
 							.defineList("allowed_reasons",

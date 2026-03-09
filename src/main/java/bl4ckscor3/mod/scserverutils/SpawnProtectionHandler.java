@@ -42,7 +42,7 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 public class SpawnProtectionHandler {
 	public static final String IN_SPAWN_PROTECTION_TAG = "in_spawn_protection";
 	private static List<Supplier<MobEffectInstance>> effects = new ArrayList<>();
-	private static MobSpawning.Info spawnInfo = new MobSpawning.Info(List.of(), List.of(), List.of());
+	private static MobSpawning.Info spawnInfo = new MobSpawning.Info(List.of(), "", List.of(), List.of());
 
 	public static void addListeners(IEventBus modEventBus) {
 		SpawnProtection spawnProtection = Configuration.instance.spawnProtection;
@@ -131,6 +131,7 @@ public class SpawnProtectionHandler {
 		ServerLevel level = event.getLevel().getLevel();
 		Mob entity = event.getEntity();
 		EntityType<?> entityType = entity.getType();
+		boolean hasBypassTag = entity.getTags().contains(spawnInfo.bypassTag());
 		boolean allowedSpawnType = spawnInfo.allowedSpawnTypes().contains(event.getSpawnType());
 		boolean allowedEntityType = spawnInfo.allowedEntityTypes().contains(entityType);
 		boolean verbose = spawnInfo.verboseLoggingFor().contains(entityType);
@@ -142,9 +143,10 @@ public class SpawnProtectionHandler {
 			SCServerUtils.LOGGER.info("Entity to spawn: {}", entity);
 			SCServerUtils.LOGGER.info("Entity spawns at {}", spawnAt);
 			SCServerUtils.LOGGER.info("Is entity type allowed: {}", allowedEntityType);
+			SCServerUtils.LOGGER.info("Has bypass tag: {}", hasBypassTag);
 		}
 
-		if (isInSpawnProtection(level, spawnAt, verbose)) {
+		if (!hasBypassTag && isInSpawnProtection(level, spawnAt, verbose)) {
 			if (!allowedSpawnType && !allowedEntityType) {
 				if (verbose)
 					SCServerUtils.LOGGER.info("Cancelling spawn");
