@@ -8,6 +8,7 @@ public record SpawnProtection(
 	ModConfigSpec.BooleanValue noSnow,
 	ModConfigSpec.BooleanValue spawnLocationY,
 	ModConfigSpec.ConfigValue<List<? extends String>> ignoredEntityTypes,
+	ModConfigSpec.BooleanValue mobGriefing,
 	BlockBypass blockBypass,
 	Effects effects,
 	Messages messages,

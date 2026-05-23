@@ -96,6 +96,7 @@ public class Configuration {
 				builder.comment("Enables respecting the y position of the spawn location").define("respect_spawn_y", true),
 				builder.comment("Entity types that ignore if  \"respect_spawn_y\" is set to true")
 					.defineList("ignored_entity_types", List.of(), () -> "", String.class::isInstance),
+				builder.comment("Whether mob griefing is enabled in spawn protection").define("mob_griefing", false),
 				pushPop(builder, "Block bypass", "Blocks that players will be able to rightclick in spawn protection", () ->
 					new BlockBypass(
 						enabled(builder),

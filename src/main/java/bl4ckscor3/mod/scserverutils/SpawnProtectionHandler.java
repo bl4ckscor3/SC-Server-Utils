@@ -33,10 +33,12 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.common.ModConfigSpec.ConfigValue;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.EntityMobGriefingEvent;
 import net.neoforged.neoforge.event.entity.EntityTeleportEvent;
 import net.neoforged.neoforge.event.entity.EntityTravelToDimensionEvent;
 import net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.neoforged.neoforge.event.level.ExplosionEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 public class SpawnProtectionHandler {
@@ -69,6 +71,9 @@ public class SpawnProtectionHandler {
 
 		if (spawnProtection.riftStabilizer().enabled().get())
 			NeoForge.EVENT_BUS.addListener(SpawnProtectionHandler::onEntityTeleport);
+
+		NeoForge.EVENT_BUS.addListener(SpawnProtectionHandler::onEntityMobGriefing);
+		NeoForge.EVENT_BUS.addListener(SpawnProtectionHandler::onExplosionDetonate);
 	}
 
 	private static void onLivingIncomingDamage(LivingIncomingDamageEvent event) {
@@ -179,6 +184,28 @@ public class SpawnProtectionHandler {
 
 			event.setCanceled(true);
 		}
+	}
+
+	private static void onEntityMobGriefing(EntityMobGriefingEvent event) {
+		Entity entity = event.getEntity();
+
+		if (isInSpawnProtection(entity.level(), entity.blockPosition()) && event.canGrief())
+			event.setCanGrief(Configuration.instance.spawnProtection.mobGriefing().get());
+	}
+
+	private static void onExplosionDetonate(ExplosionEvent.Detonate event) {
+		if (Configuration.instance.spawnProtection.mobGriefing().get())
+			return;
+
+		Level level = event.getLevel();
+		List<BlockPos> toRemove = new ArrayList<>();
+
+		for (BlockPos pos : event.getAffectedBlocks()) {
+			if (isInSpawnProtection(level, pos))
+				toRemove.add(pos);
+		}
+
+		event.getAffectedBlocks().removeAll(toRemove);
 	}
 
 	private static boolean disallowTeleport(EntityTeleportEvent event, Level level, Vec3 posToCheck, ConfigValue<List<? extends String>> disallowedTeleportationTypes) {
