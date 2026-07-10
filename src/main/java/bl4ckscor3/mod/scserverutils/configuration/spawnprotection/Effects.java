@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
 
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.neoforged.neoforge.common.ModConfigSpec.BooleanValue;
 import net.neoforged.neoforge.common.ModConfigSpec.ConfigValue;
@@ -17,6 +17,7 @@ import net.neoforged.neoforge.common.ModConfigSpec.ConfigValue;
 public record Effects(BooleanValue enabled, ConfigValue<List<? extends String>> effects, BooleanValue inNether) {
 
 	private static final Logger LOGGER = LogUtils.getLogger();
+
 	public List<Supplier<MobEffectInstance>> resolve() {
 		List<Supplier<MobEffectInstance>> resolvedEffects = new ArrayList<>();
 
@@ -28,7 +29,7 @@ public record Effects(BooleanValue enabled, ConfigValue<List<? extends String>> 
 				int amplifier = Integer.parseInt(split[2]);
 
 				if (validateValue(duration, entry, -1) && validateValue(amplifier, entry, 1)) {
-					ResourceLocation effectLocation = ResourceLocation.parse(split[0]);
+					Identifier effectLocation = Identifier.parse(split[0]);
 
 					if (!BuiltInRegistries.MOB_EFFECT.containsKey(effectLocation)) {
 						LOGGER.warn("Effect \"{}\" does not exist, skipping", effectLocation);

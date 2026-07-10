@@ -13,7 +13,7 @@ import net.geforcemods.securitycraft.SCContent;
 import net.geforcemods.securitycraft.api.IModuleInventory;
 import net.geforcemods.securitycraft.components.ListModuleData;
 import net.geforcemods.securitycraft.misc.ModuleType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.ServerAdvancementManager;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -54,7 +54,7 @@ public interface IModuleInventoryMixin {
 			boolean hasAnyAdvancement = listModuleData.players()
 					.stream()
 					.filter(playerName -> playerName.contains(":"))
-					.map(ResourceLocation::parse)
+					.map(Identifier::parse)
 					.map(advancementManager::get)
 					.filter(Objects::nonNull)
 					.anyMatch(advancement -> player.getAdvancements().getOrStartProgress(advancement).isDone());

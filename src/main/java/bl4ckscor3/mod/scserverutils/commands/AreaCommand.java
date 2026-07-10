@@ -25,7 +25,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.commands.arguments.IdentifierArgument;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
@@ -38,7 +38,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.level.GameRules;
@@ -73,18 +73,18 @@ public class AreaCommand {
 		//@formatter:off
 		dispatcher.register(Commands.literal("area")
 				.requires(commandSource -> commandSource.hasPermission(permissionLevel))
-				.then(Commands.argument("id", ResourceLocationArgument.id())
+				.then(Commands.argument("id", IdentifierArgument.id())
 						.suggests(AREAS)
 						.then(Commands.literal("export")
 								.then(Commands.argument("from", BlockPosArgument.blockPos())
 										.then(Commands.argument("to", BlockPosArgument.blockPos())
-												.executes(c -> exportArea(c.getSource(), BlockPosArgument.getLoadedBlockPos(c, "from"), BlockPosArgument.getLoadedBlockPos(c, "to"), ResourceLocationArgument.getId(c, "id"))))))
+												.executes(c -> exportArea(c.getSource(), BlockPosArgument.getLoadedBlockPos(c, "from"), BlockPosArgument.getLoadedBlockPos(c, "to"), IdentifierArgument.getId(c, "id"))))))
 						.then(Commands.literal("import")
-								.executes(c -> importArea(c.getSource(), ResourceLocationArgument.getId(c, "id"))))));
+								.executes(c -> importArea(c.getSource(), IdentifierArgument.getId(c, "id"))))));
 		//@formatter:on
 	}
 
-	private static int importArea(CommandSourceStack source, ResourceLocation id) throws CommandSyntaxException {
+	private static int importArea(CommandSourceStack source, Identifier id) throws CommandSyntaxException {
 		CompoundTag tag;
 
 		try {
@@ -137,14 +137,14 @@ public class AreaCommand {
 
 			GlobalPos origin = area.origin();
 			BlockPos pos = origin.pos();
-			ResourceLocation dimension = origin.dimension().location();
+			Identifier dimension = origin.dimension().identifier();
 
 			source.sendSuccess(() -> Component.literal("Imported area and placed it in the world at ").append(Component.literal(pos.toShortString() + " in " + dimension).setStyle(Style.EMPTY.withClickEvent(new ClickEvent.SuggestCommand("/execute in " + dimension + " run tp @s " + pos.getX() + " " + pos.getY() + " " + pos.getZ())).withColor(ChatFormatting.GREEN))), true);
 		});
 		return 1;
 	}
 
-	private static int exportArea(CommandSourceStack source, BlockPos from, BlockPos to, ResourceLocation id) throws CommandSyntaxException {
+	private static int exportArea(CommandSourceStack source, BlockPos from, BlockPos to, Identifier id) throws CommandSyntaxException {
 		ServerLevel level = source.getLevel();
 		BoundingBox area = BoundingBox.fromCorners(from, to);
 		int blockCount = area.getXSpan() * area.getYSpan() * area.getZSpan();

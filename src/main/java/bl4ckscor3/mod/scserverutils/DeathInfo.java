@@ -12,7 +12,7 @@ import net.minecraft.core.GlobalPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.level.storage.LevelData;
@@ -50,19 +50,19 @@ public record DeathInfo(String uuid, Cause cause, GlobalPos position, ListTag in
 		return new DeathInfo(uuid, cause, pos, DeathLogger.saveInventory(player.getInventory()), respawnPosition);
 	}
 
-	public static record Cause(ResourceLocation type, Optional<ResourceLocation> directEntity, Optional<ResourceLocation> causingEntity) {
+	public static record Cause(Identifier type, Optional<Identifier> directEntity, Optional<Identifier> causingEntity) {
 
 		//@formatter:off
 		public static final Codec<Cause> CODEC = RecordCodecBuilder.create(
 				instance -> instance.group(
-						ResourceLocation.CODEC.fieldOf("type").forGetter(Cause::type),
-						ResourceLocation.CODEC.optionalFieldOf("direct_entity").forGetter(Cause::directEntity),
-						ResourceLocation.CODEC.optionalFieldOf("causing_entity").forGetter(Cause::causingEntity))
+						Identifier.CODEC.fieldOf("type").forGetter(Cause::type),
+						Identifier.CODEC.optionalFieldOf("direct_entity").forGetter(Cause::directEntity),
+						Identifier.CODEC.optionalFieldOf("causing_entity").forGetter(Cause::causingEntity))
 				.apply(instance, Cause::new));
 		//@formatter:on
 		public static Cause of(DamageSource source) {
-			Optional<ResourceLocation> directEntity = Optional.empty();
-			Optional<ResourceLocation> causingEntity = Optional.empty();
+			Optional<Identifier> directEntity = Optional.empty();
+			Optional<Identifier> causingEntity = Optional.empty();
 
 			if (source.getDirectEntity() != null)
 				directEntity = Optional.of(BuiltInRegistries.ENTITY_TYPE.getKey(source.getDirectEntity().getType()));
@@ -70,7 +70,7 @@ public record DeathInfo(String uuid, Cause cause, GlobalPos position, ListTag in
 			if (source.getEntity() != null)
 				causingEntity = Optional.of(BuiltInRegistries.ENTITY_TYPE.getKey(source.getEntity().getType()));
 
-			return new Cause(source.typeHolder().unwrapKey().get().location(), directEntity, causingEntity);
+			return new Cause(source.typeHolder().unwrapKey().get().identifier(), directEntity, causingEntity);
 		}
 	}
 }

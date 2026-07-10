@@ -106,7 +106,7 @@ public class DeathLogCommand {
 			sendMessage(cmdSource, "- Type: %s", cause.type().toString());
 			cause.directEntity().ifPresent(directEntity -> sendMessage(cmdSource, "- Direct Entity: %s", directEntity.toString()));
 			cause.causingEntity().ifPresent(causingEntity -> sendMessage(cmdSource, "- Causing Entity: %s", causingEntity.toString()));
-			sendMessage(cmdSource, "Position: %s", "In " + ChatFormatting.GOLD + position.dimension().location() + ChatFormatting.GREEN + " at " + ChatFormatting.GOLD + position.pos().toShortString(), style -> clickToTeleportToPosition(style, position));
+			sendMessage(cmdSource, "Position: %s", "In " + ChatFormatting.GOLD + position.dimension().identifier() + ChatFormatting.GREEN + " at " + ChatFormatting.GOLD + position.pos().toShortString(), style -> clickToTeleportToPosition(style, position));
 			deathInfo.respawnPosition().ifPresent(respawnPosition -> sendMessage(cmdSource, "Respawn Position: %s", respawnPosition.toShortString()));
 			viewInventoryText.setStyle(viewInventoryText.getStyle().withClickEvent(new ClickEvent.RunCommand(String.format("deathlog %s view", ctx.getArgument("death", String.class)))));
 			cmdSource.sendSystemMessage(viewInventoryText);
@@ -145,7 +145,7 @@ public class DeathLogCommand {
 	}
 
 	private static Style clickToTeleportToPosition(Style style, GlobalPos pos) {
-		style = style.withClickEvent(new ClickEvent.RunCommand(String.format("execute in %s run tp @s %s", pos.dimension().location(), pos.pos().toShortString().replace(",", ""))));
+		style = style.withClickEvent(new ClickEvent.RunCommand(String.format("execute in %s run tp @s %s", pos.dimension().identifier(), pos.pos().toShortString().replace(",", ""))));
 		return style.withHoverEvent(new HoverEvent.ShowText(Component.literal("Click to teleport to this position")));
 	}
 

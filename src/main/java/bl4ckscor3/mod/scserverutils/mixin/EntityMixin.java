@@ -22,7 +22,7 @@ public abstract class EntityMixin {
 	private void scserverutils$respectY(ServerLevel level, BlockPos pos, CallbackInfoReturnable<BlockPos> cir) {
 		SpawnProtection spawnProtection = Configuration.instance.spawnProtection;
 
-		if (spawnProtection.spawnLocationY().get() && !spawnProtection.ignoredEntityTypes().get().contains(getType().builtInRegistryHolder().getKey().location().toString())) {
+		if (spawnProtection.spawnLocationY().get() && !spawnProtection.ignoredEntityTypes().get().contains(getType().builtInRegistryHolder().getKey().identifier().toString())) {
 			BlockPos spawnPos = level.getRespawnData().pos();
 
 			if (spawnPos.getX() == pos.getX() && spawnPos.getZ() == pos.getZ())

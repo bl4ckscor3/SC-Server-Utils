@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.neoforged.neoforge.common.ModConfigSpec.BooleanValue;
@@ -29,7 +29,7 @@ public record MobSpawning(BooleanValue enabled, ConfigValue<? extends String> by
 	private static List<? extends EntityType<?>> getEntityTypeList(ConfigValue<List<? extends String>> configValue) {
 		return configValue.get()
 			.stream()
-			.map(ResourceLocation::parse)
+			.map(Identifier::parse)
 			.map(BuiltInRegistries.ENTITY_TYPE::get)
 			.filter(Optional::isPresent)
 			.map(Optional::get)
