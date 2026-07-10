@@ -3,6 +3,7 @@ package bl4ckscor3.mod.scserverutils.commands;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 
+import bl4ckscor3.mod.scserverutils.SCServerUtils;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.component.DataComponents;
@@ -17,7 +18,7 @@ public class PlayerHeadCommand {
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher, int permissionLevel) {
 		//@formatter:off
 		dispatcher.register(Commands.literal("playerhead")
-				.requires(commandSource -> commandSource.hasPermission(permissionLevel))
+				.requires(SCServerUtils.getPermissionCheckFromLevel(permissionLevel))
 				.then(Commands.argument("player", StringArgumentType.word())
 						.executes(ctx -> {
 							//@formatter:on

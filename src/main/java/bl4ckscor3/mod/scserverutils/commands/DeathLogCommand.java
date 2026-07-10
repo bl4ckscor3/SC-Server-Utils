@@ -59,7 +59,7 @@ public class DeathLogCommand {
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher, int permissionLevel) {
 		//@formatter:off
 		dispatcher.register(Commands.literal("deathlog")
-				.requires(commandSource -> commandSource.hasPermission(permissionLevel))
+				.requires(SCServerUtils.getPermissionCheckFromLevel(permissionLevel))
 				.then(Commands.argument("death", StringArgumentType.word())
 						.suggests(DEATHS)
 						.then(Commands.literal("view")

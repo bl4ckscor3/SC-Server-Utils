@@ -90,7 +90,7 @@ public class SpawnProtectionHandler {
 		Player player = event.getEntity();
 
 		if (player.level() instanceof ServerLevel level) {
-			boolean wasInSpawnProtectedArea = player.getTags().contains(IN_SPAWN_PROTECTION_TAG);
+			boolean wasInSpawnProtectedArea = player.entityTags().contains(IN_SPAWN_PROTECTION_TAG);
 			SpawnProtection spawnProtection = Configuration.instance.spawnProtection;
 
 			if (wasInSpawnProtectedArea != isInSpawnProtection(level, player.blockPosition())) {
@@ -99,7 +99,7 @@ public class SpawnProtectionHandler {
 				if (wasInSpawnProtectedArea) {
 					Component message = parseComponent(level, spawnProtection.messages().leave().get());
 
-					player.displayClientMessage(message, true);
+					player.sendOverlayMessage(message);
 					player.removeTag(IN_SPAWN_PROTECTION_TAG);
 
 					if (!isNether || spawnProtection.effects().inNether().get())
@@ -108,7 +108,7 @@ public class SpawnProtectionHandler {
 				else {
 					Component message = parseComponent(level, spawnProtection.messages().enter().get());
 
-					player.displayClientMessage(message, true);
+					player.sendOverlayMessage(message);
 					player.addTag(IN_SPAWN_PROTECTION_TAG);
 
 					if (!isNether || spawnProtection.effects().inNether().get())
@@ -119,7 +119,7 @@ public class SpawnProtectionHandler {
 	}
 
 	private static void onEntityTravelToDimension(EntityTravelToDimensionEvent event) {
-		if (event.getEntity() instanceof Player player && player.getTags().contains(IN_SPAWN_PROTECTION_TAG)) {
+		if (event.getEntity() instanceof Player player && player.entityTags().contains(IN_SPAWN_PROTECTION_TAG)) {
 			boolean isNether = event.getDimension().equals(Level.NETHER);
 			SpawnProtection spawnProtection = Configuration.instance.spawnProtection;
 
@@ -136,7 +136,7 @@ public class SpawnProtectionHandler {
 		ServerLevel level = event.getLevel().getLevel();
 		Mob entity = event.getEntity();
 		EntityType<?> entityType = entity.getType();
-		boolean hasBypassTag = entity.getTags().contains(spawnInfo.bypassTag());
+		boolean hasBypassTag = entity.entityTags().contains(spawnInfo.bypassTag());
 		boolean allowedSpawnType = spawnInfo.allowedSpawnTypes().contains(event.getSpawnType());
 		boolean allowedEntityType = spawnInfo.allowedEntityTypes().contains(entityType);
 		boolean verbose = spawnInfo.verboseLoggingFor().contains(entityType);
@@ -174,12 +174,12 @@ public class SpawnProtectionHandler {
 		if (disallowTeleport(event, level, event.getPrev(), spawnProtectionRiftStabilizer.disallowedTeleportationTypesFromSpawn())
 			|| disallowTeleport(event, level, event.getTarget(), spawnProtectionRiftStabilizer.disallowedTeleportationTypesToSpawn())) {
 			if (entity instanceof Player player) {
-				if (player.hasPermissions(spawnProtectionRiftStabilizer.bypassPermissionLevel().get()))
+				if (player.permissions().hasPermission(SCServerUtils.getPermissionFromLevel(spawnProtectionRiftStabilizer.bypassPermissionLevel().get())))
 					return;
 
 				Component message = parseComponent(level, spawnProtectionRiftStabilizer.message().get());
 
-				player.displayClientMessage(message, true);
+				player.sendOverlayMessage(message);
 			}
 
 			event.setCanceled(true);

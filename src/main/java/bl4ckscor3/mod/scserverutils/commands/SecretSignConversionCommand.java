@@ -20,13 +20,13 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.commands.FillCommand;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.ProblemReporter;
-import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.level.storage.ValueInput;
@@ -88,7 +88,7 @@ public class SecretSignConversionCommand {
 
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher, int permissionLevel) {
 		dispatcher.register(Commands.literal("secretsign")
-			.requires(ctx -> ctx.hasPermission(permissionLevel))
+			.requires(SCServerUtils.getPermissionCheckFromLevel(permissionLevel))
 			.then(Commands.literal("secret")
 				.then(Commands.argument("from", BlockPosArgument.blockPos())
 					.then(Commands.argument("to", BlockPosArgument.blockPos())
@@ -104,7 +104,7 @@ public class SecretSignConversionCommand {
 		CommandSourceStack source = ctx.getSource();
 		ServerLevel level = source.getLevel();
 		int blockCount = area.getXSpan() * area.getYSpan() * area.getZSpan();
-		int commandModificationBlockLimit = level.getGameRules().getInt(GameRules.RULE_COMMAND_MODIFICATION_BLOCK_LIMIT);
+		int commandModificationBlockLimit = level.getGameRules().get(GameRules.MAX_BLOCK_MODIFICATIONS);
 
 		if (blockCount > commandModificationBlockLimit)
 			throw FillCommand.ERROR_AREA_TOO_LARGE.create(commandModificationBlockLimit, blockCount);

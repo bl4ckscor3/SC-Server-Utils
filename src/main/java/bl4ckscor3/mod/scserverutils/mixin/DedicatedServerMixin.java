@@ -35,6 +35,6 @@ public abstract class DedicatedServerMixin {
 		if (!dimensionConfig.enabled().get() || getPlayerList().getOps().isEmpty() || getPlayerList().isOp(player.nameAndId()))
 			return;
 
-		cir.setReturnValue(!player.getTags().contains(dimensionConfig.bypassTag().get()) && SpawnProtectionHandler.isInSpawnProtection(level, pos));
+		cir.setReturnValue(!player.entityTags().contains(dimensionConfig.bypassTag().get()) && SpawnProtectionHandler.isInSpawnProtection(level, pos));
 	}
 }

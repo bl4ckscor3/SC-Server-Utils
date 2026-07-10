@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import com.mojang.brigadier.CommandDispatcher;
 
+import bl4ckscor3.mod.scserverutils.SCServerUtils;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.GameProfileArgument;
@@ -24,7 +25,7 @@ public class InvseeCommand {
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher, int permissionLevel) {
 		//@formatter:off
 		dispatcher.register(Commands.literal("invsee")
-				.requires(commandSource -> commandSource.hasPermission(permissionLevel))
+				.requires(SCServerUtils.getPermissionCheckFromLevel(permissionLevel))
 				.then(Commands.argument("player", GameProfileArgument.gameProfile())
 						.executes(ctx -> {
 							//@formatter:on

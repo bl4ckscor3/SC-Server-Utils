@@ -41,12 +41,12 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.ProblemReporter;
-import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.level.storage.ValueInput;
@@ -72,7 +72,7 @@ public class AreaCommand {
 	public static void register(final CommandDispatcher<CommandSourceStack> dispatcher, int permissionLevel) {
 		//@formatter:off
 		dispatcher.register(Commands.literal("area")
-				.requires(commandSource -> commandSource.hasPermission(permissionLevel))
+				.requires(SCServerUtils.getPermissionCheckFromLevel(permissionLevel))
 				.then(Commands.argument("id", IdentifierArgument.id())
 						.suggests(AREAS)
 						.then(Commands.literal("export")
@@ -148,7 +148,7 @@ public class AreaCommand {
 		ServerLevel level = source.getLevel();
 		BoundingBox area = BoundingBox.fromCorners(from, to);
 		int blockCount = area.getXSpan() * area.getYSpan() * area.getZSpan();
-		int maxBlocks = level.getGameRules().getInt(GameRules.RULE_COMMAND_MODIFICATION_BLOCK_LIMIT);
+		int maxBlocks = level.getGameRules().get(GameRules.MAX_BLOCK_MODIFICATIONS);
 
 		if (blockCount > maxBlocks)
 			throw ERROR_AREA_TOO_LARGE.create(maxBlocks, blockCount);

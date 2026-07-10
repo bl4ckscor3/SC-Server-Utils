@@ -18,13 +18,13 @@ authors="bl4ckscor3"
 [[dependencies.scserverutils]]
 	modId="neoforge"
 	type="required"
-	versionRange="[21.10,)"
+	versionRange="[26.1,)"
 	ordering="NONE"
 	side="BOTH"
 
 [[dependencies.scserverutils]]
 	modId="minecraft"
 	type="required"
-	versionRange="[1.21.10,)"
+	versionRange="[26.1,)"
 	ordering="NONE"
 	side="BOTH"

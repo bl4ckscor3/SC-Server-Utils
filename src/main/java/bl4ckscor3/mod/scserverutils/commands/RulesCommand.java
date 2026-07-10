@@ -3,6 +3,7 @@ package bl4ckscor3.mod.scserverutils.commands;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 
+import bl4ckscor3.mod.scserverutils.SCServerUtils;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.server.level.ServerPlayer;
@@ -19,7 +20,7 @@ public class RulesCommand {
 	private static LiteralArgumentBuilder<CommandSourceStack> alias(String name, int permissionLevel) {
 		//@formatter:off
 		return Commands.literal(name)
-				.requires(player -> player.hasPermission(permissionLevel))
+				.requires(SCServerUtils.getPermissionCheckFromLevel(permissionLevel))
 				.executes(ctx -> {
 					//@formatter:on
 					ServerPlayer player = ctx.getSource().getPlayerOrException();

@@ -12,8 +12,13 @@ import bl4ckscor3.mod.scserverutils.configuration.CustomServerLinks;
 import bl4ckscor3.mod.scserverutils.configuration.PhantomSpawns;
 import bl4ckscor3.mod.scserverutils.mixin.MinecraftServerAccessor;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 import net.minecraft.network.protocol.common.ClientboundServerLinksPacket;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permission;
+import net.minecraft.server.permissions.PermissionLevel;
+import net.minecraft.server.permissions.PermissionProviderCheck;
+import net.minecraft.server.permissions.Permissions;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -84,7 +89,27 @@ public class SCServerUtils {
 			if (phantomSpawns.disableInSpawnProtection().get() && SpawnProtectionHandler.isInSpawnProtection(player.level(), player.blockPosition()))
 				event.setPhantomsToSpawn(0);
 			else
-				event.setPhantomsToSpawn(player.level().random.nextIntBetweenInclusive(phantomSpawns.min().get(), phantomSpawns.max().get()));
+				event.setPhantomsToSpawn(player.level().getRandom().nextIntBetweenInclusive(phantomSpawns.min().get(), phantomSpawns.max().get()));
 		}
+	}
+
+	public static PermissionProviderCheck<CommandSourceStack> getPermissionCheckFromLevel(int permissionLevel) {
+		return Commands.hasPermission(switch (permissionLevel) {
+			case 1 -> Commands.LEVEL_MODERATORS;
+			case 2 -> Commands.LEVEL_GAMEMASTERS;
+			case 3 -> Commands.LEVEL_ADMINS;
+			case 4 -> Commands.LEVEL_OWNERS;
+			default -> Commands.LEVEL_ALL;
+		});
+	}
+
+	public static Permission getPermissionFromLevel(int permissionLevel) {
+		return switch (permissionLevel) {
+			case 1 -> Permissions.COMMANDS_MODERATOR;
+			case 2 -> Permissions.COMMANDS_GAMEMASTER;
+			case 3 -> Permissions.COMMANDS_ADMIN;
+			case 4 -> Permissions.COMMANDS_OWNER;
+			default -> new Permission.HasCommandLevel(PermissionLevel.ALL);
+		};
 	}
 }

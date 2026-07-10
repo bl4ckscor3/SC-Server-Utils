@@ -5,6 +5,7 @@ import java.util.Collection;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 
+import bl4ckscor3.mod.scserverutils.SCServerUtils;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.GameProfileArgument;
@@ -30,7 +31,7 @@ public class EnderchestCommand {
 	private static LiteralArgumentBuilder<CommandSourceStack> alias(String name, int permissionLevel) {
 		//@formatter:off
 		return Commands.literal(name)
-				.requires(commandSource -> commandSource.hasPermission(permissionLevel))
+				.requires(SCServerUtils.getPermissionCheckFromLevel(permissionLevel))
 				.then(Commands.argument("player", GameProfileArgument.gameProfile())
 						.executes(ctx -> {
 							//@formatter:on
