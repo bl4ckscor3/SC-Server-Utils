@@ -2,21 +2,21 @@ plugins {
     id 'java-library'
     id 'eclipse'
     id 'idea'
-	id 'net.neoforged.moddev' version '2.0.115'
+	id 'net.neoforged.moddev' version '2.0.141'
 }
 
 version = '1.24'
 group = 'bl4ckscor3.mod.scserverutils'
 
 base {
-	archivesName = 'scserverutils-1.21.10'
+	archivesName = 'scserverutils-26.1.2'
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 
 neoForge {
-	version = "21.10.64"
+	version = "26.1.2.78"
 
 	runs {
 		configureEach {
@@ -52,10 +52,10 @@ repositories {
 }
 
 dependencies {
-    implementation "curse.maven:security-craft-64760:7657612"
+    implementation "curse.maven:security-craft-64760:8336505"
 
-    implementation "curse.maven:craterlib-867099:7301755"
-    implementation "curse.maven:simple-discord-link-bot-forge-fabric-spigot-541320:7297900"
+    implementation "curse.maven:craterlib-867099:8328315"
+    implementation "curse.maven:simple-discord-link-bot-forge-fabric-spigot-541320:8328324"
 }
 
 tasks.named('jar', Jar).configure {
@@ -71,7 +71,7 @@ tasks.named('jar', Jar).configure {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
-	options.release = 21
+	options.release = 25
 }
 
 idea {
