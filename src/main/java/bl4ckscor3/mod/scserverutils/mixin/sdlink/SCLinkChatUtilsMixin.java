@@ -10,6 +10,6 @@ import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 public class SCLinkChatUtilsMixin {
 	@ModifyReturnValue(method = "applyFiltering", at = @At("TAIL"))
 	private static String scserverutils$filterParagraphSign(String original) {
-		return original.replace("$", "");
+		return original.replace("§", "");
 	}
 }
