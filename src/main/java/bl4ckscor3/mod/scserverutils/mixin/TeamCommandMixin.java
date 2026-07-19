@@ -9,14 +9,18 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import bl4ckscor3.mod.scserverutils.SCServerUtils;
 import bl4ckscor3.mod.scserverutils.configuration.Configuration;
 import bl4ckscor3.mod.scserverutils.configuration.TeamPermissionLevel;
+import net.minecraft.SharedConstants;
 import net.minecraft.server.commands.TeamCommand;
 
 @Mixin(TeamCommand.class)
 public class TeamCommandMixin {
 	@ModifyArg(method = "register", at = @At(value = "INVOKE", target = "Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;requires(Ljava/util/function/Predicate;)Lcom/mojang/brigadier/builder/ArgumentBuilder;"), index = 0)
 	private static Predicate scserverutils$relaxTeamCommandPermission(Predicate previousPermissionLevel) {
-		TeamPermissionLevel teamPermissionLevel = Configuration.instance.teamPermissionLevel;
+		if (SharedConstants.IS_RUNNING_IN_IDE) {
+			return previousPermissionLevel;
+		}
 
+		TeamPermissionLevel teamPermissionLevel = Configuration.instance.teamPermissionLevel;
 		return teamPermissionLevel.enabled().get() ? SCServerUtils.getPermissionCheckFromLevel(teamPermissionLevel.permissionLevel().get()) : previousPermissionLevel;
 	}
 }
