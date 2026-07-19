@@ -34,9 +34,7 @@ public class ServerGamePacketListenerImplMixin {
 		BlockBypass spawnProtectionBlockBypass = Configuration.instance.spawnProtection.blockBypass();
 
 		if (spawnProtectionBlockBypass.enabled().get() && SpawnProtectionHandler.isInSpawnProtection(level, pos)) {
-			String blockId = level.getBlockState(pos).typeHolder().getRegisteredName();
-
-			return spawnProtectionBlockBypass.blocks().get().contains(blockId);
+			return level.getBlockState(pos).is(BlockBypass.CAN_INTERACT_WITH_IN_SPAWN_PROTECTION);
 		}
 
 		return false;

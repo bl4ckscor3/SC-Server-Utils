@@ -14,6 +14,7 @@ import bl4ckscor3.mod.scserverutils.mixin.MinecraftServerAccessor;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.protocol.common.ClientboundServerLinksPacket;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.permissions.Permission;
 import net.minecraft.server.permissions.PermissionLevel;
@@ -111,5 +112,9 @@ public class SCServerUtils {
 			case 4 -> Permissions.COMMANDS_OWNER;
 			default -> new Permission.HasCommandLevel(PermissionLevel.ALL);
 		};
+	}
+
+	public static Identifier id(final String path) {
+		return Identifier.fromNamespaceAndPath(MODID, path);
 	}
 }

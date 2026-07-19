@@ -97,12 +97,8 @@ public class Configuration {
 				builder.comment("Entity types that ignore if  \"respect_spawn_y\" is set to true")
 					.defineList("ignored_entity_types", List.of(), () -> "", String.class::isInstance),
 				builder.comment("Whether mob griefing is enabled in spawn protection").define("mob_griefing", false),
-				pushPop(builder, "Block bypass", "Blocks that players will be able to rightclick in spawn protection", () ->
-					new BlockBypass(
-						enabled(builder),
-						builder
-							.comment("Which blocks players should be able to rightclick while in spawn protection. One entry corresponds to one block, and is formatted like a registry name, visible with F3+H")
-							.defineList("blocks", List.of("minecraft:ender_chest", "minecraft:lectern", "securitycraft:reinforced_lectern"), () -> "", String.class::isInstance))
+				pushPop(builder, "Block bypass", "Controls whether players will be able to rightclick blocks in spawn protection, that are defined in the \"#scserverutils:can_interact_with_in_spawn_protection\" block tag", () ->
+					new BlockBypass(enabled(builder))
 				),
 				pushPop(builder, "Effects", "Effects to give players in spawn protection", () ->
 					new Effects(

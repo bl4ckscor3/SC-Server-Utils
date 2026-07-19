@@ -1,8 +1,11 @@
 package bl4ckscor3.mod.scserverutils.configuration.spawnprotection;
 
-import java.util.List;
-
+import bl4ckscor3.mod.scserverutils.SCServerUtils;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.ModConfigSpec.BooleanValue;
-import net.neoforged.neoforge.common.ModConfigSpec.ConfigValue;
 
-public record BlockBypass(BooleanValue enabled, ConfigValue<List<? extends String>> blocks) {}
+public record BlockBypass(BooleanValue enabled) {
+	public static final TagKey<Block> CAN_INTERACT_WITH_IN_SPAWN_PROTECTION = TagKey.create(Registries.BLOCK, SCServerUtils.id("can_interact_with_in_spawn_protection"));
+}
