@@ -12,8 +12,8 @@ import bl4ckscor3.mod.scserverutils.configuration.Configuration;
 
 @Mixin(ServerEvents.class)
 public class ServerEventsMixin {
-	@WrapWithCondition(method = "commandEvent", at = @At(value = "INVOKE", target = "Lcom/hypherionmc/sdlink/api/messaging/discord/DiscordMessage;sendMessage()V"))
-	private boolean scserverutils$inhibitServerMessages(DiscordMessage message, @Local(name = "username") String username) {
+	@WrapWithCondition(method = "commandEvent", at = @At(value = "INVOKE", target = "Lcom/hypherionmc/sdlink/api/messaging/discord/DiscordMessage;sendMessage(Z)V"))
+	private boolean scserverutils$inhibitServerCommands(DiscordMessage message, boolean immediately, @Local(name = "username") String username) {
 		return Configuration.instance.sdLink.logServerCommands().get() || !username.equals("Server");
 	}
 }
