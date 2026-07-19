@@ -36,7 +36,6 @@ import net.neoforged.neoforge.common.ModConfigSpec.IntValue;
 public class Configuration {
 	public static final ModConfigSpec SPEC;
 	public static final Configuration instance;
-	public AdvancementAllowlists advancementAllowlists;
 	public AutosaveInterval autosaveInterval;
 	public List<CommandConfig> commands = new ArrayList<>();
 	public CustomServerLinks customServerLinks;
@@ -44,6 +43,7 @@ public class Configuration {
 	public DeathLog deathLog;
 	public PhantomSpawns phantomSpawns;
 	public SDLink sdLink;
+	public SelectorAllowlists selectorAllowlists;
 	public SpawnProtection spawnProtection;
 	public SuppressDestroyMismatchLog suppressDestroyMismatchLog;
 	public TeamPermissionLevel teamPermissionLevel;
@@ -56,7 +56,6 @@ public class Configuration {
 	}
 
 	Configuration(ModConfigSpec.Builder builder) {
-		advancementAllowlists = pushPop(builder, "Advancement-activated allowlists", "Enables allowlists to allow players who have a specific advancement by adding an advancement to its list", () -> new AdvancementAllowlists(enabled(builder)));
 		autosaveInterval = pushPop(builder, "Autosave interval", "Changes the interval at which the game automatically saves everything", () ->
 			new AutosaveInterval(
 				enabled(builder),
@@ -90,6 +89,7 @@ public class Configuration {
 				builder.comment("Whether to log commands sent by the server or command blocks.").define("log_server_commands", false)
 			)
 		);
+		selectorAllowlists = pushPop(builder, "Entity-selector-activated allowlists", "Enables allowlists to allow players match a specific entity selector by adding that selector to its list", () -> new SelectorAllowlists(enabled(builder)));
 		spawnProtection = pushPop(builder, "Spawn protection", "Assorted settings regarding spawn protection", () ->
 			new SpawnProtection(
 				builder.comment("Disables snow accumulation in spawn protection").define("no_snow", true),
