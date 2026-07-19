@@ -16,7 +16,7 @@
 		"ServerPlayerGameModeMixin",
 		"TeamCommandMixin",
 		"sc.IModuleInventoryMixin",
-		"sdlink.SCLinkChatUtilsMixin",
+		"sdlink.SDLinkChatUtilsMixin",
 		"sdlink.ServerEventsMixin"
 	],
 	"injectors": {
