@@ -53,15 +53,12 @@ repositories {
 			includeGroup "curse.maven"
 		}
 	}
-	flatDir {
-		dirs("libs")
-	}
 }
 
 dependencies {
     implementation "curse.maven:security-craft-64760:8336505"
 
-    implementation "local:craterlib-867099:8117951"
+    implementation "curse.maven:craterlib-867099:8117951"
     implementation "curse.maven:simple-discord-link-bot-forge-fabric-spigot-541320:8437065"
 }
 
