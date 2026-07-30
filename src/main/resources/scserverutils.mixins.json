@@ -16,6 +16,7 @@
 		"ServerPlayerGameModeMixin",
 		"TeamCommandMixin",
 		"sc.IModuleInventoryMixin",
+		"sc.SecureTradingStationBlockEntityMixin",
 		"sdlink.SDLinkChatUtilsMixin",
 		"sdlink.ServerEventsMixin"
 	],
