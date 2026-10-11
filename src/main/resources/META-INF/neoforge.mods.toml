@@ -1,13 +1,13 @@
 license="ARR"
 issueTrackerURL="https://discord.gg/U8DvBAW"
-displayURL="https://discord.gg/U8DvBAW"
-authors="bl4ckscor3"
 
 [[mods]]
 	modId="scserverutils"
 	version="${file.jarVersion}"
 	displayName="SC Server Utils"
 	description='''Adds player and moderator utilities for the official SecurityCraft server.'''
+	displayURL="https://discord.gg/U8DvBAW"
+	authors="bl4ckscor3"
 
 [[mixins]]
 	config="scserverutils.mixins.json"
@@ -18,13 +18,13 @@ authors="bl4ckscor3"
 [[dependencies.scserverutils]]
 	modId="neoforge"
 	type="required"
-	versionRange="[26.1,)"
+	versionRange="[26.2,)"
 	ordering="NONE"
 	side="BOTH"
 
 [[dependencies.scserverutils]]
 	modId="minecraft"
 	type="required"
-	versionRange="[26.1,)"
+	versionRange="[26.2,)"
 	ordering="NONE"
 	side="BOTH"
