@@ -13,7 +13,7 @@ import net.minecraft.server.level.ServerLevel;
 
 @Mixin(PlayerSpawnFinder.class)
 public class PlayerRespawnLogicMixin {
-	@ModifyReturnValue(method = "getOverworldRespawnPos", at = @At(value = "RETURN", ordinal = 2))
+	@ModifyReturnValue(method = "getLevelRespawnPos", at = @At(value = "RETURN", ordinal = 2))
 	private static BlockPos scserverutils$respectY(BlockPos original, ServerLevel level, int x, int z) {
 		SpawnProtection spawnProtection = Configuration.instance.spawnProtection;
 

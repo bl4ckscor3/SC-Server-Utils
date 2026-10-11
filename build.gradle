@@ -9,14 +9,14 @@ version = '1.25.1'
 group = 'bl4ckscor3.mod.scserverutils'
 
 base {
-	archivesName = 'scserverutils-26.2'
+	archivesName = 'scserverutils-26.3'
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 
 neoForge {
-	version = "26.2.0.90"
+	version = "26.3.0.76"
 
 	runs {
 		configureEach {
@@ -56,9 +56,9 @@ repositories {
 }
 
 dependencies {
-    implementation "curse.maven:security-craft-64760:8611828"
+    implementation "curse.maven:security-craft-64760:9139293"
 
-    implementation "curse.maven:craterlib-867099:8884934"
+    implementation "curse.maven:craterlib-867099:9047144"
     implementation "curse.maven:simple-discord-link-bot-forge-fabric-spigot-541320:8884966"
 }
 

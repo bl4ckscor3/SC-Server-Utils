@@ -21,7 +21,7 @@ public class ServerPlayerGameModeMixin {
 	@Shadow
 	private BlockPos destroyPos;
 
-	@WrapWithCondition(method = "handleBlockBreakAction", at = @At(value = "INVOKE", target = "Lorg/slf4j/Logger;warn(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V"))
+	@WrapWithCondition(method = "abortDestroyBlock", at = @At(value = "INVOKE", target = "Lorg/slf4j/Logger;warn(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V"))
 	private boolean scserverutils$logBlockBreakMismatch(Logger logger, String message, Object destroyPos, Object pos) {
 		SuppressDestroyMismatchLog suppressDestroyMismatchLog = Configuration.instance.suppressDestroyMismatchLog;
 

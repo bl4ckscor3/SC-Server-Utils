@@ -18,13 +18,13 @@ issueTrackerURL="https://discord.gg/U8DvBAW"
 [[dependencies.scserverutils]]
 	modId="neoforge"
 	type="required"
-	versionRange="[26.2,)"
+	versionRange="[26.3,)"
 	ordering="NONE"
 	side="BOTH"
 
 [[dependencies.scserverutils]]
 	modId="minecraft"
 	type="required"
-	versionRange="[26.2,)"
+	versionRange="[26.3,)"
 	ordering="NONE"
 	side="BOTH"
